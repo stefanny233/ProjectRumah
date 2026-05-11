@@ -9,6 +9,8 @@ import {
   MdEdit,
   MdDelete,
   MdPrint,
+  MdLocalPharmacy,
+  MdPeople,
 } from "react-icons/md";
 import {
   BarChart,
@@ -17,20 +19,18 @@ import {
   Tooltip,
   ResponsiveContainer,
   CartesianGrid,
+  YAxis,
 } from "recharts";
 
-// --- IMPORT DATA DUMMY DARI JSON ---
+// --- IMPORT DATA DUMMY ---
 import dataApotek from "../data/dataApotek.json";
 
 export default function Dashboard() {
-  // --- 1. STATE MANAGEMENT ---
   const [searchTerm, setSearchTerm] = useState("");
   const [isReportOpen, setIsReportOpen] = useState(false);
 
-  // Ambil data langsung dari file JSON
   const { obatList, chartData } = dataApotek;
 
-  // --- 2. LOGIC FILTER SEARCH ---
   const filteredObat = obatList.filter(
     (item) =>
       item.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -40,151 +40,283 @@ export default function Dashboard() {
   return (
     <div className="animate-in fade-in duration-700 pb-10">
       {/* HEADER SECTION */}
-      <PageHeader title="Dashboard Overview" breadcrumb="Dashboard">
+      <PageHeader title="Ringkasan Apotek" breadcrumb="Dashboard">
         <button
           onClick={() => setIsReportOpen(true)}
-          className="bg-white text-primary border-2 border-primary px-8 py-3.5 rounded-2xl font-bold shadow-sm hover:bg-primary hover:text-white transition-all flex items-center italic"
+          className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-emerald-100 transition-all flex items-center gap-2 text-sm"
         >
-          <MdTrendingUp className="mr-2 text-xl" /> Cetak Laporan
+          <MdPrint className="text-xl" /> Cetak Laporan
         </button>
       </PageHeader>
 
-      {/* TOP SECTION: STATS & CHART */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
-        <div className="lg:col-span-1 grid grid-cols-1 gap-4">
-          {/* Card Total Pendapatan */}
-          <div className="bg-white p-7 rounded-[2.5rem] border border-garis shadow-sm flex items-center gap-6 group hover:border-primary transition-all">
-            <div className="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center text-3xl group-hover:bg-primary group-hover:text-white transition-all">
+      {/* STATS CARDS - DESAIN ELEGAN & CLEAN */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+        {/* Card 1: Total Pendapatan */}
+        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-2xl">
               <MdAttachMoney />
             </div>
-            <div>
-              <p className="text-teks-samping text-sm font-medium">Total Pendapatan</p>
-              <h4 className="text-2xl font-extrabold text-teks">Rp 12.5M</h4>
-            </div>
+            <span className="text-emerald-500 text-xs font-bold bg-emerald-50 px-2 py-1 rounded-lg">
+              +12%
+            </span>
           </div>
-
-          {/* Card Stok Aktif */}
-          <div className="bg-white p-7 rounded-[2.5rem] border border-garis shadow-sm flex items-center gap-6 group hover:border-blue-500 transition-all">
-            <div className="w-16 h-16 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center text-3xl group-hover:bg-blue-500 group-hover:text-white transition-all">
-              <MdInventory />
-            </div>
-            <div>
-              <p className="text-teks-samping text-sm font-medium">Stok Obat Aktif</p>
-              <h4 className="text-2xl font-extrabold text-teks">1,240 unit</h4>
-            </div>
+          <div>
+            <p className="text-gray-400 text-xs font-semibold uppercase tracking-wider">
+              Total Pendapatan
+            </p>
+            <h4 className="text-2xl font-bold text-gray-800 mt-1">
+              Rp 12.500.000
+            </h4>
           </div>
         </div>
 
-        {/* Chart Section (Data unik dipertahankan) */}
-        <div className="lg:col-span-2 bg-white p-8 rounded-[2.5rem] border border-garis shadow-sm">
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h3 className="font-bold text-xl text-teks">Tren Penjualan Mingguan</h3>
-              <p className="text-xs text-teks-samping">Data update setiap jam 12 malam</p>
+        {/* Card 2: Stok Obat */}
+        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-2xl">
+              <MdLocalPharmacy />
             </div>
-            <div className="bg-emerald-50 px-4 py-2 rounded-xl text-primary font-bold text-sm flex items-center gap-2">
-              <MdTrendingUp /> +12.5%
+            <span className="text-blue-500 text-xs font-bold bg-blue-50 px-2 py-1 rounded-lg">
+              Stabil
+            </span>
+          </div>
+          <div>
+            <p className="text-gray-400 text-xs font-semibold uppercase tracking-wider">
+              Stok Obat Aktif
+            </p>
+            <h4 className="text-2xl font-bold text-gray-800 mt-1">
+              1,240{" "}
+              <span className="text-sm font-medium text-gray-400">Item</span>
+            </h4>
+          </div>
+        </div>
+
+        {/* Card 3: Pelanggan */}
+        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center text-2xl">
+              <MdPeople />
+            </div>
+            <span className="text-purple-500 text-xs font-bold bg-purple-50 px-2 py-1 rounded-lg">
+              +54
+            </span>
+          </div>
+          <div>
+            <p className="text-gray-400 text-xs font-semibold uppercase tracking-wider">
+              Total Pelanggan
+            </p>
+            <h4 className="text-2xl font-bold text-gray-800 mt-1">
+              842{" "}
+              <span className="text-sm font-medium text-gray-400">Orang</span>
+            </h4>
+          </div>
+        </div>
+
+        {/* Card 4: Inventory Value */}
+        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 bg-orange-50 text-orange-600 rounded-xl flex items-center justify-center text-2xl">
+              <MdInventory />
+            </div>
+            <span className="text-red-500 text-xs font-bold bg-red-50 px-2 py-1 rounded-lg">
+              Low Stock
+            </span>
+          </div>
+          <div>
+            <p className="text-gray-400 text-xs font-semibold uppercase tracking-wider">
+              Nilai Inventori
+            </p>
+            <h4 className="text-2xl font-bold text-gray-800 mt-1">Rp 45.2M</h4>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* TABLE SECTION (Left) */}
+        <div className="lg:col-span-2 bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="p-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+              <h3 className="text-xl font-bold text-gray-800">
+                Daftar Inventori Obat
+              </h3>
+              <p className="text-sm text-gray-400">
+                Kelola stok dan harga obat apotek
+              </p>
+            </div>
+            <div className="relative w-full md:w-80">
+              <MdSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xl" />
+              <input
+                type="text"
+                placeholder="Cari obat atau produsen..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-12 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:bg-white w-full transition-all text-sm"
+              />
             </div>
           </div>
-          <div className="h-44 w-full">
+
+          <div className="overflow-x-auto px-4 pb-4">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="text-gray-400 text-[11px] uppercase tracking-widest border-b border-gray-50">
+                  <th className="px-6 py-4 font-bold">Informasi Obat</th>
+                  <th className="px-6 py-4 font-bold">Produsen</th>
+                  <th className="px-6 py-4 font-bold">Harga Satuan</th>
+                  <th className="px-6 py-4 font-bold text-center">Aksi</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {filteredObat.length > 0 ? (
+                  filteredObat.map((item) => (
+                    <tr
+                      key={item.id}
+                      className="hover:bg-gray-50/50 transition-colors group"
+                    >
+                      <td className="px-6 py-5">
+                        <div className="flex items-center gap-4">
+                          <div
+                            className={`w-11 h-11 ${item.color} rounded-xl flex items-center justify-center font-bold text-white shadow-sm`}
+                          >
+                            {item.initial}
+                          </div>
+                          <div>
+                            <p className="font-bold text-gray-700 group-hover:text-emerald-600 transition-colors">
+                              {item.nama}
+                            </p>
+                            <p className="text-[10px] text-gray-400 uppercase tracking-tighter">
+                              ID: #{item.id}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-5">
+                        <span className="text-sm font-medium text-gray-500">
+                          {item.produsen}
+                        </span>
+                      </td>
+                      <td className="px-6 py-5">
+                        <span className="text-sm font-bold text-gray-800">
+                          Rp {item.harga.toLocaleString("id-ID")}
+                        </span>
+                      </td>
+                      <td className="px-6 py-5">
+                        <div className="flex justify-center gap-2">
+                          <button className="p-2 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all">
+                            <MdEdit size={18} />
+                          </button>
+                          <button className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all">
+                            <MdDelete size={18} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan="4"
+                      className="text-center py-20 text-gray-400 italic"
+                    >
+                      Data tidak ditemukan...
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* CHART SECTION (Right) */}
+        <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 flex flex-col">
+          <div className="mb-8">
+            <h3 className="font-bold text-lg text-gray-800">Tren Penjualan</h3>
+            <p className="text-sm text-gray-400">Statistik 7 hari terakhir</p>
+          </div>
+
+          <div className="flex-1 min-h-[250px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fill: "#94a3b8", fontSize: 12 }} />
-                <Tooltip cursor={{ fill: "#f8fafc" }} contentStyle={{ borderRadius: "15px", border: "none", boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)" }} />
-                <Bar dataKey="sales" fill="#10B981" radius={[8, 8, 8, 8]} barSize={35} />
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  vertical={false}
+                  stroke="#f8fafc"
+                />
+                <XAxis
+                  dataKey="day"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: "#cbd5e1", fontSize: 12 }}
+                />
+                <YAxis hide />
+                <Tooltip
+                  cursor={{ fill: "#f1f5f9" }}
+                  contentStyle={{
+                    borderRadius: "12px",
+                    border: "none",
+                    boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)",
+                  }}
+                />
+                <Bar
+                  dataKey="sales"
+                  fill="#059669"
+                  radius={[6, 6, 0, 0]}
+                  barSize={24}
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </div>
-      </div>
 
-      {/* BOTTOM SECTION: TABLE */}
-      <div className="bg-white rounded-[2.5rem] shadow-sm border border-garis p-8">
-        <div className="flex flex-col md:flex-row justify-between items-md-center mb-8 gap-4">
-          <h3 className="text-xl font-bold text-teks">Manajemen Stok Terbaru</h3>
-          <div className="relative group">
-            <MdSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-teks-samping text-xl group-focus-within:text-primary transition-colors" />
-            <input
-              type="text"
-              placeholder="Cari nama atau produsen..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-12 pr-6 py-3.5 bg-latar border border-transparent rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white w-full md:w-96 transition-all text-sm shadow-inner"
-            />
+          <div className="mt-8 p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
+            <div className="flex justify-between items-center">
+              <span className="text-xs font-bold text-emerald-700 uppercase">
+                Performa
+              </span>
+              <span className="text-xs font-black text-emerald-700">
+                +12.5%
+              </span>
+            </div>
+            <div className="w-full bg-emerald-200 h-1.5 rounded-full mt-2">
+              <div
+                className="bg-emerald-600 h-1.5 rounded-full"
+                style={{ width: "70%" }}
+              ></div>
+            </div>
           </div>
         </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-separate border-spacing-y-3">
-            <thead>
-              <tr className="text-xs font-bold text-teks-samping uppercase tracking-[0.2em]">
-                <th className="pb-4 pl-8 text-center">ID</th>
-                <th className="pb-4">Informasi Produk</th>
-                <th className="pb-4">Produsen</th>
-                <th className="pb-4">Harga Satuan</th>
-                <th className="pb-4 text-center">Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredObat.length > 0 ? (
-                filteredObat.map((item) => (
-                  <tr key={item.id} className="group hover:bg-latar/50 transition-all">
-                    <td className="py-5 pl-8 text-center rounded-l-[1.5rem] font-bold text-primary italic bg-latar/30">{item.id}</td>
-                    <td className="py-5 font-bold text-teks">
-                      <div className="flex items-center gap-4">
-                        <div className={`w-12 h-12 ${item.color} rounded-2xl flex items-center justify-center font-black text-lg shadow-sm`}>{item.initial}</div>
-                        <span className="group-hover:text-primary transition-colors">{item.nama}</span>
-                      </div>
-                    </td>
-                    <td className="py-5 text-teks-samping font-semibold">{item.produsen}</td>
-                    <td className="py-5 font-extrabold text-teks">Rp {item.harga.toLocaleString("id-ID")}</td>
-                    <td className="py-5 rounded-r-[1.5rem] text-center bg-latar/30">
-                      <div className="flex justify-center gap-2">
-                        <button className="p-2.5 bg-white text-primary rounded-xl shadow-sm border border-garis hover:bg-primary hover:text-white transition-all"><MdEdit size={18} /></button>
-                        <button className="p-2.5 bg-white text-red-500 rounded-xl shadow-sm border border-garis hover:bg-red-500 hover:text-white transition-all"><MdDelete size={18} /></button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="5" className="text-center py-20 italic">Obat "{searchTerm}" tidak ditemukan...</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
       </div>
 
-      {/* MODAL PREVIEW LAPORAN */}
+      {/* MODAL PREVIEW */}
       {isReportOpen && (
         <div className="fixed inset-0 z-[999] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-teks/40 backdrop-blur-md" onClick={() => setIsReportOpen(false)} />
-          <div className="relative bg-white w-full max-w-lg rounded-[3rem] overflow-hidden shadow-2xl animate-in zoom-in duration-300">
-            <div className="bg-latar p-8 border-b border-garis flex justify-between items-center">
-              <h3 className="text-2xl font-black italic">Preview Laporan</h3>
-              <button onClick={() => setIsReportOpen(false)} className="text-teks-samping hover:text-red-500"><MdClose size={28} /></button>
+          <div
+            className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm"
+            onClick={() => setIsReportOpen(false)}
+          />
+          <div className="relative bg-white w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl animate-in zoom-in duration-300">
+            <div className="p-8 border-b border-gray-50 flex justify-between items-center">
+              <h3 className="text-xl font-bold">Preview Laporan</h3>
+              <button
+                onClick={() => setIsReportOpen(false)}
+                className="text-gray-400 hover:text-red-500 transition-colors"
+              >
+                <MdClose size={24} />
+              </button>
             </div>
-            <div className="p-8 space-y-4">
-              <div className="border-2 border-dashed border-garis rounded-3xl p-6 bg-gray-50/50">
-                <div className="flex justify-between mb-4">
-                  <span className="text-sm text-teks-samping">Total Revenue</span>
-                  <span className="font-bold text-primary">Rp 12.500.000</span>
+            <div className="p-8">
+              <div className="space-y-4 mb-8">
+                <div className="flex justify-between py-2 border-b border-gray-50">
+                  <span className="text-gray-500">Periode</span>
+                  <span className="font-semibold text-gray-800">Mei 2024</span>
                 </div>
-                <div className="flex justify-between mb-4">
-                  <span className="text-sm text-teks-samping">Transaksi</span>
-                  <span className="font-bold text-teks">142 Pesanan</span>
-                </div>
-                <div className="pt-4 border-t border-garis flex justify-center italic text-[10px] text-teks-samping">
-                  Laporan otomatis tanggal: {new Date().toLocaleDateString('id-ID')}
+                <div className="flex justify-between py-2 border-b border-gray-50">
+                  <span className="text-gray-500">Total Transaksi</span>
+                  <span className="font-semibold text-gray-800">1,242</span>
                 </div>
               </div>
-              <div className="flex gap-3 mt-6">
-                <button className="flex-1 bg-primary text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-primary-hover transition-all shadow-lg shadow-emerald-100">
-                  <MdPrint size={20} /> Print PDF
-                </button>
-              </div>
+              <button className="w-full bg-emerald-600 text-white py-4 rounded-xl font-bold shadow-lg shadow-emerald-100 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2">
+                <MdPrint size={20} /> Unduh Laporan PDF
+              </button>
             </div>
           </div>
         </div>
