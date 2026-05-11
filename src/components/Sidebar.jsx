@@ -38,8 +38,7 @@ export default function Sidebar() {
     { name: "Product Damage", path: "/product/brand" },
   ];
   const stockSubMenu = [
-    { name: "Inventory Stock", path: "/stock" },
-    { name: "Stock Report", path: "/stock/report" },
+    { name: "Stock Report", path: "/stock" },
     { name: "Stock Report (Batch)", path: "/stock/report-batch" },
   ];
 
