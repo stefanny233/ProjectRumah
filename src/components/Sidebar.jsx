@@ -10,6 +10,9 @@ import {
 
 export default function Sidebar() {
   const location = useLocation();
+  const [isHROpen, setIsHROpen] = useState(
+    location.pathname.includes("/employee"),
+  );
 
   // Logic: Dropdown otomatis terbuka kalau URL mengandung kata "/product"
   const [isProductOpen, setIsProductOpen] = useState(
@@ -34,12 +37,18 @@ export default function Sidebar() {
 
   const productSubMenu = [
     { name: "Product List", path: "/product/list" },
-    { name: "Product Package", path: "/product/category" },
-    { name: "Product Damage", path: "/product/brand" },
+    { name: "Product Package", path: "/product/package" },
+    { name: "Product Damage", path: "/product/damage" },
   ];
   const stockSubMenu = [
     { name: "Stock Report", path: "/stock" },
     { name: "Stock Report (Batch)", path: "/stock/report-batch" },
+  ];
+  const hrSubMenu = [
+    { name: "Employee", path: "/employee/list" },
+    { name: "Attendance", path: "/employee/attendance" },
+    { name: "Payroll", path: "/employee/payroll" },
+    { name: "Expense", path: "/employee/expense" },
   ];
 
   return (
@@ -57,24 +66,72 @@ export default function Sidebar() {
         </p>
 
         {/* MENU UTAMA (Dashboard & Employee) */}
-        {menu.map((item) => (
+        <div className="space-y-2">
           <NavLink
-            key={item.path}
-            to={item.path}
+            to="/dashboard"
             className={({ isActive }) =>
               `flex items-center px-5 py-4 rounded-2xl transition-all duration-300 ${
                 isActive
-                  ? "bg-emerald-50 text-emerald-600 font-bold shadow-sm"
-                  : "text-gray-400 hover:bg-gray-50 hover:text-emerald-600"
+                  ? "bg-indigo-50 text-indigo-600 font-bold"
+                  : "text-gray-400 hover:bg-gray-50 hover:text-indigo-600"
               }`
             }
           >
-            <span className="text-2xl mr-4">{item.icon}</span>
+            <span className="text-2xl mr-4">
+              <MdDashboard />
+            </span>
             <span className="text-sm font-bold uppercase tracking-tight">
-              {item.name}
+              Dashboard
             </span>
           </NavLink>
-        ))}
+        </div>
+
+        {/* --- DROPDOWN HUMAN RESOURCES --- */}
+        <div className="flex flex-col">
+          <button
+            onClick={() => setIsHROpen(!isHROpen)}
+            className={`flex items-center justify-between px-5 py-4 rounded-2xl transition-all duration-300 ${
+              location.pathname.includes("/employee")
+                ? "bg-indigo-50 text-indigo-600 font-bold"
+                : "text-gray-400 hover:bg-gray-50 hover:text-indigo-600"
+            }`}
+          >
+            <div className="flex items-center">
+              <span className="text-2xl mr-4">
+                <MdPeople />
+              </span>
+              <span className="text-sm font-bold uppercase tracking-tight">
+                Employee
+              </span>
+            </div>
+            <MdExpandMore
+              className={`text-2xl transition-transform ${isHROpen ? "rotate-180" : ""}`}
+            />
+          </button>
+
+          <div
+            className={`overflow-hidden transition-all duration-500 ${isHROpen ? "max-h-80 mt-2 opacity-100" : "max-h-0 opacity-0"}`}
+          >
+            {hrSubMenu.map((sub) => (
+              <NavLink
+                key={sub.path}
+                to={sub.path}
+                className={({ isActive }) =>
+                  `flex items-center pl-14 py-3 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all ${
+                    isActive
+                      ? "text-indigo-600 italic"
+                      : "text-gray-300 hover:text-indigo-600"
+                  }`
+                }
+              >
+                <div
+                  className={`w-1.5 h-1.5 rounded-full mr-3 ${location.pathname === sub.path ? "bg-indigo-600 shadow-lg" : "bg-gray-200"}`}
+                />
+                {sub.name}
+              </NavLink>
+            ))}
+          </div>
+        </div>
 
         {/* --- DROPDOWN STOCK --- */}
         <div className="flex flex-col">
@@ -82,8 +139,8 @@ export default function Sidebar() {
             onClick={() => setIsStockOpen(!isStockOpen)}
             className={`flex items-center justify-between px-5 py-4 rounded-2xl transition-all duration-300 ${
               location.pathname.includes("/stock")
-                ? "bg-emerald-50 text-emerald-600 font-bold"
-                : "text-gray-400 hover:bg-gray-50 hover:text-emerald-600"
+                ? "bg-indigo-50 text-indigo-600 font-bold"
+                : "text-gray-400 hover:bg-gray-50 hover:text-indigo-600"
             }`}
           >
             <div className="flex items-center">
@@ -109,13 +166,13 @@ export default function Sidebar() {
                 className={({ isActive }) =>
                   `flex items-center pl-14 py-3 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all ${
                     isActive
-                      ? "text-emerald-600 italic scale-105"
-                      : "text-gray-300 hover:text-emerald-600"
+                      ? "text-indigo-600 italic scale-105"
+                      : "text-gray-300 hover:text-indigo-600"
                   }`
                 }
               >
                 <div
-                  className={`w-1.5 h-1.5 rounded-full mr-3 transition-all ${location.pathname === sub.path ? "bg-emerald-600 scale-125 shadow-lg" : "bg-gray-200"}`}
+                  className={`w-1.5 h-1.5 rounded-full mr-3 transition-all ${location.pathname === sub.path ? "bg-indigo-600 scale-125 shadow-lg" : "bg-gray-200"}`}
                 />
                 {sub.name}
               </NavLink>
@@ -129,8 +186,8 @@ export default function Sidebar() {
             onClick={() => setIsProductOpen(!isProductOpen)}
             className={`flex items-center justify-between px-5 py-4 rounded-2xl transition-all duration-300 ${
               location.pathname.includes("/product")
-                ? "bg-emerald-50 text-emerald-600 font-bold"
-                : "text-gray-400 hover:bg-gray-50 hover:text-emerald-600"
+                ? "bg-indigo-50 text-indigo-600 font-bold"
+                : "text-gray-400 hover:bg-gray-50 hover:text-indigo-600"
             }`}
           >
             <div className="flex items-center">
@@ -156,13 +213,13 @@ export default function Sidebar() {
                 className={({ isActive }) =>
                   `flex items-center pl-14 py-3 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all ${
                     isActive
-                      ? "text-emerald-600 italic scale-105"
-                      : "text-gray-300 hover:text-emerald-600"
+                      ? "text-indigo-600 italic scale-105"
+                      : "text-gray-300 hover:text-indigo-600"
                   }`
                 }
               >
                 <div
-                  className={`w-1.5 h-1.5 rounded-full mr-3 transition-all ${location.pathname === sub.path ? "bg-emerald-600 scale-125 shadow-lg" : "bg-gray-200"}`}
+                  className={`w-1.5 h-1.5 rounded-full mr-3 transition-all ${location.pathname === sub.path ? "bg-indigo-600 scale-125 shadow-lg" : "bg-gray-200"}`}
                 />
                 {sub.name}
               </NavLink>

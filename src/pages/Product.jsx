@@ -1,274 +1,384 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
-import PageHeader from "../components/PageHeader";
-import { MdAdd, MdSettings, MdMoreVert, MdClose } from "react-icons/md";
+import {
+  MdSearch,
+  MdAdd,
+  MdEdit,
+  MdDeleteOutline,
+  MdKeyboardArrowDown,
+  MdChevronLeft,
+  MdChevronRight,
+  MdClose,
+} from "react-icons/md";
 import dataApotek from "../data/dataApotek.json";
 
 export default function Product() {
-  const location = useLocation();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const itemsPerPage = 8;
+  const [activeTab, setActiveTab] = useState("Product List");
+  const [showPopup, setShowPopup] = useState(false);
+  const { products, productRacks, productDamages } = dataApotek;
+  
 
-  const { products } = dataApotek;
-
-  // Sinkronisasi Tab agar tidak Error 404
-  const getActiveTab = () => {
-    if (location.pathname.includes("/category")) return "Manage Categories";
-    if (location.pathname.includes("/brand")) return "Manage Brands";
-    return "Product List";
+  // Render content berdasarkan tab yang dipilih
+  const renderContent = () => {
+    switch (activeTab) {
+      case "Product List":
+        return (
+          <ProductListTable data={products} onAdd={() => setShowPopup(true)} />
+        );
+      case "Product Package":
+        return (
+          <ProductRackTable
+            data={productRacks}
+            onAdd={() => setShowPopup(true)}
+          />
+        );
+      case "Product Damages":
+        return (
+          <ProductDamageTable
+            data={productDamages}
+            onAdd={() => setShowPopup(true)}
+          />
+        );
+      default:
+        return null;
+    }
   };
 
-  const activeTab = getActiveTab();
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [location.pathname]);
-
-  const filteredProducts = products.filter(
-    (p) =>
-      p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.cat.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
-
-  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
-  const currentItems = filteredProducts.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage,
-  );
-
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 pb-10 relative">
-      {/* === MODAL INPUT DATA === */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-white w-full max-w-2xl rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
-            <div className="p-10">
-              <div className="flex justify-between items-center mb-8">
-                <div>
-                  <h2 className="text-3xl font-black text-gray-800 italic uppercase tracking-tighter">
-                    Add New Drug
-                  </h2>
-                  <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">
-                    Pharmacy Master Data
-                  </p>
-                </div>
-                <button
-                  onClick={() => setIsModalOpen(false)}
-                  className="p-3 bg-gray-50 text-gray-400 rounded-2xl hover:bg-red-50 hover:text-red-500 transition-all"
-                >
-                  <MdClose size={24} />
-                </button>
-              </div>
+    <div className="p-8 bg-[#F8F9FB] min-h-screen font-sans">
+      {/* 1. HEADER TABS */}
+      <div className="flex gap-2 mb-8 bg-white p-2 rounded-2xl w-fit shadow-sm border border-gray-100">
+        {["Product List", "Product Package", "Product Damages"].map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`px-8 py-3 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all ${
+              activeTab === tab
+                ? "bg-emerald-500 text-white shadow-lg shadow-emerald-100"
+                : "text-gray-400 hover:text-emerald-500"
+            }`}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
 
-              <form className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">
-                    Drug Name*
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Napa 500mg"
-                    className="w-full bg-gray-50 border-none rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-emerald-500 transition-all outline-none"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">
-                    Brand
-                  </label>
-                  <select className="w-full bg-gray-50 border-none rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-emerald-500 transition-all outline-none">
-                    <option>Select Brand</option>
-                    <option>Beximco</option>
-                    <option>Square</option>
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">
-                    Category
-                  </label>
-                  <select className="w-full bg-gray-50 border-none rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-emerald-500 transition-all outline-none">
-                    <option>Select Category</option>
-                    <option>Tablet</option>
-                    <option>Syrup</option>
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">
-                    Sale Price
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Rp 0"
-                    className="w-full bg-gray-50 border-none rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-emerald-500 transition-all outline-none"
-                  />
-                </div>
-
-                <div className="md:col-span-2 pt-6 flex gap-4">
-                  <button
-                    type="button"
-                    onClick={() => setIsModalOpen(false)}
-                    className="flex-1 bg-gray-100 text-gray-500 py-4 rounded-2xl font-black italic uppercase text-xs tracking-widest hover:bg-gray-200 transition-all"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="flex-[2] bg-emerald-600 text-white py-4 rounded-2xl font-black italic uppercase text-xs tracking-widest shadow-xl shadow-emerald-100 hover:bg-emerald-700 transition-all"
-                  >
-                    Save Drug Data
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
+      {/* 2. SUB-NAVIGATION (Hanya muncul di Product List) */}
+      {activeTab === "Product List" && (
+        <div className="flex flex-wrap gap-4 mb-8">
+          {[
+            "Product List",
+            "Manage Brands",
+            "Manage Categories",
+            "Manage Product Racks",
+            "Manage Type",
+          ].map((sub, i) => (
+            <button
+              key={sub}
+              className={`text-[10px] font-black uppercase tracking-tighter ${i === 0 ? "text-emerald-600" : "text-gray-400"}`}
+            >
+              {sub} {i !== 4 && <span className="ml-4 text-gray-200">|</span>}
+            </button>
+          ))}
         </div>
       )}
 
-      {/* HEADER UTAMA */}
-      <PageHeader
-        title={
-          activeTab === "Product List"
-            ? "Katalog Produk"
-            : activeTab.replace("Manage ", "")
-        }
-        breadcrumb="Katalog"
-        onSearch={setSearchTerm}
-      >
-        <div className="flex gap-3">
-          <button className="bg-white border-2 border-gray-100 p-3.5 rounded-2xl text-gray-400 hover:text-emerald-600 transition-all shadow-sm">
-            <MdSettings size={22} />
-          </button>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="bg-emerald-600 text-white px-8 py-3.5 rounded-2xl font-black shadow-xl shadow-emerald-100 hover:bg-emerald-700 hover:scale-105 transition-all flex items-center italic uppercase text-sm tracking-widest"
-          >
-            <MdAdd className="mr-2 text-xl" /> Quick Add
-          </button>
-        </div>
-      </PageHeader>
+      {/* 3. MAIN TABLE CONTAINER */}
+      <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden">
+        {renderContent()}
 
-      {/* TABS VISUAL */}
-      <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-6 border-b border-gray-100 pb-2">
-        <div className="flex gap-8 overflow-x-auto w-full no-scrollbar">
-          {["Product List", "Manage Categories", "Manage Brands"].map((tab) => (
-            <div
-              key={tab}
-              className={`pb-4 text-[11px] font-black uppercase tracking-[0.2em] transition-all relative whitespace-nowrap cursor-pointer ${
-                activeTab === tab
-                  ? "text-emerald-600"
-                  : "text-gray-300 hover:text-gray-500"
-              }`}
-            >
-              {tab === "Product List"
-                ? "Product List"
-                : tab.replace("Manage ", "")}
-              {activeTab === tab && (
-                <div className="absolute bottom-0 left-0 w-full h-1 bg-emerald-600 rounded-full" />
-              )}
-            </div>
-          ))}
+        {/* PAGINATION FOOTER */}
+        <div className="p-8 border-t border-gray-50 flex justify-between items-center bg-gray-50/10">
+          <p className="text-[11px] text-gray-400 font-bold uppercase tracking-widest">
+            Showing 1 to 20 entries
+          </p>
+          <div className="flex items-center gap-1">
+            <button className="p-2 text-gray-300">
+              <MdChevronLeft size={24} />
+            </button>
+            <button className="w-9 h-9 rounded-xl bg-emerald-500 text-white text-xs font-black shadow-lg">
+              1
+            </button>
+            <button className="p-2 text-gray-300">
+              <MdChevronRight size={24} />
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* RENDER CONTENT */}
-      {activeTab === "Product List" ? (
-        <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {currentItems.map((p, i) => (
-              <ProductCard key={i} product={p} />
-            ))}
-          </div>
-
-          {/* PAGINATION */}
-          {totalPages > 1 && (
-            <div className="mt-16 flex justify-center gap-2">
-              {[...Array(totalPages)].map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setCurrentPage(i + 1)}
-                  className={`w-12 h-12 rounded-2xl font-black text-xs transition-all ${
-                    currentPage === i + 1
-                      ? "bg-emerald-600 text-white shadow-lg shadow-emerald-100"
-                      : "bg-white text-gray-400 border border-gray-100 hover:border-emerald-200"
-                  }`}
-                >
-                  {i + 1}
-                </button>
-              ))}
-            </div>
-          )}
-        </>
-      ) : (
-        /* UI UNTUK CATEGORY / BRAND */
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[1, 2, 3].map((item) => (
-            <div
-              key={item}
-              className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm flex justify-between items-center group hover:border-emerald-500 transition-all"
-            >
-              <div>
-                <h4 className="font-black text-gray-800 uppercase italic tracking-tighter">
-                  {activeTab.replace("Manage ", "")} Item {item}
-                </h4>
-                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">
-                  Master Data
-                </p>
-              </div>
-              <button className="p-3 bg-gray-50 rounded-2xl text-gray-400 group-hover:bg-emerald-600 group-hover:text-white transition-all">
-                <MdMoreVert size={20} />
-              </button>
-            </div>
-          ))}
-        </div>
+      {/* 4. POPUP MANAGER */}
+      {showPopup && (
+        <PopupManager type={activeTab} onClose={() => setShowPopup(false)} />
       )}
     </div>
   );
 }
 
-// --- SUB KOMPONEN: CARD PRODUK ---
-function ProductCard({ product }) {
+// --- SUB-COMPONENTS TABLES ---
+
+function ProductListTable({ data, onAdd }) {
   return (
-    <div className="bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-2xl hover:border-emerald-500 transition-all group relative overflow-hidden">
-      {/* Badge Stok */}
-      <div className="absolute top-5 right-5 z-10">
-        <span className="bg-emerald-50 text-emerald-600 text-[9px] font-black px-3 py-1 rounded-full uppercase border border-emerald-100">
-          STOK: {product.stock}
-        </span>
-      </div>
-
-      {/* Image Wrapper */}
-      <div className="h-44 flex items-center justify-center mb-6 bg-gray-50/50 rounded-[2rem] group-hover:scale-105 transition-transform duration-500">
-        <img
-          src={product.image}
-          alt={product.name}
-          className="h-28 object-contain drop-shadow-xl"
-        />
-      </div>
-
-      {/* Info Produk */}
-      <div className="space-y-1">
-        <p className="text-[10px] text-emerald-500 font-black uppercase tracking-widest">
-          {product.cat}
-        </p>
-        <h4 className="font-black text-gray-800 uppercase italic tracking-tighter leading-tight group-hover:text-emerald-600 transition-colors min-h-[40px] text-lg">
-          {product.name}
-        </h4>
-
-        <div className="flex justify-between items-end mt-4 pt-4 border-t border-gray-50">
-          <div>
-            <p className="text-[9px] text-gray-400 font-bold uppercase">
-              Harga Satuan
-            </p>
-            <p className="font-black text-xl text-gray-900 tracking-tighter">
-              {product.price}
-            </p>
+    <>
+      <div className="p-8 flex justify-between items-center flex-wrap gap-4">
+        <div className="flex items-center gap-4">
+          <select className="bg-gray-50 px-4 py-3 rounded-xl text-xs font-bold text-gray-500 border-none outline-none">
+            <option>Select One</option>
+          </select>
+          <div className="relative">
+            <MdSearch
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300"
+              size={20}
+            />
+            <input
+              type="text"
+              placeholder="Search..."
+              className="pl-12 pr-4 py-3 bg-gray-50 rounded-xl text-sm border-none outline-none w-64"
+            />
           </div>
-          <button className="p-3 bg-gray-900 text-white rounded-2xl hover:bg-emerald-600 transition-all hover:rotate-12 shadow-lg">
-            <MdAdd size={20} />
+        </div>
+        <button
+          onClick={onAdd}
+          className="bg-emerald-500 text-white px-6 py-3 rounded-xl font-black text-[11px] uppercase tracking-widest flex items-center gap-2"
+        >
+          <MdAdd size={18} /> Add Product
+        </button>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-left">
+          <thead className="bg-gray-50/50 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">
+            <tr>
+              <th className="px-8 py-5">SI</th>
+              <th>Supplier</th>
+              <th>Name</th>
+              <th>Brand</th>
+              <th>Code</th>
+              <th>Expiry</th>
+              <th>Type</th>
+              <th>Price</th>
+              <th className="text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-50 text-sm">
+            {data.map((item, i) => (
+              <tr key={i} className="hover:bg-gray-50/50 transition-colors">
+                <td className="px-8 py-5 text-gray-400 font-bold">{i + 1}</td>
+                <td className="font-bold text-gray-700">{item.supplier}</td>
+                <td className="font-bold text-emerald-600">{item.name}</td>
+                <td className="text-gray-500">{item.brand}</td>
+                <td className="text-gray-500">{item.code}</td>
+                <td className="text-gray-500">{item.expiry}</td>
+                <td className="text-gray-500">{item.type}</td>
+                <td className="font-black text-gray-700">{item.price}</td>
+                <td className="text-center">
+                  <div className="flex justify-center gap-2">
+                    <button className="text-gray-300 hover:text-emerald-500">
+                      <MdEdit size={20} />
+                    </button>
+                    <button className="text-gray-300 hover:text-red-500">
+                      <MdDeleteOutline size={20} />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
+  );
+}
+
+function ProductRackTable({ data, onAdd }) {
+  return (
+    <>
+      <div className="p-8 flex justify-between items-center">
+        <div className="relative">
+          <MdSearch
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300"
+            size={20}
+          />
+          <input
+            type="text"
+            placeholder="Search rack..."
+            className="pl-12 pr-4 py-3 bg-gray-50 rounded-xl text-sm border-none outline-none w-64"
+          />
+        </div>
+        <button
+          onClick={onAdd}
+          className="bg-emerald-500 text-white px-6 py-3 rounded-xl font-black text-[11px] uppercase tracking-widest flex items-center gap-2"
+        >
+          <MdAdd size={18} /> Add Product Rack
+        </button>
+      </div>
+      <table className="w-full text-left">
+        <thead className="bg-gray-50/50 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+          <tr>
+            <th className="px-8 py-5">SI</th>
+            <th>Product Rack Name</th>
+            <th>Status</th>
+            <th className="text-center">Action</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-50">
+          {data.map((item, i) => (
+            <tr key={i} className="text-sm font-bold">
+              <td className="px-8 py-5 text-gray-400">{i + 1}</td>
+              <td className="text-gray-700">{item.name}</td>
+              <td>
+                <span
+                  className={`px-4 py-1.5 rounded-full border text-[10px] uppercase font-black ${item.status === "Active" ? "bg-emerald-50 border-emerald-200 text-emerald-600" : "bg-red-50 border-red-200 text-red-600"}`}
+                >
+                  ● {item.status}
+                </span>
+              </td>
+              <td className="text-center flex justify-center gap-2 py-5">
+                <button className="text-gray-300 hover:text-emerald-500">
+                  <MdEdit size={20} />
+                </button>
+                <button className="text-gray-300 hover:text-red-500">
+                  <MdDeleteOutline size={20} />
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </>
+  );
+}
+
+function ProductDamageTable({ data, onAdd }) {
+  return (
+    <>
+      <div className="p-8 flex justify-between items-center">
+        <div className="relative">
+          <MdSearch
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300"
+            size={20}
+          />
+          <input
+            type="text"
+            placeholder="Search reference..."
+            className="pl-12 pr-4 py-3 bg-gray-50 rounded-xl text-sm border-none outline-none w-64"
+          />
+        </div>
+        <button
+          onClick={onAdd}
+          className="bg-emerald-500 text-white px-6 py-3 rounded-xl font-black text-[11px] uppercase tracking-widest flex items-center gap-2"
+        >
+          <MdAdd size={18} /> Add Damage
+        </button>
+      </div>
+      <table className="w-full text-left">
+        <thead className="bg-gray-50/50 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+          <tr>
+            <th className="px-8 py-5">SI</th>
+            <th>Date</th>
+            <th>Reference</th>
+            <th>Amount</th>
+            <th className="text-center">Action</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-50">
+          {data.map((item, i) => (
+            <tr key={i} className="text-sm font-bold text-gray-700">
+              <td className="px-8 py-5 text-gray-400">{i + 1}</td>
+              <td>{item.date}</td>
+              <td className="text-emerald-600 font-black tracking-tighter">
+                {item.reference}
+              </td>
+              <td className="font-black text-gray-800">{item.amount}</td>
+              <td className="text-center flex justify-center gap-2 py-5">
+                <button className="text-gray-300 hover:text-emerald-500">
+                  <MdEdit size={20} />
+                </button>
+                <button className="text-gray-300 hover:text-red-500">
+                  <MdDeleteOutline size={20} />
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </>
+  );
+}
+
+// --- POPUP MANAGER COMPONENT ---
+
+function PopupManager({ type, onClose }) {
+  const titles = {
+    "Product List": "Add Product",
+    "Product Package": "Add Product Rack",
+    "Product Damages": "Add Damage Report",
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+      <div className="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+        <div className="p-8 border-b border-gray-50 flex justify-between items-center bg-gray-50/30">
+          <h2 className="text-xl font-black text-gray-800 uppercase tracking-tighter">
+            {titles[type]}
+          </h2>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-red-50 hover:text-red-500 rounded-full transition-colors"
+          >
+            <MdClose size={24} />
+          </button>
+        </div>
+
+        <div className="p-8 grid grid-cols-2 gap-6">
+          {type === "Product List" ? (
+            <>
+              <InputGroup label="Product Name" placeholder="e.g Paracetamol" />
+              <InputGroup label="Brand" placeholder="Select Brand" />
+              <InputGroup label="Category" placeholder="Select Category" />
+              <InputGroup label="Product Code" placeholder="e.g PRC001" />
+              <InputGroup label="Price" placeholder="0.00" />
+              <InputGroup label="Expiry Date" type="date" />
+            </>
+          ) : (
+            <>
+              <InputGroup
+                label="Name / Reference"
+                placeholder="Enter details..."
+              />
+              <InputGroup
+                label="Status / Amount"
+                placeholder="Enter value..."
+              />
+            </>
+          )}
+        </div>
+
+        <div className="p-8 border-t border-gray-50 flex justify-end gap-3 bg-gray-50/10">
+          <button
+            onClick={onClose}
+            className="px-8 py-3 rounded-xl font-black text-[11px] uppercase text-gray-400 hover:bg-gray-100 transition-all"
+          >
+            Cancel
+          </button>
+          <button className="px-8 py-3 rounded-xl font-black text-[11px] uppercase bg-emerald-500 text-white shadow-lg shadow-emerald-100 transition-all active:scale-95">
+            Save Data
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+function InputGroup({ label, placeholder, type = "text" }) {
+  return (
+    <div className="flex flex-col gap-2">
+      <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">
+        {label}
+      </label>
+      <input
+        type={type}
+        placeholder={placeholder}
+        className="bg-gray-50 border-none rounded-xl px-5 py-3.5 text-sm font-bold text-gray-700 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all placeholder:text-gray-300"
+      />
     </div>
   );
 }

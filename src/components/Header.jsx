@@ -1,26 +1,38 @@
-// src/components/Header.jsx
 import React from "react";
-import { MdNotificationsNone, MdSearch } from "react-icons/md";
+import { MdOutlineHelpOutline, MdOutlineAccountCircle } from "react-icons/md";
+import { HiOutlineHome, HiOutlineLocationMarker, HiOutlineUserGroup } from "react-icons/hi";
+import { PiPlantLight } from "react-icons/pi";
 
 export default function Header() {
+  const navItems = [
+    { name: "Home", icon: <HiOutlineHome /> },
+    { name: "Explore", icon: <HiOutlineLocationMarker /> },
+    { name: "My Eccounts", icon: <PiPlantLight /> }, // Menggunakan icon tumbuhan sesuai logo figma
+    { name: "Eccountants", icon: <HiOutlineUserGroup /> },
+    { name: "Stakeholders", icon: <HiOutlineUserGroup /> },
+  ];
+
   return (
-    <header className="w-full py-4 px-8 bg-white/50 backdrop-blur-md flex justify-between items-center border-b border-gray-50">
-      {/* Search Global */}
-      <div className="relative">
-        <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-        <input type="text" placeholder="Search..." className="pl-10 pr-4 py-2 bg-gray-100 rounded-full text-xs outline-none w-64" />
+    <header className="w-full py-4 px-8 bg-white flex justify-between items-center border-b border-gray-100">
+      {/* Kiri: Kosong atau Logo kecil jika perlu */}
+      <div className="w-10 h-10 bg-emerald-900 rounded-lg flex items-center justify-center text-white text-xl">
+         <PiPlantLight />
       </div>
 
-      {/* User Profile & Notif */}
-      <div className="flex items-center gap-4">
-        <MdNotificationsNone className="text-gray-500 text-xl cursor-pointer" />
-        <div className="flex items-center gap-3 border-l pl-4">
-          <div className="text-right">
-            <p className="text-xs font-bold text-gray-800">Admin Ganteng</p>
-            <p className="text-[10px] text-emerald-500 font-bold uppercase">Manager</p>
+      {/* Tengah: Navigasi Menu (Sesuai Figma) */}
+      <nav className="hidden md:flex items-center gap-8">
+        {navItems.map((item, idx) => (
+          <div key={idx} className="flex items-center gap-2 text-gray-500 hover:text-indigo-600 cursor-pointer transition-colors">
+            <span className="text-lg">{item.icon}</span>
+            <span className="text-sm font-medium">{item.name}</span>
           </div>
-          <img src="https://ui-avatars.com/api/?name=Admin" className="w-8 h-8 rounded-lg" alt="profile" />
-        </div>
+        ))}
+      </nav>
+
+      {/* Kanan: Icons */}
+      <div className="flex items-center gap-4 text-gray-600">
+        <MdOutlineAccountCircle className="text-2xl cursor-pointer" />
+        <MdOutlineHelpOutline className="text-2xl cursor-pointer" />
       </div>
     </header>
   );

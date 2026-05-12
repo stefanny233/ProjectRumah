@@ -35,14 +35,15 @@ function App() {
         <Route element={<MainLayout />}>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/employee" element={<Employee />} />
+          <Route path="/employee/list" element={<Employee />} />
+          <Route path="/employee/attendance" element={<Employee />} />
+          <Route path="/employee/payroll" element={<Employee />} />
+          <Route path="/employee/expense" element={<Employee />} />
           <Route path="/stock" element={<Stock />} />
-
           {/* Path Product disamakan dengan Sidebar & URL browser */}
           <Route path="/product/list" element={<Product />} />
-          <Route path="/product/category" element={<Product />} />
-          <Route path="/product/brand" element={<Product />} />
-
+          <Route path="/product/package" element={<Product />} />
+          <Route path="/product/damage" element={<Product />} />
           {/* Error Routes */}
           <Route
             path="/error-400"
