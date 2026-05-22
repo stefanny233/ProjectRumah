@@ -1,61 +1,190 @@
 import React, { useState } from "react";
-import { useLocation } from "react-router-dom";
 import {
   MdSearch,
   MdAdd,
   MdEdit,
-  MdDeleteOutline,
-  MdKeyboardArrowDown,
+  MdClose,
+  MdVisibility,
   MdChevronLeft,
   MdChevronRight,
-  MdClose,
+  MdCalendarToday,
 } from "react-icons/md";
-import dataApotek from "../data/dataApotek.json";
 
-export default function Product() {
-  const [activeTab, setActiveTab] = useState("Product List");
-  const [showPopup, setShowPopup] = useState(false);
-  const { products, productRacks, productDamages } = dataApotek;
-  
+// --- KOMPONEN MODAL (ADD NEW DRUG) ---
+const AddDrugModal = ({ isOpen, onClose }) => {
+  if (!isOpen) return null;
 
-  // Render content berdasarkan tab yang dipilih
-  const renderContent = () => {
-    switch (activeTab) {
-      case "Product List":
-        return (
-          <ProductListTable data={products} onAdd={() => setShowPopup(true)} />
-        );
-      case "Product Package":
-        return (
-          <ProductRackTable
-            data={productRacks}
-            onAdd={() => setShowPopup(true)}
-          />
-        );
-      case "Product Damages":
-        return (
-          <ProductDamageTable
-            data={productDamages}
-            onAdd={() => setShowPopup(true)}
-          />
-        );
-      default:
-        return null;
-    }
-  };
+  // Styling berdasarkan panduan Breakdown Redesign
+  const inputContainer = "flex flex-col gap-1.5";
+  const labelClass = "text-[12px] font-bold text-gray-700 ml-1"; // font-bold (700)
+  const inputClass =
+    "w-full bg-[#F9FAFB] border-none rounded-xl px-4 py-3 text-sm font-medium text-gray-600 focus:ring-2 focus:ring-[#5065f6] transition-all outline-none placeholder:text-gray-300"; // bg-gray-50 & borderless
 
   return (
-    <div className="p-8 bg-[#F8F9FB] min-h-screen font-sans">
-      {/* 1. HEADER TABS */}
-      <div className="flex gap-2 mb-8 bg-white p-2 rounded-2xl w-fit shadow-sm border border-gray-100">
-        {["Product List", "Product Package", "Product Damages"].map((tab) => (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+      <div className="bg-white w-full max-w-2xl rounded-[32px] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+        {/* Header Modal */}
+        <div className="px-8 py-6 flex justify-between items-center border-b border-gray-50">
+          <h2 className="text-lg font-black text-[#111827]">Add New Drug</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-red-500 transition-colors"
+          >
+            <MdClose size={24} />
+          </button>
+        </div>
+
+        {/* Form Body - 12 Items sesuai image_08e437.png */}
+        <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+          {/* 1. Drug Name */}
+          <div className={inputContainer}>
+            <label className={labelClass}>Drug Name*</label>
+            <select className={inputClass}>
+              <option>Napa 500mg</option>
+            </select>
+          </div>
+
+          {/* 2. Brand */}
+          <div className={inputContainer}>
+            <label className={labelClass}>Brand</label>
+            <select className={inputClass}>
+              <option>Beximco</option>
+            </select>
+          </div>
+
+          {/* 3. Data Matrix */}
+          <div className={inputContainer}>
+            <label className={labelClass}>Data Matrix</label>
+            <input
+              type="text"
+              placeholder="678584536847"
+              className={inputClass}
+            />
+          </div>
+
+          {/* 4. Barcode */}
+          <div className={inputContainer}>
+            <label className={labelClass}>Barcode</label>
+            <input
+              type="text"
+              placeholder="6435876534657436854354"
+              className={inputClass}
+            />
+          </div>
+
+          {/* 5. Category */}
+          <div className={inputContainer}>
+            <label className={labelClass}>Category</label>
+            <select className={inputClass}>
+              <option>Select One</option>
+            </select>
+          </div>
+
+          {/* 6. Barcode (Dropdown) */}
+          <div className={inputContainer}>
+            <label className={labelClass}>Barcode</label>
+            <select className={inputClass}>
+              <option>Select One</option>
+            </select>
+          </div>
+
+          {/* 7. Batch No */}
+          <div className={inputContainer}>
+            <label className={labelClass}>Batch No</label>
+            <input type="text" placeholder="78943757" className={inputClass} />
+          </div>
+
+          {/* 8. Expiry Date */}
+          <div className={inputContainer}>
+            <label className={labelClass}>Expiry Date</label>
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="19 Feb 2022"
+                className={inputClass}
+              />
+              <MdCalendarToday
+                className="absolute right-4 top-3.5 text-gray-400"
+                size={18}
+              />
+            </div>
+          </div>
+
+          {/* 9. Buy Price */}
+          <div className={inputContainer}>
+            <label className={labelClass}>Buy Price</label>
+            <input type="text" placeholder="$46.00" className={inputClass} />
+          </div>
+
+          {/* 10. Sale Price */}
+          <div className={inputContainer}>
+            <label className={labelClass}>Sale Price</label>
+            <input type="text" placeholder="$56.00" className={inputClass} />
+          </div>
+
+          {/* 11. Drug Quantity */}
+          <div className={inputContainer}>
+            <label className={labelClass}>Drug Quantity</label>
+            <input type="text" placeholder="430" className={inputClass} />
+          </div>
+
+          {/* 12. Unit Total */}
+          <div className={inputContainer}>
+            <label className={labelClass}>Unit Total</label>
+            <input type="text" placeholder="$1000.00" className={inputClass} />
+          </div>
+        </div>
+
+        {/* Footer Buttons */}
+        <div className="px-8 pb-8 flex gap-4">
+          <button
+            onClick={onClose}
+            className="flex-1 bg-[#F3F4F6] hover:bg-gray-200 text-gray-500 font-bold py-4 rounded-2xl transition-all"
+          >
+            Cancel
+          </button>
+          <button className="flex-1 bg-[#5065f6] hover:bg-[#4052d6] text-white font-bold py-4 rounded-2xl shadow-lg shadow-[#5065f6]/20 transition-all active:scale-95">
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// --- HALAMAN UTAMA ---
+export default function ProductPage() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("Product List");
+
+  const products = Array(8).fill({
+    supplier: "General Supplier",
+    name: "Napa Extra",
+    brand: "Beximco",
+    code: "63264387",
+    expiry: "25 Feb 2022",
+    type: "Medicine",
+    price: "$120.00",
+  });
+
+  return (
+    <div className="p-8 bg-[#F9FAFB] min-h-screen font-['Inter'] text-[#111827]">
+      {/* Tabs */}
+      <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+        {[
+          "Product List",
+          "Manage Brands",
+          "Manage Categories",
+          "Manage Product Raks",
+          "Mange Type",
+        ].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-8 py-3 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all ${
+            className={`px-5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
               activeTab === tab
-                ? "bg-emerald-500 text-white shadow-lg shadow-emerald-100"
-                : "text-gray-400 hover:text-emerald-500"
+                ? "bg-[#5065f6] text-white shadow-lg shadow-blue-100"
+                : "bg-white text-gray-400 hover:bg-gray-50"
             }`}
           >
             {tab}
@@ -63,321 +192,117 @@ export default function Product() {
         ))}
       </div>
 
-      {/* 2. SUB-NAVIGATION (Hanya muncul di Product List) */}
-      {activeTab === "Product List" && (
-        <div className="flex flex-wrap gap-4 mb-8">
-          {[
-            "Product List",
-            "Manage Brands",
-            "Manage Categories",
-            "Manage Product Racks",
-            "Manage Type",
-          ].map((sub, i) => (
-            <button
-              key={sub}
-              className={`text-[10px] font-black uppercase tracking-tighter ${i === 0 ? "text-emerald-600" : "text-gray-400"}`}
-            >
-              {sub} {i !== 4 && <span className="ml-4 text-gray-200">|</span>}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {/* 3. MAIN TABLE CONTAINER */}
-      <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden">
-        {renderContent()}
-
-        {/* PAGINATION FOOTER */}
-        <div className="p-8 border-t border-gray-50 flex justify-between items-center bg-gray-50/10">
-          <p className="text-[11px] text-gray-400 font-bold uppercase tracking-widest">
-            Showing 1 to 20 entries
-          </p>
-          <div className="flex items-center gap-1">
-            <button className="p-2 text-gray-300">
-              <MdChevronLeft size={24} />
-            </button>
-            <button className="w-9 h-9 rounded-xl bg-emerald-500 text-white text-xs font-black shadow-lg">
-              1
-            </button>
-            <button className="p-2 text-gray-300">
-              <MdChevronRight size={24} />
+      {/* Main Card */}
+      <div className="bg-white rounded-[32px] shadow-sm border border-gray-100 overflow-hidden">
+        {/* Filter Area */}
+        <div className="p-6 flex flex-wrap justify-between items-end gap-4">
+          <div className="flex flex-wrap gap-4">
+            <div className="flex flex-col gap-1">
+              <label className="text-[11px] font-bold text-gray-400 ml-1">
+                Select Product
+              </label>
+              <select className="bg-[#F3F4F6] border-none rounded-xl px-4 py-2.5 text-sm font-medium text-gray-500 w-44 outline-none">
+                <option>Select one</option>
+              </select>
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-[11px] font-bold text-gray-400 ml-1">
+                Product Code
+              </label>
+              <input
+                type="text"
+                placeholder="$B-63215..."
+                className="bg-[#F3F4F6] border-none rounded-xl px-4 py-2.5 text-sm font-medium w-44 outline-none"
+              />
+            </div>
+            <button className="bg-[#28B95E] p-3 rounded-xl text-white hover:opacity-90 transition-all self-end mb-0.5">
+              <MdSearch size={20} />
             </button>
           </div>
+
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="bg-[#5065f6] hover:bg-[#4052d6] text-white px-6 py-3 rounded-xl font-black text-xs flex items-center gap-2 shadow-lg shadow-[#5065f6]/20 transition-all active:scale-95"
+          >
+            <MdAdd size={20} /> ADD PRODUCT
+          </button>
         </div>
-      </div>
 
-      {/* 4. POPUP MANAGER */}
-      {showPopup && (
-        <PopupManager type={activeTab} onClose={() => setShowPopup(false)} />
-      )}
-    </div>
-  );
-}
-
-// --- SUB-COMPONENTS TABLES ---
-
-function ProductListTable({ data, onAdd }) {
-  return (
-    <>
-      <div className="p-8 flex justify-between items-center flex-wrap gap-4">
-        <div className="flex items-center gap-4">
-          <select className="bg-gray-50 px-4 py-3 rounded-xl text-xs font-bold text-gray-500 border-none outline-none">
-            <option>Select One</option>
-          </select>
-          <div className="relative">
-            <MdSearch
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300"
-              size={20}
-            />
-            <input
-              type="text"
-              placeholder="Search..."
-              className="pl-12 pr-4 py-3 bg-gray-50 rounded-xl text-sm border-none outline-none w-64"
-            />
-          </div>
-        </div>
-        <button
-          onClick={onAdd}
-          className="bg-emerald-500 text-white px-6 py-3 rounded-xl font-black text-[11px] uppercase tracking-widest flex items-center gap-2"
-        >
-          <MdAdd size={18} /> Add Product
-        </button>
-      </div>
-      <div className="overflow-x-auto">
-        <table className="w-full text-left">
-          <thead className="bg-gray-50/50 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">
-            <tr>
-              <th className="px-8 py-5">SI</th>
-              <th>Supplier</th>
-              <th>Name</th>
-              <th>Brand</th>
-              <th>Code</th>
-              <th>Expiry</th>
-              <th>Type</th>
-              <th>Price</th>
-              <th className="text-center">Action</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-50 text-sm">
-            {data.map((item, i) => (
-              <tr key={i} className="hover:bg-gray-50/50 transition-colors">
-                <td className="px-8 py-5 text-gray-400 font-bold">{i + 1}</td>
-                <td className="font-bold text-gray-700">{item.supplier}</td>
-                <td className="font-bold text-emerald-600">{item.name}</td>
-                <td className="text-gray-500">{item.brand}</td>
-                <td className="text-gray-500">{item.code}</td>
-                <td className="text-gray-500">{item.expiry}</td>
-                <td className="text-gray-500">{item.type}</td>
-                <td className="font-black text-gray-700">{item.price}</td>
-                <td className="text-center">
-                  <div className="flex justify-center gap-2">
-                    <button className="text-gray-300 hover:text-emerald-500">
-                      <MdEdit size={20} />
-                    </button>
-                    <button className="text-gray-300 hover:text-red-500">
-                      <MdDeleteOutline size={20} />
-                    </button>
-                  </div>
-                </td>
+        {/* Table */}
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="border-b border-gray-50 text-[11px] text-gray-400 font-bold uppercase tracking-wider">
+                <th className="px-6 py-5">SI</th>
+                <th className="py-5">Supplier</th>
+                <th className="py-5">Name</th>
+                <th className="py-5">Product Code</th>
+                <th className="py-5">Price</th>
+                <th className="py-5 text-center">Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </>
-  );
-}
-
-function ProductRackTable({ data, onAdd }) {
-  return (
-    <>
-      <div className="p-8 flex justify-between items-center">
-        <div className="relative">
-          <MdSearch
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300"
-            size={20}
-          />
-          <input
-            type="text"
-            placeholder="Search rack..."
-            className="pl-12 pr-4 py-3 bg-gray-50 rounded-xl text-sm border-none outline-none w-64"
-          />
-        </div>
-        <button
-          onClick={onAdd}
-          className="bg-emerald-500 text-white px-6 py-3 rounded-xl font-black text-[11px] uppercase tracking-widest flex items-center gap-2"
-        >
-          <MdAdd size={18} /> Add Product Rack
-        </button>
-      </div>
-      <table className="w-full text-left">
-        <thead className="bg-gray-50/50 text-[10px] font-black text-gray-400 uppercase tracking-widest">
-          <tr>
-            <th className="px-8 py-5">SI</th>
-            <th>Product Rack Name</th>
-            <th>Status</th>
-            <th className="text-center">Action</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-50">
-          {data.map((item, i) => (
-            <tr key={i} className="text-sm font-bold">
-              <td className="px-8 py-5 text-gray-400">{i + 1}</td>
-              <td className="text-gray-700">{item.name}</td>
-              <td>
-                <span
-                  className={`px-4 py-1.5 rounded-full border text-[10px] uppercase font-black ${item.status === "Active" ? "bg-emerald-50 border-emerald-200 text-emerald-600" : "bg-red-50 border-red-200 text-red-600"}`}
+            </thead>
+            <tbody className="text-sm">
+              {products.map((item, i) => (
+                <tr
+                  key={i}
+                  className="border-b border-gray-50 hover:bg-gray-50 transition-colors"
                 >
-                  ● {item.status}
-                </span>
-              </td>
-              <td className="text-center flex justify-center gap-2 py-5">
-                <button className="text-gray-300 hover:text-emerald-500">
-                  <MdEdit size={20} />
-                </button>
-                <button className="text-gray-300 hover:text-red-500">
-                  <MdDeleteOutline size={20} />
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </>
-  );
-}
-
-function ProductDamageTable({ data, onAdd }) {
-  return (
-    <>
-      <div className="p-8 flex justify-between items-center">
-        <div className="relative">
-          <MdSearch
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300"
-            size={20}
-          />
-          <input
-            type="text"
-            placeholder="Search reference..."
-            className="pl-12 pr-4 py-3 bg-gray-50 rounded-xl text-sm border-none outline-none w-64"
-          />
-        </div>
-        <button
-          onClick={onAdd}
-          className="bg-emerald-500 text-white px-6 py-3 rounded-xl font-black text-[11px] uppercase tracking-widest flex items-center gap-2"
-        >
-          <MdAdd size={18} /> Add Damage
-        </button>
-      </div>
-      <table className="w-full text-left">
-        <thead className="bg-gray-50/50 text-[10px] font-black text-gray-400 uppercase tracking-widest">
-          <tr>
-            <th className="px-8 py-5">SI</th>
-            <th>Date</th>
-            <th>Reference</th>
-            <th>Amount</th>
-            <th className="text-center">Action</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-50">
-          {data.map((item, i) => (
-            <tr key={i} className="text-sm font-bold text-gray-700">
-              <td className="px-8 py-5 text-gray-400">{i + 1}</td>
-              <td>{item.date}</td>
-              <td className="text-emerald-600 font-black tracking-tighter">
-                {item.reference}
-              </td>
-              <td className="font-black text-gray-800">{item.amount}</td>
-              <td className="text-center flex justify-center gap-2 py-5">
-                <button className="text-gray-300 hover:text-emerald-500">
-                  <MdEdit size={20} />
-                </button>
-                <button className="text-gray-300 hover:text-red-500">
-                  <MdDeleteOutline size={20} />
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </>
-  );
-}
-
-// --- POPUP MANAGER COMPONENT ---
-
-function PopupManager({ type, onClose }) {
-  const titles = {
-    "Product List": "Add Product",
-    "Product Package": "Add Product Rack",
-    "Product Damages": "Add Damage Report",
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-      <div className="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-        <div className="p-8 border-b border-gray-50 flex justify-between items-center bg-gray-50/30">
-          <h2 className="text-xl font-black text-gray-800 uppercase tracking-tighter">
-            {titles[type]}
-          </h2>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-red-50 hover:text-red-500 rounded-full transition-colors"
-          >
-            <MdClose size={24} />
-          </button>
+                  <td className="px-6 py-4 text-gray-400">{i + 1}</td>
+                  <td className="py-4 font-medium text-gray-600">
+                    {item.supplier}
+                  </td>
+                  <td className="py-4 font-bold text-gray-800">{item.name}</td>
+                  <td className="py-4 text-gray-500">{item.code}</td>
+                  <td className="py-4 font-black text-gray-900">
+                    {item.price}
+                  </td>
+                  <td className="py-4">
+                    <div className="flex justify-center gap-3">
+                      <button className="text-gray-300 hover:text-blue-500">
+                        <MdVisibility size={20} />
+                      </button>
+                      <button className="text-gray-300 hover:text-green-500">
+                        <MdEdit size={20} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
 
-        <div className="p-8 grid grid-cols-2 gap-6">
-          {type === "Product List" ? (
-            <>
-              <InputGroup label="Product Name" placeholder="e.g Paracetamol" />
-              <InputGroup label="Brand" placeholder="Select Brand" />
-              <InputGroup label="Category" placeholder="Select Category" />
-              <InputGroup label="Product Code" placeholder="e.g PRC001" />
-              <InputGroup label="Price" placeholder="0.00" />
-              <InputGroup label="Expiry Date" type="date" />
-            </>
-          ) : (
-            <>
-              <InputGroup
-                label="Name / Reference"
-                placeholder="Enter details..."
-              />
-              <InputGroup
-                label="Status / Amount"
-                placeholder="Enter value..."
-              />
-            </>
-          )}
-        </div>
-
-        <div className="p-8 border-t border-gray-50 flex justify-end gap-3 bg-gray-50/10">
-          <button
-            onClick={onClose}
-            className="px-8 py-3 rounded-xl font-black text-[11px] uppercase text-gray-400 hover:bg-gray-100 transition-all"
-          >
-            Cancel
-          </button>
-          <button className="px-8 py-3 rounded-xl font-black text-[11px] uppercase bg-emerald-500 text-white shadow-lg shadow-emerald-100 transition-all active:scale-95">
-            Save Data
-          </button>
+        {/* Pagination */}
+        <div className="p-6 flex justify-between items-center border-t border-gray-50">
+          <div className="flex items-center gap-2 text-xs font-bold text-gray-400">
+            <span>Show up to</span>
+            <select className="bg-gray-50 border border-gray-200 rounded-lg px-1 py-0.5">
+              <option>100</option>
+            </select>
+            <span>Entries</span>
+          </div>
+          <div className="flex gap-1">
+            <button className="p-2 text-gray-300">
+              <MdChevronLeft size={20} />
+            </button>
+            {[1, 2, 3, 4].map((n) => (
+              <button
+                key={n}
+                className={`w-8 h-8 rounded-lg text-xs font-bold ${n === 3 ? "bg-[#5065f6] text-white" : "text-gray-400 hover:bg-gray-100"}`}
+              >
+                {n}
+              </button>
+            ))}
+            <button className="p-2 text-gray-300">
+              <MdChevronRight size={20} />
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  );
-}
 
-function InputGroup({ label, placeholder, type = "text" }) {
-  return (
-    <div className="flex flex-col gap-2">
-      <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">
-        {label}
-      </label>
-      <input
-        type={type}
-        placeholder={placeholder}
-        className="bg-gray-50 border-none rounded-xl px-5 py-3.5 text-sm font-bold text-gray-700 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all placeholder:text-gray-300"
+      <AddDrugModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
       />
     </div>
   );

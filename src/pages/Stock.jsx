@@ -1,173 +1,129 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState } from "react";
 import {
   MdSearch,
-  MdFileDownload,
   MdKeyboardArrowDown,
   MdChevronLeft,
   MdChevronRight,
+  MdOutlineFileDownload,
 } from "react-icons/md";
 
-// Import data dari file JSON kamu
+// Import data (asumsi data lo ada field: name, manufacturer, salePrice, purchasePrice, inQty, stock, box)
 import dataApotek from "../data/dataApotek.json";
 
 export default function Stock() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [isExportOpen, setIsExportOpen] = useState(false);
-  const dropdownRef = useRef(null);
-
-  // Mengambil data inventory dari JSON
   const { inventory } = dataApotek;
-
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsExportOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   const filteredData = inventory.filter((item) =>
     item.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   return (
-    <div className="p-8 bg-[#F8F9FB] min-h-screen font-sans animate-in fade-in duration-500">
-      {/* HEADER SECTION */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-800 mb-1">
-          Stock Report 
+    <div
+      className="p-8 bg-[#F8F9FB] min-h-screen"
+      style={{ fontFamily: "'TT Commons', sans-serif" }}
+    >
+      {/* 1. TITLE SECTION - Heading_1 (32px, font-normal/light style) */}
+      <div className="mb-6">
+        <h1 className="text-[32px] font-normal text-gray-900 tracking-tight">
+          Stock Report
         </h1>
-        <div className="flex items-center gap-2 text-xs text-gray-400 font-medium">
-          <span>Home</span>
-          <MdChevronRight />
-          <span>Explore</span>
-          <MdChevronRight />
-          <span className="text-emerald-600">Stock Report   </span>
-        </div>
       </div>
 
-      {/* SEARCH & EXPORT BAR */}
-      <div className="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
-        <div className="relative w-full md:w-96">
-          <MdSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 text-xl" />
-          <input
-            type="text"
-            placeholder="Search medications..."
-            className="w-full pl-12 pr-12 py-3.5 bg-gray-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all placeholder:text-gray-300"
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <button className="absolute right-2 top-1/2 -translate-y-1/2 bg-emerald-500 p-2.5 rounded-xl text-white hover:bg-emerald-600 transition-colors shadow-lg shadow-emerald-100">
-            <MdSearch size={20} />
-          </button>
-        </div>
-
-        <div className="relative" ref={dropdownRef}>
-          <button
-            onClick={() => setIsExportOpen(!isExportOpen)}
-            className="flex items-center gap-2 px-6 py-3.5 bg-white border border-gray-100 rounded-2xl text-xs font-bold text-gray-600 shadow-sm hover:bg-gray-50 transition-all"
-          >
-            <MdFileDownload className="text-emerald-500" size={18} />
-            Export Data
-            <MdKeyboardArrowDown
-              className={`transition-transform text-gray-300 ${isExportOpen ? "rotate-180" : ""}`}
+      {/* 2. SEARCH SECTION - Borderless Soft Interface style */}
+      <div className="mb-6">
+        <p className="text-[14px] text-gray-400 mb-2 font-normal">Search</p>
+        <div className="flex gap-3 items-center">
+          <div className="relative w-full max-w-md">
+            <input
+              type="text"
+              placeholder="search anythings"
+              className="w-full pl-5 pr-12 py-3 bg-white border-none rounded-xl text-[14px] font-normal text-gray-600 shadow-sm focus:ring-1 focus:ring-blue-500/20 outline-none placeholder:text-gray-300"
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
-          </button>
-
-          {isExportOpen && (
-            <div className="absolute right-0 mt-3 w-52 bg-white rounded-2xl shadow-xl border border-gray-50 py-2 z-50 animate-in zoom-in-95 duration-200">
-              <button className="w-full px-5 py-3 text-left text-[11px] font-bold text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 transition-colors">
-                Export to Excel
-              </button>
-              <button className="w-full px-5 py-3 text-left text-[11px] font-bold text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 transition-colors border-t border-gray-50">
-                Export to PDF
-              </button>
+            <div className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#28B95E] p-2 rounded-lg text-white cursor-pointer">
+              <MdSearch size={20} />
             </div>
-          )}
-        </div>
-      </div>
-
-      {/* TABLE CONTAINER */}
-      <div className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden">
-        <div className="p-8 border-b border-gray-50 flex items-center gap-3">
-          {/* Tampilan Polos: Hanya teks dan select tanpa box/border hijau */}
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] font-black text-gray-400 uppercase tracking-widest">
-              Show up to
-            </span>
-
-            <div className="relative flex items-center">
-              <select className="appearance-none bg-transparent text-sm font-black text-gray-700 focus:outline-none cursor-pointer pr-4 z-10">
-                <option>10</option>
-                <option>20</option>
-                <option>50</option>
-                <option>100</option>
-              </select>
-              {/* Icon panah kecil agar tetap terlihat seperti dropdown */}
-              <MdKeyboardArrowDown
-                className="absolute right-0 text-gray-400 pointer-events-none"
-                size={16}
-              />
-            </div>
-
-            <span className="text-[11px] font-black text-gray-400 uppercase tracking-widest">
-              Entries
-            </span>
           </div>
         </div>
+      </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
+      {/* 3. TABLE CARD - bg-white, rounded-2xl, border-gray-100 */}
+      <div className="bg-white rounded-[24px] shadow-sm border border-gray-100 overflow-hidden">
+        {/* Table Top Controls */}
+        <div className="px-8 py-6 flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-medium text-gray-400">
+              Show up to
+            </span>
+            <div className="flex items-center gap-1 px-3 py-1 bg-white border border-gray-100 rounded-lg text-sm text-gray-600">
+              <span>100</span>
+              <MdKeyboardArrowDown className="text-gray-400" />
+            </div>
+            <span className="text-xs font-medium text-gray-400">Entries</span>
+          </div>
+
+          <button className="flex items-center gap-2 px-4 py-2 border border-gray-100 rounded-xl text-xs font-medium text-gray-400 hover:bg-gray-50 transition-all">
+            <MdOutlineFileDownload size={18} className="text-gray-300" />
+            Export
+          </button>
+        </div>
+
+        {/* 4. TABLE SECTION - Following image_09547a logic */}
+        <div className="overflow-x-auto px-4">
+          <table className="w-full border-collapse">
             <thead>
-              <tr className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] border-b border-gray-50 bg-gray-50/30">
-                <th className="px-8 py-5">Drug Name</th>
-                <th className="px-6 py-5">Strength</th>
-                <th className="px-6 py-5">Batch ID</th>
-                <th className="px-6 py-5">Expiry Date</th>
-                <th className="px-6 py-5 text-center">In Qty</th>
-                <th className="px-6 py-5 text-center">Out Qty</th>
-                <th className="px-6 py-5 text-center">Stock</th>
-                <th className="px-8 py-5 text-center">Stock Box</th>
+              <tr className="text-[11px] font-medium text-gray-400 uppercase tracking-wider border-b border-gray-50">
+                <th className="px-4 py-5 text-left font-medium">
+                  Medicine Name
+                </th>
+                <th className="px-4 py-5 text-left font-medium">
+                  Manufacturer Name
+                </th>
+                <th className="px-4 py-5 text-left font-medium">Sale Price</th>
+                <th className="px-4 py-5 text-left font-medium">
+                  Purchase Price
+                </th>
+                <th className="px-4 py-5 text-center font-medium">In Qty</th>
+                <th className="px-4 py-5 text-center font-medium">Stock</th>
+                <th className="px-4 py-5 text-center font-medium">Stock Box</th>
+                <th className="px-4 py-5 text-right font-medium">
+                  Stock Sale Price
+                </th>
+                <th className="px-4 py-5 text-right font-medium">
+                  Stock Purchase Price
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {filteredData.map((item) => (
-                <tr
-                  key={item.id}
-                  className="hover:bg-emerald-50/20 transition-colors group"
-                >
-                  <td className="px-8 py-5">
-                    <span className="text-sm font-bold text-gray-700 group-hover:text-emerald-600 transition-colors">
-                      {item.name}
-                    </span>
+              {filteredData.map((item, idx) => (
+                <tr key={idx} className="hover:bg-gray-50/50 transition-colors">
+                  <td className="px-4 py-5 text-sm text-gray-600 font-normal">
+                    {item.name}
                   </td>
-                  <td className="px-6 py-5 text-sm font-medium text-gray-500">
-                    {item.strength}
+                  <td className="px-4 py-5 text-sm text-gray-400 font-normal">
+                    {item.manufacturer}
                   </td>
-                  <td className="px-6 py-5">
-                    <span className="text-[11px] font-bold bg-gray-100 text-gray-500 px-3 py-1 rounded-lg uppercase">
-                      {item.batch}
-                    </span>
+                  <td className="px-4 py-5 text-sm text-gray-600 font-normal">
+                    ${item.salePrice}
                   </td>
-                  <td className="px-6 py-5 text-sm font-medium text-gray-500">
-                    {item.expiry}
+                  <td className="px-4 py-5 text-sm text-gray-400 font-normal">
+                    ${item.purchasePrice}
                   </td>
-                  <td className="px-6 py-5 text-sm font-bold text-gray-600 text-center">
+                  <td className="px-4 py-5 text-sm text-gray-500 text-center font-normal">
                     {item.inQty}
                   </td>
-                  <td className="px-6 py-5 text-sm font-bold text-gray-600 text-center">
-                    {item.outQty}
+                  <td className="px-4 py-5 text-sm text-gray-500 text-center font-normal">
+                    {item.stock}
                   </td>
-                  <td className="px-6 py-5 text-center">
-                    <span className="text-sm font-black text-emerald-600">
-                      {item.stock}
-                    </span>
+                  <td className="px-4 py-5 text-sm text-gray-500 text-center font-normal">
+                    {item.box}
                   </td>
-                  <td className="px-8 py-5 text-center">
-                    <span className="text-sm font-black text-gray-700">
-                      {item.box}
-                    </span>
+                  <td className="px-4 py-5 text-sm text-gray-600 text-right font-normal">
+                    $948.55
+                  </td>
+                  <td className="px-4 py-5 text-sm text-gray-600 text-right font-normal">
+                    $328.85
                   </td>
                 </tr>
               ))}
@@ -175,27 +131,44 @@ export default function Stock() {
           </table>
         </div>
 
-        {/* PAGINATION */}
-        <div className="p-8 border-t border-gray-50 flex justify-between items-center bg-gray-50/10">
-          <p className="text-[11px] text-gray-400 font-bold uppercase tracking-widest">
-            Showing{" "}
-            <span className="text-emerald-600">{filteredData.length}</span> of
-            20 entries
-          </p>
-          <div className="flex items-center gap-1">
-            <button className="p-2 text-gray-300 hover:text-emerald-500 transition-colors">
-              <MdChevronLeft size={24} />
+        {/* 5. PAGINATION - image_095b9e Style */}
+        <div className="px-8 py-8 flex justify-center md:justify-end">
+          <div className="flex items-center gap-2">
+            <button className="p-2 text-gray-300 hover:text-gray-600">
+              <MdChevronLeft size={20} />
             </button>
-            {[1, 2, 3].map((page) => (
-              <button
-                key={page}
-                className={`w-9 h-9 rounded-xl text-xs font-black transition-all ${page === 1 ? "bg-emerald-500 text-white shadow-lg shadow-emerald-100" : "text-gray-400 hover:bg-gray-100"}`}
-              >
-                {page}
+            <div className="flex items-center gap-1">
+              {[1, 2].map((n) => (
+                <button
+                  key={n}
+                  className="w-8 h-8 rounded-lg text-xs font-medium text-gray-400 hover:bg-gray-50"
+                >
+                  {n}
+                </button>
+              ))}
+              <button className="w-8 h-8 rounded-lg bg-[#5065f6] text-white text-xs font-medium shadow-md shadow-blue-200/50">
+                3
               </button>
-            ))}
-            <button className="p-2 text-gray-300 hover:text-emerald-500 transition-colors">
-              <MdChevronRight size={24} />
+              {[4, 5, 6].map((n) => (
+                <button
+                  key={n}
+                  className="w-8 h-8 rounded-lg text-xs font-medium text-gray-400 hover:bg-gray-50"
+                >
+                  {n}
+                </button>
+              ))}
+              <span className="px-1 text-gray-300">...</span>
+              {[38, 39, 40].map((n) => (
+                <button
+                  key={n}
+                  className="w-8 h-8 rounded-lg text-xs font-medium text-gray-400 hover:bg-gray-50"
+                >
+                  {n}
+                </button>
+              ))}
+            </div>
+            <button className="p-2 text-gray-400 hover:text-gray-600">
+              <MdChevronRight size={20} />
             </button>
           </div>
         </div>

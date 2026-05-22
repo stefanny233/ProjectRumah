@@ -17,37 +17,47 @@ import {
 } from "recharts";
 import dataApotek from "../data/dataApotek.json";
 
+/**
+ * CATATAN PENTING:
+ * Font diatur ke 'Inter' atau 'Geist' sebagai alternatif TT Commons.
+ * Semua font-weight diturunkan dari bold/black ke Medium/Semi-Bold agar lebih "santai".
+ */
+
 export default function Dashboard() {
   const { obatList, chartData } = dataApotek;
 
   return (
-    // "pt-2" untuk merapatkan jarak dengan header
-    <div className="bg-[#F9FAFB] min-h-screen px-8 pt-2 pb-8 animate-in fade-in duration-700">
-
-      {/* STATS CARDS - Menggunakan warna icon yang lebih soft/bulat sesuai Figma */}
+    <div
+      className="bg-[#FDFDFD] min-h-screen px-8 pt-2 pb-8 animate-in fade-in duration-700"
+      style={{
+        fontFamily: "'Inter', 'Geist', sans-serif",
+        letterSpacing: "-0.01em",
+      }}
+    >
+      {/* STATS CARDS - Warna Primer & Sekunder Figma */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <StatCard
           label="Total Customer"
           value="120"
-          iconColor="bg-[#6366F1]"
+          iconColor="bg-[#5065f6]"
           icon={<MdPeople />}
         />
         <StatCard
           label="Total Sals"
           value="234"
-          iconColor="bg-[#22C55E]"
+          iconColor="bg-[#28B95E]"
           icon={<MdShoppingCart />}
         />
         <StatCard
           label="Total Profit"
           value="$456"
-          iconColor="bg-[#FACC15]"
+          iconColor="bg-[#FFDB45]"
           icon={<MdAttachMoney />}
         />
         <StatCard
           label="Out of Stock"
           value="56"
-          iconColor="bg-[#F87171]"
+          iconColor="bg-[#F04B69]"
           icon={<MdInventory2 />}
         />
       </div>
@@ -56,29 +66,43 @@ export default function Dashboard() {
         {/* KIRI: Expiring List & Monthly Progress */}
         <div className="lg:col-span-7 space-y-6">
           <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="font-bold text-gray-700">Expiring List</h3>
-              <button className="text-indigo-600 text-xs font-semibold">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-[18px] font-semibold text-[#111827]">
+                Expiring List
+              </h3>
+              <button className="text-[#5065f6] text-[13px] font-medium hover:underline">
                 See All &rsaquo;
               </button>
             </div>
-            <table className="w-full text-sm">
+            <table className="w-full text-[14px]">
               <thead>
                 <tr className="text-gray-400 border-b border-gray-50 text-left">
-                  <th className="pb-2 font-medium">Medicine name</th>
-                  <th className="pb-2 font-medium">Expire Date</th>
-                  <th className="pb-2 font-medium">Quantity</th>
-                  <th className="pb-2 font-medium">Chart</th>
+                  <th className="pb-4 font-medium uppercase text-[10px] tracking-[0.1em]">
+                    Medicine name
+                  </th>
+                  <th className="pb-4 font-medium uppercase text-[10px] tracking-[0.1em]">
+                    Expire Date
+                  </th>
+                  <th className="pb-4 font-medium uppercase text-[10px] tracking-[0.1em]">
+                    Quantity
+                  </th>
+                  <th className="pb-4 font-medium uppercase text-[10px] tracking-[0.1em]">
+                    Chart
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
                 {obatList.slice(0, 4).map((item, i) => (
                   <tr key={i} className="text-gray-600">
-                    <td className="py-3 font-medium">{item.nama}</td>
-                    <td className="py-3 text-gray-400">24 Dec 2021</td>
-                    <td className="py-3">40</td>
-                    <td className="py-3 text-green-500">
-                      <MdTrendingUp />
+                    <td className="py-4 font-medium text-[#111827]">
+                      {item.nama}
+                    </td>
+                    <td className="py-4 text-gray-400 font-normal">
+                      24 Dec 2021
+                    </td>
+                    <td className="py-4 font-medium">40</td>
+                    <td className="py-4 text-[#28B95E]">
+                      <MdTrendingUp className="text-xl" />
                     </td>
                   </tr>
                 ))}
@@ -86,33 +110,27 @@ export default function Dashboard() {
             </table>
           </div>
 
-          {/* Monthly Progress - Warna Hijau sesuai request */}
+          {/* Monthly Progress */}
           <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
-            <h3 className="font-bold text-gray-700 mb-6">Monthly Progress</h3>
-            <div className="h-48">
+            <h3 className="text-[18px] font-semibold text-[#111827] mb-6">
+              Monthly Progress
+            </h3>
+            <div className="h-56">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData}>
-                  <CartesianGrid vertical={false} stroke="#F3F4F6" />
+                  <CartesianGrid vertical={false} stroke="#F9FAFB" />
                   <XAxis
                     dataKey="day"
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fill: "#9CA3AF", fontSize: 11 }}
+                    tick={{ fill: "#9CA3AF", fontSize: 11, fontWeight: 500 }}
                   />
-                  <Tooltip
-                    cursor={{ fill: "#F9FAFB" }}
-                    contentStyle={{
-                      borderRadius: "12px",
-                      border: "none",
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-                    }}
-                  />
-                  <Bar dataKey="sales" radius={[4, 4, 0, 0]} barSize={15}>
+                  <Tooltip cursor={{ fill: "#F9FAFB" }} />
+                  <Bar dataKey="sales" radius={[4, 4, 0, 0]} barSize={16}>
                     {chartData.map((entry, index) => (
-                      // Highlight satu bar dengan warna gelap (seperti di Figma), sisanya hijau pastel
                       <Cell
                         key={`cell-${index}`}
-                        fill={index === 6 ? "#111827" : "#86EFAC"}
+                        fill={index === 6 ? "#111827" : "#A7F3D0"}
                       />
                     ))}
                   </Bar>
@@ -126,84 +144,120 @@ export default function Dashboard() {
         <div className="lg:col-span-5 space-y-6">
           <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="font-bold text-gray-700">Recent Order's</h3>
-              <button className="text-indigo-600 text-xs font-semibold">
+              <h3 className="text-[18px] font-semibold text-[#111827]">
+                Recent Order's
+              </h3>
+              <button className="text-[#5065f6] text-[13px] font-medium hover:underline">
                 See All &rsaquo;
               </button>
             </div>
-            <div className="space-y-5">
+            <div className="space-y-4">
               {[
                 {
                   name: "Paricel 15mg",
                   status: "Delivered",
-                  color: "text-indigo-600 bg-indigo-50",
+                  color: "text-[#5065f6] bg-[#EEF2FF]",
+                  batch: "783627",
                 },
                 {
                   name: "Abetis 20mg",
                   status: "Pending",
-                  color: "text-yellow-600 bg-yellow-50",
+                  color: "text-[#FFDB45] bg-[#FFFBEB]",
+                  batch: "888324",
                 },
                 {
                   name: "Cerox CV",
                   status: "Cancelled",
-                  color: "text-red-600 bg-red-50",
+                  color: "text-[#F04B69] bg-[#FFF1F2]",
+                  batch: "767676",
                 },
               ].map((order, idx) => (
                 <div
                   key={idx}
-                  className="flex justify-between items-center text-sm border-b border-gray-50 pb-3 last:border-0"
+                  className="flex justify-between items-center text-[14px] border-b border-gray-50 pb-4 last:border-0"
                 >
                   <div>
-                    <p className="font-bold text-gray-700">{order.name}</p>
-                    <p className="text-[10px] text-gray-400 uppercase tracking-wider">
-                      Batch No: 783627
+                    <p className="font-medium text-[#111827]">{order.name}</p>
+                    <p className="text-[11px] text-gray-400 font-normal">
+                      Batch No: {order.batch}
                     </p>
                   </div>
-                  <span
-                    className={`px-3 py-1 rounded-full text-[10px] font-bold ${order.color}`}
-                  >
-                    {order.status}
-                  </span>
-                  <p className="font-bold text-gray-800">$23.00</p>
+                  <div className="flex items-center gap-4">
+                    <span
+                      className={`px-4 py-1 rounded-full text-[10px] font-semibold tracking-wide uppercase ${order.color}`}
+                    >
+                      {order.status}
+                    </span>
+                    <p className="font-medium text-[#111827] w-12 text-right">
+                      $23.00
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Earning Chart Lingkaran */}
-          <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100 flex flex-col items-center">
-            <h3 className="text-gray-400 text-xs font-bold uppercase mb-1">
+          {/* Earning Chart */}
+          <div className="bg-white rounded-2xl shadow-sm p-8 border border-gray-100 flex flex-col items-center">
+            <h3 className="text-gray-400 text-[10px] font-medium uppercase tracking-[0.15em] mb-2">
               Total Earning
             </h3>
-            <p className="text-3xl font-black text-gray-800">
-              $5098.00{" "}
-              <span className="text-green-500 text-sm font-bold">35% ↑</span>
+            <p className="text-[32px] font-semibold text-[#111827] tracking-tight">
+              $5098.00
             </p>
+            <p className="text-[#28B95E] text-[13px] font-medium mt-1">35% ↑</p>
 
-            {/* Sederhanakan tampilan Radial Chart (Donut) */}
-            <div className="mt-4 relative w-32 h-32 flex items-center justify-center">
-              <div className="absolute w-full h-full rounded-full border-[12px] border-gray-50"></div>
-              <div className="absolute w-full h-full rounded-full border-[12px] border-transparent border-t-indigo-500 border-r-green-400 rotate-45"></div>
-              <div className="absolute w-[70%] h-[70%] rounded-full border-[8px] border-transparent border-b-yellow-400 -rotate-12"></div>
+            <div className="mt-8 relative w-40 h-40 flex items-center justify-center">
+              <svg className="w-full h-full transform -rotate-90">
+                <circle
+                  cx="80"
+                  cy="80"
+                  r="70"
+                  stroke="#F3F4F6"
+                  strokeWidth="12"
+                  fill="transparent"
+                />
+                <circle
+                  cx="80"
+                  cy="80"
+                  r="70"
+                  stroke="#5065f6"
+                  strokeWidth="12"
+                  strokeDasharray="440"
+                  strokeDashoffset="110"
+                  strokeLinecap="round"
+                  fill="transparent"
+                />
+                <circle
+                  cx="80"
+                  cy="80"
+                  r="55"
+                  stroke="#28B95E"
+                  strokeWidth="10"
+                  strokeDasharray="345"
+                  strokeDashoffset="200"
+                  strokeLinecap="round"
+                  fill="transparent"
+                />
+                <circle
+                  cx="80"
+                  cy="80"
+                  r="40"
+                  stroke="#FFDB45"
+                  strokeWidth="8"
+                  strokeDasharray="250"
+                  strokeDashoffset="180"
+                  strokeLinecap="round"
+                  fill="transparent"
+                />
+              </svg>
             </div>
 
-            <div className="grid grid-cols-2 gap-x-8 gap-y-2 mt-6 w-full text-[10px] font-bold text-gray-400">
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-red-400"></span> Total
-                Purchase
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-yellow-400"></span>{" "}
-                Cash Received
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-indigo-500"></span>{" "}
-                Bank Receive
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-green-400"></span>{" "}
-                Total Service
-              </div>
+            <div className="grid grid-cols-2 gap-x-6 gap-y-3 mt-8 w-full">
+              <LegendItem color="bg-[#F04B69]" label="Total Purchase" />
+              <LegendItem color="bg-[#FFDB45]" label="Cash Received" />
+              <LegendItem color="bg-[#5065f6]" label="Bank Receive" />
+              <LegendItem color="bg-[#28B95E]" label="Total Service" />
             </div>
           </div>
         </div>
@@ -214,23 +268,34 @@ export default function Dashboard() {
 
 function StatCard({ label, value, iconColor, icon }) {
   return (
-    <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-50 flex items-center gap-4">
+    <div className="bg-white p-6 rounded-2xl border border-gray-50 flex items-center gap-4 transition-all hover:shadow-md">
       <div
-        className={`w-10 h-10 ${iconColor} rounded-xl flex items-center justify-center text-white text-lg`}
+        className={`w-11 h-11 ${iconColor} rounded-xl flex items-center justify-center text-white text-xl shadow-inner`}
       >
         {icon}
       </div>
       <div>
-        <p className="text-gray-400 text-[10px] font-bold uppercase tracking-tight">
+        <p className="text-gray-400 text-[11px] font-medium uppercase tracking-wider mb-0.5">
           {label}
         </p>
-        <h4 className="text-xl font-black text-gray-800 leading-none mb-1">
+        <h4 className="text-[22px] font-semibold text-[#111827] leading-none mb-1">
           {value}
         </h4>
-        <button className="text-[9px] text-green-500 font-bold hover:underline">
+        <button className="text-[10px] text-[#28B95E] font-medium hover:underline">
           Show Details
         </button>
       </div>
+    </div>
+  );
+}
+
+function LegendItem({ color, label }) {
+  return (
+    <div className="flex items-center gap-2">
+      <span className={`w-2 h-2 rounded-full ${color}`}></span>
+      <span className="text-[10px] font-medium text-gray-500 uppercase tracking-tighter whitespace-nowrap">
+        {label}
+      </span>
     </div>
   );
 }

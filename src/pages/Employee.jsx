@@ -1,593 +1,337 @@
 import React, { useState } from "react";
-import { useLocation } from "react-router-dom";
 import {
+  MdChevronLeft,
+  MdExpandMore,
+  MdCalendarToday,
   MdAdd,
   MdSearch,
-  MdClose,
-  MdCloudUpload,
-  MdEdit,
-  MdDeleteOutline,
   MdMoreVert,
-  MdChevronLeft,
-  MdChevronRight,
+  MdOutlineSearch,
 } from "react-icons/md";
 
-// Ambil data dari JSON yang kamu buat tadi
-import dataApotek from "../data/dataApotek.json";
+export default function EmployeePage() {
+  const [view, setView] = useState("list");
 
-export default function Employee() {
-  const location = useLocation();
-  const currentTab = location.pathname.split("/").pop();
+  // Data Dummy berdasarkan gambar image_0958b6.png
+  const employeeData = [
+    {
+      id: 1,
+      name: "Darlene Robertson",
+      role: "Service Provider",
+      phone: "(406) 555-0120",
+      blood: "A+ (Positive)",
+      email: "jane@gmail.com",
+      salary: "$3456.00",
+      img: "https://i.pravatar.cc/150?u=1",
+    },
+    {
+      id: 2,
+      name: "Jacob Jones",
+      role: "Service Provider",
+      phone: "(406) 555-0120",
+      blood: "A+ (Positive)",
+      email: "jane@gmail.com",
+      salary: "$3456.00",
+      img: "https://i.pravatar.cc/150?u=2",
+    },
+    {
+      id: 3,
+      name: "Cody Fisher",
+      role: "Service Provider",
+      phone: "(406) 555-0120",
+      blood: "A+ (Positive)",
+      email: "jane@gmail.com",
+      salary: "$3456.00",
+      img: "https://i.pravatar.cc/150?u=3",
+    },
+    {
+      id: 4,
+      name: "Esther Howard",
+      role: "Service Provider",
+      phone: "(406) 555-0120",
+      blood: "A+ (Positive)",
+      email: "jane@gmail.com",
+      salary: "$3456.00",
+      img: "https://i.pravatar.cc/150?u=4",
+    },
+    {
+      id: 5,
+      name: "Jerome Bell",
+      role: "Service Provider",
+      phone: "(406) 555-0120",
+      blood: "A+ (Positive)",
+      email: "jane@gmail.com",
+      salary: "$3456.00",
+      img: "https://i.pravatar.cc/150?u=5",
+    },
+    {
+      id: 6,
+      name: "Dianne Russell",
+      role: "Service Provider",
+      phone: "(406) 555-0120",
+      blood: "A+ (Positive)",
+      email: "jane@gmail.com",
+      salary: "$3456.00",
+      img: "https://i.pravatar.cc/150?u=6",
+    },
+  ];
 
-  const renderContent = () => {
-    switch (currentTab) {
-      case "attendance":
-        return <AttendanceModule />;
-      case "payroll":
-        return <PayrollModule />;
-      case "expense":
-        return <ExpenseModule />;
-      default:
-        return <EmployeeListModule />;
-    }
-  };
-
-  return (
-    <div className="animate-in fade-in duration-500 bg-[#F8F9FD] min-h-screen">
-      {renderContent()}
-    </div>
-  );
-}
-
-// ==========================================
-// 1. EMPLOYEE LIST (CARD VIEW)
-// ==========================================
-function EmployeeListModule() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const { employees } = dataApotek;
-
-  return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">Employee List</h2>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="bg-[#5D5FEF] text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg hover:bg-indigo-700 transition-all"
-        >
-          <MdAdd size={20} /> Add New Employee
-        </button>
-      </div>
-
-      {/* Filter Bar */}
-      <div className="flex flex-wrap justify-between items-center mb-8 bg-white p-4 rounded-2xl shadow-sm gap-4">
-        <div className="flex gap-4 flex-1 items-center">
-          <div className="relative max-w-xs w-full">
-            <MdSearch
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-              size={20}
-            />
-            <input
-              type="text"
-              placeholder="Search by anything"
-              className="w-full pl-12 pr-4 py-2.5 bg-gray-50 rounded-xl outline-none text-sm border border-transparent focus:border-indigo-200 transition-all"
-            />
-          </div>
-          <select className="bg-gray-50 px-4 py-2.5 rounded-xl text-sm font-bold text-gray-500 outline-none border-none">
-            <option>Position</option>
-          </select>
-          <button className="bg-[#47C363] text-white p-2.5 rounded-xl shadow-sm">
-            <MdSearch size={20} />
+  // --- HALAMAN LIST EMPLOYEE (SUDAH DISAMAKAN DENGAN GAMBAR) ---
+  if (view === "list") {
+    return (
+      <div className="p-8 bg-[#F8F9FB] min-h-screen font-sans">
+        {/* Header Section */}
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-2xl font-medium text-gray-500">Employee List</h1>
+          <button
+            onClick={() => setView("add")}
+            className="bg-[#5065f6] text-white px-5 py-2.5 rounded-xl flex items-center gap-2 text-sm font-semibold shadow-lg shadow-blue-200"
+          >
+            <MdAdd size={20} />
+            Add New Employee
           </button>
         </div>
-        <div className="flex gap-6 text-[11px] font-bold text-gray-400 uppercase tracking-widest bg-gray-50/50 p-3 px-6 rounded-2xl">
-          <div>
-            Vacation <span className="text-[#5D5FEF] ml-1">14</span>
+
+        {/* Filter & Stats Section */}
+        <div className="flex flex-wrap justify-between items-end gap-4 mb-8">
+          <div className="flex gap-4 flex-1 max-w-2xl">
+            <div className="flex-1">
+              <label className="text-xs text-gray-400 block mb-2">
+                Search By
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search by anything"
+                  className="w-full bg-white border-none rounded-lg p-3 text-sm shadow-sm outline-none"
+                />
+                <MdOutlineSearch
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={20}
+                />
+              </div>
+            </div>
+            <div className="w-48">
+              <label className="text-xs text-gray-400 block mb-2">
+                Position
+              </label>
+              <div className="relative">
+                <select className="w-full bg-white border-none rounded-lg p-3 text-sm shadow-sm appearance-none outline-none text-gray-400">
+                  <option>Position</option>
+                </select>
+                <MdExpandMore
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={20}
+                />
+              </div>
+            </div>
+            <button className="bg-[#28B95E] text-white p-3 rounded-lg self-end shadow-sm">
+              <MdOutlineSearch size={24} />
+            </button>
           </div>
-          <div>
-            Day Off <span className="text-red-500 ml-1">04</span>
-          </div>
-          <div>
-            At Office <span className="text-green-500 ml-1">● 50</span>
+
+          {/* Mini Stats Card (Right) */}
+          <div className="bg-white p-3 rounded-xl shadow-sm flex gap-6 px-6 border border-gray-50">
+            <div className="text-center">
+              <p className="text-[10px] text-gray-400 uppercase">Vaction</p>
+              <p className="text-sm font-bold text-blue-500">14</p>
+            </div>
+            <div className="text-center">
+              <p className="text-[10px] text-gray-400 uppercase">Day Off</p>
+              <p className="text-sm font-bold text-red-400">04</p>
+            </div>
+            <div className="text-center">
+              <p className="text-[10px] text-gray-400 uppercase">At Office</p>
+              <p className="text-sm font-bold text-green-500">50</p>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Grid Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {employees.map((emp) => (
-          <div
-            key={emp.id}
-            className="bg-white p-6 rounded-3xl border border-gray-100 hover:shadow-xl transition-all relative group"
-          >
-            <div className="flex justify-between items-start mb-4">
-              <div className="flex items-center gap-4">
+        {/* EMPLOYEE GRID CARD */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {employeeData.map((emp) => (
+            <div
+              key={emp.id}
+              className="bg-white p-5 rounded-2xl shadow-sm border border-gray-50 relative group hover:shadow-md transition-all"
+            >
+              <MdMoreVert className="absolute top-4 right-4 text-gray-300 cursor-pointer" />
+              <div className="flex items-center gap-4 mb-6">
                 <img
-                  src={emp.image}
-                  alt=""
-                  className="w-14 h-14 rounded-2xl object-cover bg-amber-100"
+                  src={emp.img}
+                  alt={emp.name}
+                  className="w-12 h-12 rounded-lg object-cover"
                 />
                 <div>
-                  <h3 className="font-bold text-gray-800 text-sm leading-tight">
+                  <h3 className="text-sm font-semibold text-gray-700 leading-tight">
                     {emp.name}
                   </h3>
-                  <span className="text-[10px] text-blue-500 font-bold px-2 py-0.5 bg-blue-50 rounded-md">
-                    Service Provider
+                  <span className="text-[10px] px-2 py-0.5 bg-blue-50 text-blue-600 rounded-md font-bold mt-1 inline-block">
+                    {emp.role}
                   </span>
                 </div>
               </div>
-              <MdMoreVert className="text-gray-300 cursor-pointer" size={20} />
-            </div>
 
-            <div className="space-y-3 mt-6">
-              <div className="flex justify-between text-[10px]">
-                <span className="text-gray-400 font-bold uppercase">Phone</span>
-                <span className="text-gray-700 font-bold">{emp.phone}</span>
-              </div>
-              <div className="flex justify-between text-[10px]">
-                <span className="text-gray-400 font-bold uppercase">
-                  Blood Group
-                </span>
-                <span className="text-gray-700 font-bold">A+ (Positive)</span>
-              </div>
-              <div className="flex justify-between text-[10px]">
-                <span className="text-gray-400 font-bold uppercase">Email</span>
-                <span className="text-gray-700 font-bold">{emp.email}</span>
-              </div>
-              <div className="flex justify-between text-[10px]">
-                <span className="text-gray-400 font-bold uppercase">
-                  Hourly Rate/Salary
-                </span>
-                <span className="text-gray-700 font-bold">$3456.00</span>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Pagination Simpel */}
-      <div className="mt-10 flex justify-end items-center gap-2">
-        <button className="p-2 text-gray-400 hover:text-indigo-600">
-          <MdChevronLeft size={24} />
-        </button>
-        {[1, 2, 3, 4].map((n) => (
-          <button
-            key={n}
-            className={`w-8 h-8 rounded-lg text-xs font-bold ${n === 3 ? "bg-indigo-600 text-white shadow-md" : "text-gray-400"}`}
-          >
-            {n}
-          </button>
-        ))}
-        <button className="p-2 text-gray-400 hover:text-indigo-600">
-          <MdChevronRight size={24} />
-        </button>
-      </div>
-
-      {isModalOpen && (
-        <AddEmployeeModal onClose={() => setIsModalOpen(false)} />
-      )}
-    </div>
-  );
-}
-
-// ==========================================
-// 2. ATTENDANCE (VIEW BORDER & PAGINATION)
-// ==========================================
-function AttendanceModule() {
-  const [showAdd, setShowAdd] = useState(false);
-  const { attendance } = dataApotek;
-
-  return (
-    <div className="p-6">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">Attendance</h2>
-
-      <div className="bg-white p-6 rounded-3xl border border-gray-50 flex items-end gap-4 mb-8 shadow-sm">
-        <div className="flex-1 max-w-xs">
-          <InputGroup label="Employee Name" type="select" />
-        </div>
-        <div className="flex gap-4">
-          <InputGroup label="Date & Time" type="date" />
-        </div>
-        <button className="bg-indigo-600 text-white p-3 rounded-xl shadow-md">
-          <MdSearch size={22} />
-        </button>
-        <button
-          onClick={() => setShowAdd(true)}
-          className="ml-auto bg-indigo-600 text-white px-8 py-3.5 rounded-xl font-bold text-sm"
-        >
-          + Add Attendance
-        </button>
-      </div>
-
-      <div className="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-50">
-        <table className="w-full text-left">
-          <thead className="bg-gray-50/50 text-[10px] font-black text-gray-300 uppercase tracking-widest">
-            <tr>
-              <th className="px-8 py-5">Employee Name</th>
-              <th className="p-5">Date</th>
-              <th className="p-5">Start Time</th>
-              <th className="p-5">End Time</th>
-              <th className="p-5">Stay Time</th>
-              <th className="p-5 text-center">Action</th>
-            </tr>
-          </thead>
-          <tbody className="text-sm">
-            {attendance.map((atd) => (
-              <tr
-                key={atd.id}
-                className="border-b border-gray-50 hover:bg-gray-50/50 transition-all font-medium text-gray-600"
-              >
-                <td className="px-8 py-4 flex items-center gap-3 font-bold text-gray-700">
-                  <img
-                    src={atd.img}
-                    className="w-9 h-9 rounded-full bg-gray-100"
-                    alt=""
-                  />
-                  {atd.name}
-                </td>
-                <td className="p-5 text-gray-400">{atd.date}</td>
-                <td className="p-5 font-bold">{atd.start}</td>
-                <td className="p-5 font-bold">{atd.end}</td>
-                <td className="p-5">{atd.stay}</td>
-                <td className="p-5 text-center">
-                  {/* Border Biru di View sesuai request */}
-                  <button className="text-[#5D5FEF] font-bold border border-blue-100 px-4 py-1.5 rounded-lg hover:bg-blue-50 transition-all">
-                    View
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="mt-6 flex justify-end gap-2">
-        {[1, 2, 3, 4, 5].map((n) => (
-          <button
-            key={n}
-            className={`w-8 h-8 rounded-lg text-xs font-bold ${n === 3 ? "bg-indigo-600 text-white shadow-md" : "text-gray-400"}`}
-          >
-            {n}
-          </button>
-        ))}
-      </div>
-
-      {showAdd && <AddAttendancePopup onClose={() => setShowAdd(false)} />}
-    </div>
-  );
-}
-
-// ==========================================
-// 3. PAYROLL (DUMMY DATA INCLUDED)
-// ==========================================
-function PayrollModule() {
-  const payrollData = [
-    { id: 1, name: "Eid Bonus", type: "Add", status: "Active" },
-    { id: 2, name: "Transport Fee", type: "Add", status: "Active" },
-    { id: 3, name: "Baby Bonus", type: "Add", status: "Active" },
-    { id: 4, name: "Daily Reward", type: "Add", status: "Active" },
-  ];
-
-  return (
-    <div className="p-6">
-      <div className="flex gap-2 mb-8 bg-white p-2 rounded-2xl w-fit shadow-sm">
-        {["Benefits List", "Salary Setup", "Salary Sheet"].map((tab, i) => (
-          <button
-            key={tab}
-            className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest ${i === 0 ? "bg-indigo-600 text-white" : "text-gray-400"}`}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
-
-      <div className="bg-white p-8 rounded-3xl shadow-sm min-h-[400px]">
-        <h3 className="text-2xl font-bold mb-6">Benefits List</h3>
-        <table className="w-full text-left">
-          <thead className="text-[11px] text-gray-300 font-bold uppercase tracking-widest">
-            <tr className="border-b">
-              <th className="py-4">SI</th>
-              <th>Benefit Name</th>
-              <th>Type</th>
-              <th>Status</th>
-              <th className="text-center">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {payrollData.map((item, i) => (
-              <tr
-                key={item.id}
-                className="border-b border-gray-50 text-sm font-bold text-gray-600 hover:bg-gray-50/50"
-              >
-                <td className="py-4">{i + 1}</td>
-                <td>{item.name}</td>
-                <td>{item.type}</td>
-                <td>
-                  <span className="text-green-500 bg-green-50 px-3 py-1 rounded-full text-[10px]">
-                    ● {item.status}
-                  </span>
-                </td>
-                <td className="text-center space-x-2">
-                  <button className="text-gray-300 hover:text-indigo-600">
-                    <MdEdit size={18} />
-                  </button>
-                  <button className="text-gray-300 hover:text-red-500">
-                    <MdDeleteOutline size={18} />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {/* Tombol sudah dihapus sesuai request */}
-      </div>
-    </div>
-  );
-}
-
-// ==========================================
-// 4. EXPENSE (ADD POPUP INCLUDED)
-// ==========================================
-function ExpenseModule() {
-  const { expenses } = dataApotek;
-  const [showAdd, setShowAdd] = useState(false);
-
-  return (
-    <div className="p-6">
-      <div className="flex gap-2 mb-8">
-        {["Expense Item List", "Expense List", "Expense Statement"].map(
-          (tab, i) => (
-            <button
-              key={tab}
-              className={`px-8 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest ${i === 0 ? "bg-indigo-600 text-white shadow-lg" : "bg-white text-gray-400"}`}
-            >
-              {tab}
-            </button>
-          ),
-        )}
-      </div>
-
-      <div className="bg-white p-8 rounded-3xl shadow-sm">
-        <div className="flex justify-between items-center mb-8">
-          <h3 className="text-gray-800 font-black uppercase text-xs tracking-widest">
-            Expense Items
-          </h3>
-          <div className="relative w-64">
-            <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
-            <input
-              type="text"
-              placeholder="Search"
-              className="w-full pl-10 pr-4 py-2 text-xs bg-gray-50 border-none rounded-lg outline-none"
-            />
-          </div>
-        </div>
-
-        <table className="w-full text-left text-sm">
-          <thead className="text-[11px] font-black text-gray-300 uppercase tracking-widest">
-            <tr className="border-b">
-              <th className="py-4">
-                <input type="checkbox" className="accent-indigo-600" />
-              </th>
-              <th>SI</th>
-              <th>Expense Item Name</th>
-              <th className="text-center">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {expenses.map((exp, i) => (
-              <tr
-                key={exp.id}
-                className="border-b border-gray-50 hover:bg-gray-50/50"
-              >
-                <td className="py-4">
-                  <input type="checkbox" className="accent-indigo-600" />
-                </td>
-                <td className="font-bold text-gray-400">{i + 1}</td>
-                <td className="font-bold text-gray-700">{exp.name}</td>
-                <td className="text-center">
-                  <div className="flex justify-center gap-3">
-                    <button className="text-gray-300 hover:text-indigo-600">
-                      <MdEdit size={18} />
-                    </button>
-                    <button className="text-gray-300 hover:text-red-500">
-                      <MdDeleteOutline size={18} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {/* Button sekarang di dalam div putih (bg-white) */}
-        <div className="flex justify-end mt-8">
-          <button
-            onClick={() => setShowAdd(true)}
-            className="bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-indigo-100 transition-transform active:scale-95"
-          >
-            Add Expense
-          </button>
-        </div>
-      </div>
-      {showAdd && <AddExpensePopup onClose={() => setShowAdd(false)} />}
-    </div>
-  );
-}
-
-// ==========================================
-// REUSABLE COMPONENTS & MODALS
-// ==========================================
-function InputGroup({ label, placeholder, type = "text" }) {
-  return (
-    <div className="w-full">
-      <label className="text-[10px] font-black text-gray-400 uppercase mb-2 block tracking-widest">
-        {label}
-      </label>
-      {type === "select" ? (
-        <select className="w-full p-3 bg-gray-50 rounded-xl font-bold text-gray-700 outline-none border-none text-xs">
-          <option>Select Option</option>
-          <option>Thomas Flecture</option>
-        </select>
-      ) : (
-        <input
-          type={type}
-          placeholder={placeholder}
-          className="w-full p-3 bg-gray-50 rounded-xl font-bold text-gray-700 outline-none border-none text-xs"
-        />
-      )}
-    </div>
-  );
-}
-
-// 2ND PAGE EMPLOYEE (ADD EMPLOYEE)
-function AddEmployeeModal({ onClose }) {
-  const roles = [
-    {
-      name: "Director",
-      desc: "The role of director differs from business operations of the production",
-    },
-    {
-      name: "Manager",
-      desc: "A person responsible for controlling or administering organization",
-    },
-    {
-      name: "Assistant Manager",
-      desc: "Assistant Managers are often in charge of daily business",
-    },
-    {
-      name: "Team Leader",
-      desc: "A team leader is a person who provides guidance, instruction",
-    },
-  ];
-
-  return (
-    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 backdrop-blur-sm p-6 overflow-y-auto">
-      <div className="bg-[#F8F9FD] w-full max-w-6xl rounded-[3rem] p-12 relative animate-in zoom-in duration-300">
-        <button
-          onClick={onClose}
-          className="absolute top-8 left-8 flex items-center gap-2 text-gray-400 font-bold hover:text-indigo-600"
-        >
-          <MdChevronLeft size={24} /> Back
-        </button>
-        <h2 className="text-4xl font-light text-gray-800 mb-10 mt-6">
-          Add Employee
-        </h2>
-
-        {/* Choose Designation */}
-        <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-6">
-          Choose Employee Designation
-        </h4>
-        <div className="grid grid-cols-4 gap-4 mb-10">
-          {roles.map((role) => (
-            <div
-              key={role.name}
-              className="bg-white p-6 rounded-2xl border border-gray-100 flex gap-4 cursor-pointer hover:border-indigo-300 transition-all"
-            >
-              <input
-                type="radio"
-                name="role"
-                className="mt-1 accent-indigo-600 h-4 w-4"
-              />
-              <div>
-                <p className="font-bold text-sm text-gray-800">{role.name}</p>
-                <p className="text-[10px] text-gray-400 mt-1 leading-relaxed">
-                  {role.desc}
-                </p>
+              <div className="grid grid-cols-2 gap-y-4">
+                <div>
+                  <p className="text-[9px] text-gray-400 uppercase">Phone</p>
+                  <p className="text-[11px] font-semibold text-gray-700">
+                    {emp.phone}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[9px] text-gray-400 uppercase">
+                    Blood Group
+                  </p>
+                  <p className="text-[11px] font-semibold text-gray-700">
+                    {emp.blood}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[9px] text-gray-400 uppercase">Email</p>
+                  <p className="text-[11px] font-semibold text-gray-700">
+                    {emp.email}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[9px] text-gray-400 uppercase">
+                    Hourly Rate/Salary
+                  </p>
+                  <p className="text-[11px] font-semibold text-gray-700">
+                    {emp.salary}
+                  </p>
+                </div>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Form Grid */}
-        <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-6">
+        {/* Pagination */}
+        <div className="flex justify-end mt-10 gap-2 items-center">
+          <button className="p-2 text-gray-400">
+            <MdChevronLeft />
+          </button>
+          {[1, 2, 3, 4].map((n) => (
+            <button
+              key={n}
+              className={`w-8 h-8 rounded-lg text-xs font-bold ${n === 3 ? "bg-[#5065f6] text-white" : "text-gray-400"}`}
+            >
+              {n}
+            </button>
+          ))}
+          <span className="text-gray-400 text-xs">...</span>
+          <button className="w-8 h-8 rounded-lg text-xs font-bold text-gray-400">
+            40
+          </button>
+          <button className="p-2 text-gray-400 rotate-180">
+            <MdChevronLeft />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // --- HALAMAN ADD EMPLOYEE (TETAP SESUAI FIGMA) ---
+  return (
+    <div className="bg-[#FDFDFD] min-h-screen px-8 pt-4 pb-12 animate-in slide-in-from-right duration-500 font-sans">
+      <button
+        onClick={() => setView("list")}
+        className="flex items-center gap-1 text-gray-400 hover:text-gray-600 mb-4 group"
+      >
+        <MdChevronLeft
+          size={20}
+          className="group-hover:-translate-x-1 transition-transform"
+        />
+        <span className="text-sm font-medium">Back</span>
+      </button>
+
+      <h1 className="text-[32px] font-semibold text-[#111827] mb-8">
+        Add Employee
+      </h1>
+
+      <div className="mb-10">
+        <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-6">
+          Choose Employee Designation
+        </h4>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {["Director", "Manager", "Assistant Manager", "Team Leader"].map(
+            (role, idx) => (
+              <label
+                key={role}
+                className="bg-white p-6 rounded-2xl border border-gray-100 flex gap-4 cursor-pointer hover:border-[#5065f6] shadow-sm"
+              >
+                <input
+                  type="radio"
+                  name="designation"
+                  defaultChecked={idx === 0}
+                  className="mt-1 w-4 h-4 accent-[#5065f6]"
+                />
+                <div>
+                  <span className="text-[15px] font-semibold text-[#111827] block mb-1">
+                    {role}
+                  </span>
+                  <span className="text-[11px] text-gray-400 leading-relaxed font-normal">
+                    Description based on roles...
+                  </span>
+                </div>
+              </label>
+            ),
+          )}
+        </div>
+      </div>
+
+      <div className="mb-10">
+        <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-6">
           Personal Information
         </h4>
-        <div className="grid grid-cols-3 gap-8">
-          <InputGroup label="Full Name" placeholder="Thomas Flecture" />
-          <InputGroup label="Phone Number" placeholder="(406) 555-0120" />
-          <InputGroup
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-6">
+          <InputBox label="Full Name" placeholder="Thomas Flecture" />
+          <InputBox label="Phone Number" placeholder="(406) 555-0120" />
+          <InputBox
             label="Email Address"
             placeholder="uihutofficial@gmail.com"
           />
-          <InputGroup label="Birth Day" type="date" />
-          <InputGroup label="Hour Rate/Salary" placeholder="$1000.00" />
-          <InputGroup label="Salary Type" type="select" />
+          <InputBox label="Birth Day" placeholder="12 Feb 2022" isDate />
+          <InputBox label="Hour Rate/Salary" placeholder="$1000.00" isSelect />
+          <InputBox label="Salary Type" placeholder="Select Option" isSelect />
+          <InputBox label="Gender" placeholder="Select" isSelect />
+          <InputBox label="City" placeholder="Sylhet" isSelect />
+          <InputBox label="Zip Code" placeholder="Bangladesh" isSelect />
         </div>
+      </div>
 
-        <div className="mt-12 flex justify-end gap-4">
-          <button
-            onClick={onClose}
-            className="px-10 py-3 text-gray-400 font-bold"
-          >
-            Cancel
-          </button>
-          <button className="px-12 py-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-xl shadow-indigo-100">
-            Add Employee
-          </button>
-        </div>
+      <div className="mt-12 flex justify-end items-center gap-6 border-t pt-8">
+        <button
+          onClick={() => setView("list")}
+          className="text-sm font-semibold text-gray-400 hover:text-gray-600"
+        >
+          Cancel
+        </button>
+        <button className="px-10 py-3.5 bg-[#5065f6] text-white rounded-xl text-sm font-semibold shadow-lg shadow-blue-200">
+          Add Employee
+        </button>
       </div>
     </div>
   );
 }
 
-// POPUP EXPENSE ITEM
-function AddExpensePopup({ onClose }) {
+function InputBox({ label, placeholder, isSelect, isDate }) {
   return (
-    <div
-      className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/30 backdrop-blur-sm"
-      onClick={onClose}
-    >
-      <div
-        className="bg-white p-10 rounded-[2rem] w-[400px] shadow-2xl relative"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h3 className="text-lg font-bold text-gray-800 mb-6">
-          Add Expense Item
-        </h3>
-        <InputGroup label="Expense Item Name" type="select" />
-        <div className="flex gap-4 mt-8">
-          <button
-            onClick={onClose}
-            className="flex-1 py-3 bg-gray-50 rounded-xl font-bold text-gray-400"
-          >
-            Cancel
-          </button>
-          <button className="flex-1 py-3 bg-indigo-600 rounded-xl font-bold text-white shadow-lg shadow-indigo-100">
-            Add Item
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// POPUP ATTENDANCE
-function AddAttendancePopup({ onClose }) {
-  return (
-    <div
-      className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/30 backdrop-blur-sm"
-      onClick={onClose}
-    >
-      <div
-        className="bg-white p-10 rounded-[2rem] w-[450px] shadow-2xl animate-in fade-in"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h3 className="text-xl font-bold mb-6">Add Attendance</h3>
-        <div className="space-y-6">
-          <InputGroup label="Employee" type="select" />
-          <InputGroup label="Date & Time" type="date" />
-          <InputGroup label="Start Time" type="time" />
-        </div>
-        <div className="flex gap-4 mt-10">
-          <button
-            onClick={onClose}
-            className="flex-1 py-3 font-bold text-gray-400"
-          >
-            Cancel
-          </button>
-          <button className="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-lg">
-            Add
-          </button>
-        </div>
+    <div className="flex flex-col w-full">
+      <label className="text-[11px] font-bold text-gray-400 uppercase mb-2">
+        {label}
+      </label>
+      <div className="relative">
+        <input
+          type="text"
+          placeholder={placeholder}
+          className="w-full bg-[#F8F9FB] p-3.5 rounded-xl text-sm font-medium outline-none"
+        />
+        {isSelect && (
+          <MdExpandMore className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        )}
+        {isDate && (
+          <MdCalendarToday className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300" />
+        )}
       </div>
     </div>
   );

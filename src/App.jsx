@@ -33,20 +33,28 @@ function App() {
 
         {/* === MAIN APPLICATION ROUTES === */}
         <Route element={<MainLayout />}>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/employee/list" element={<Employee />} />
-          <Route path="/employee/attendance" element={<Employee />} />
-          <Route path="/employee/payroll" element={<Employee />} />
-          <Route path="/employee/expense" element={<Employee />} />
-          <Route path="/stock" element={<Stock />} />
-          {/* Path Product disamakan dengan Sidebar & URL browser */}
-          <Route path="/product/list" element={<Product />} />
-          <Route path="/product/package" element={<Product />} />
-          <Route path="/product/damage" element={<Product />} />
-          {/* Error Routes */}
+          {/* Redirect otomatis dari base URL ke dashboard */}
+          <Route index element={<Navigate to="/dashboard" replace />} />
+
+          <Route path="dashboard" element={<Dashboard />} />
+
+          {/* Grouping Employee */}
+          <Route path="employee/list" element={<Employee />} />
+          <Route path="employee/attendance" element={<Employee />} />
+          <Route path="employee/payroll" element={<Employee />} />
+          <Route path="employee/expense" element={<Employee />} />
+
+          {/* Grouping Stock */}
+          <Route path="stock" element={<Stock />} />
+
+          {/* Grouping Product */}
+          <Route path="product/list" element={<Product />} />
+          <Route path="product/package" element={<Product />} />
+          <Route path="product/damage" element={<Product />} />
+
+          {/* Error Routes di dalam Layout Utama (masih ada sidebar/header) */}
           <Route
-            path="/error-400"
+            path="error-400"
             element={
               <ErrorPage
                 code="400"
@@ -56,7 +64,7 @@ function App() {
             }
           />
           <Route
-            path="/error-401"
+            path="error-401"
             element={
               <ErrorPage
                 code="401"
@@ -66,7 +74,7 @@ function App() {
             }
           />
           <Route
-            path="/error-403"
+            path="error-403"
             element={
               <ErrorPage
                 code="403"
@@ -77,7 +85,7 @@ function App() {
           />
         </Route>
 
-        {/* === CATCH-ALL 404 ROUTE === */}
+        {/* === CATCH-ALL 404 ROUTE (Tanpa Sidebar/Header) === */}
         <Route
           path="*"
           element={

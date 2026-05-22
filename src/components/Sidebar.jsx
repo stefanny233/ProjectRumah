@@ -7,6 +7,7 @@ import {
   MdMedication,
   MdExpandMore,
 } from "react-icons/md";
+import { PiPlantLight } from "react-icons/pi";
 
 export default function Sidebar() {
   const location = useLocation();
@@ -55,9 +56,9 @@ export default function Sidebar() {
     <aside className="w-72 bg-white border-r border-gray-100 flex flex-col min-h-screen sticky top-0">
       {/* LOGO */}
       <div className="p-8">
-        <h1 className="text-3xl font-black text-emerald-600 tracking-tighter uppercase italic">
-          Apotek <span className="text-gray-800">QWU</span>
-        </h1>
+        <div className="w-12 h-12 bg-[#1B3022] rounded-xl flex items-center justify-center text-emerald-400 text-2xl shadow-sm">
+          <PiPlantLight />
+        </div>
       </div>
 
       <nav className="flex-1 px-4 space-y-2 overflow-y-auto no-scrollbar">
