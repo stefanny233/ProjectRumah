@@ -11,6 +11,8 @@ const Dashboard = lazy(() => import("./pages/DashboardPage"));
 const Employee = lazy(() => import("./pages/Employee"));
 const Stock = lazy(() => import("./pages/Stock"));
 const Product = lazy(() => import("./pages/Product"));
+// Impor halaman Dispenser mase secara lazy loading
+const Dispenser = lazy(() => import("./pages/Dispenser")); 
 
 // Auth Pages
 const Login = lazy(() => import("./pages/auth/Login"));
@@ -24,19 +26,18 @@ function App() {
   return (
     <Suspense fallback={<Loading />}>
       <Routes>
-        {/* === AUTHENTICATION ROUTES === */}
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<Forgot />} />
         </Route>
 
-        {/* === MAIN APPLICATION ROUTES === */}
         <Route element={<MainLayout />}>
-          {/* Redirect otomatis dari base URL ke dashboard */}
           <Route index element={<Navigate to="/dashboard" replace />} />
 
           <Route path="dashboard" element={<Dashboard />} />
+
+          <Route path="dispenser" element={<Dispenser />} />
 
           {/* Grouping Employee */}
           <Route path="employee/list" element={<Employee />} />
@@ -44,15 +45,12 @@ function App() {
           <Route path="employee/payroll" element={<Employee />} />
           <Route path="employee/expense" element={<Employee />} />
 
-          {/* Grouping Stock */}
           <Route path="stock" element={<Stock />} />
 
-          {/* Grouping Product */}
           <Route path="product/list" element={<Product />} />
           <Route path="product/package" element={<Product />} />
           <Route path="product/damage" element={<Product />} />
 
-          {/* Error Routes di dalam Layout Utama (masih ada sidebar/header) */}
           <Route
             path="error-400"
             element={
@@ -85,7 +83,6 @@ function App() {
           />
         </Route>
 
-        {/* === CATCH-ALL 404 ROUTE (Tanpa Sidebar/Header) === */}
         <Route
           path="*"
           element={

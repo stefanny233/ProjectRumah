@@ -1,242 +1,260 @@
-import React, { useState, useEffect } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import {
   MdDashboard,
-  MdPeople,
+  MdShoppingCart,
+  MdLocalPharmacy,
+  MdInventory2,
+  MdAssessment,
   MdInventory,
-  MdMedication,
-  MdExpandMore,
+  MdBusiness,
+  MdPeople,
+  MdSettings,
+  MdKeyboardArrowDown,
+  MdKeyboardArrowUp,
 } from "react-icons/md";
-import { PiPlantLight } from "react-icons/pi";
 
 export default function Sidebar() {
   const location = useLocation();
-  const [isHROpen, setIsHROpen] = useState(
-    location.pathname.includes("/employee"),
-  );
 
-  // Logic: Dropdown otomatis terbuka kalau URL mengandung kata "/product"
-  const [isProductOpen, setIsProductOpen] = useState(
-    location.pathname.includes("/product"),
-  );
-  const [isStockOpen, setIsStockOpen] = useState(
-    location.pathname.includes("/stock"),
-  );
+  const [openDropdown, setOpenDropdown] = useState({
+    purchase: false,
+    dispenser: false,
+    product: location.pathname.includes("product"),
+    reports: false,
+    stock: location.pathname.includes("stock"),
+    manufacturer: location.pathname.includes("manufacturer"),
+    employee: location.pathname.includes("employee"),
+  });
 
-  // Efek ini menjaga dropdown tetap terbuka kalau user akses URL langsung
-  useEffect(() => {
-    if (location.pathname.includes("/product")) {
-      setIsProductOpen(true);
-      if (location.pathname.includes("/stock")) setIsStockOpen(true);
-    }
-  }, [location.pathname]);
-
-  const menu = [
-    { name: "Dashboard", path: "/dashboard", icon: <MdDashboard /> },
-    { name: "Employee", path: "/employee", icon: <MdPeople /> },
-  ];
-
-  const productSubMenu = [
-    { name: "Product List", path: "/product/list" },
-    { name: "Product Package", path: "/product/package" },
-    { name: "Product Damage", path: "/product/damage" },
-  ];
-  const stockSubMenu = [
-    { name: "Stock Report", path: "/stock" },
-    { name: "Stock Report (Batch)", path: "/stock/report-batch" },
-  ];
-  const hrSubMenu = [
-    { name: "Employee", path: "/employee/list" },
-    { name: "Attendance", path: "/employee/attendance" },
-    { name: "Payroll", path: "/employee/payroll" },
-    { name: "Expense", path: "/employee/expense" },
-  ];
+  const toggleDropdown = (menu) => {
+    setOpenDropdown((prev) => ({ ...prev, [menu]: !prev[menu] }));
+  };
 
   return (
-    <aside className="w-72 bg-white border-r border-gray-100 flex flex-col min-h-screen sticky top-0">
-      {/* LOGO */}
-      <div className="p-8">
-        <div className="w-12 h-12 bg-[#1B3022] rounded-xl flex items-center justify-center text-emerald-400 text-2xl shadow-sm">
-          <PiPlantLight />
-        </div>
-      </div>
-
-      <nav className="flex-1 px-4 space-y-2 overflow-y-auto no-scrollbar">
-        <p className="text-[10px] font-black text-gray-300 uppercase tracking-[0.2em] mb-4 ml-4">
+    <aside className="w-64 bg-white border-r border-gray-100 flex flex-col select-none overflow-y-auto font-sans">
+      {/* Navigation Menu List */}
+      <div className="px-4 py-4 flex flex-col gap-1">
+        <span className="text-[10px] font-bold text-gray-300 tracking-widest uppercase px-4 mb-2 block">
           Main Menu
-        </p>
+        </span>
 
-        {/* MENU UTAMA (Dashboard & Employee) */}
-        <div className="space-y-2">
-          <NavLink
-            to="/dashboard"
-            className={({ isActive }) =>
-              `flex items-center px-5 py-4 rounded-2xl transition-all duration-300 ${
-                isActive
-                  ? "bg-indigo-50 text-indigo-600 font-bold"
-                  : "text-gray-400 hover:bg-gray-50 hover:text-indigo-600"
-              }`
-            }
+        {/* 1. DASHBOARD */}
+        <Link
+          to="/dashboard"
+          className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl text-xs font-bold tracking-wider uppercase transition-all ${
+            location.pathname === "/dashboard"
+              ? "bg-[#EEF0FF] text-[#5065f6]"
+              : "text-gray-400 hover:bg-gray-50"
+          }`}
+        >
+          <MdDashboard size={20} />
+          <span>Dashboard</span>
+        </Link>
+
+        {/* 2. PURCHASE */}
+        <div>
+          <button
+            onClick={() => toggleDropdown("purchase")}
+            className="w-full flex items-center justify-between px-4 py-3.5 text-xs font-bold text-gray-400 hover:bg-gray-50 uppercase tracking-wider rounded-2xl"
           >
-            <span className="text-2xl mr-4">
-              <MdDashboard />
-            </span>
-            <span className="text-sm font-bold uppercase tracking-tight">
-              Dashboard
-            </span>
-          </NavLink>
+            <div className="flex items-center gap-4">
+              <MdShoppingCart size={20} />
+              <span>Purchase</span>
+            </div>
+            {openDropdown.purchase ? (
+              <MdKeyboardArrowUp size={18} />
+            ) : (
+              <MdKeyboardArrowDown size={18} />
+            )}
+          </button>
         </div>
 
-        {/* --- DROPDOWN HUMAN RESOURCES --- */}
-        <div className="flex flex-col">
+        {/* 3. DISPENSER */}
+        <Link
+          to="/dispenser"
+          className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl text-xs font-bold tracking-wider uppercase transition-all ${
+            location.pathname === "/dispenser"
+              ? "bg-[#EEF0FF] text-[#5065f6]"
+              : "text-gray-400 hover:bg-gray-50"
+          }`}
+        >
+          <MdLocalPharmacy size={20} />
+          <span>Dispenser</span>
+        </Link>
+
+        {/* 4. PRODUCT */}
+        <div>
           <button
-            onClick={() => setIsHROpen(!isHROpen)}
-            className={`flex items-center justify-between px-5 py-4 rounded-2xl transition-all duration-300 ${
-              location.pathname.includes("/employee")
-                ? "bg-indigo-50 text-indigo-600 font-bold"
-                : "text-gray-400 hover:bg-gray-50 hover:text-indigo-600"
-            }`}
+            onClick={() => toggleDropdown("product")}
+            className={`w-full flex items-center justify-between px-4 py-3.5 text-xs font-bold uppercase tracking-wider rounded-2xl ${location.pathname.includes("product") ? "text-gray-500 bg-gray-50/50" : "text-gray-400 hover:bg-gray-50"}`}
           >
-            <div className="flex items-center">
-              <span className="text-2xl mr-4">
-                <MdPeople />
-              </span>
-              <span className="text-sm font-bold uppercase tracking-tight">
-                Employee
-              </span>
+            <div className="flex items-center gap-4">
+              <MdInventory2 size={20} />
+              <span>Product</span>
             </div>
-            <MdExpandMore
-              className={`text-2xl transition-transform ${isHROpen ? "rotate-180" : ""}`}
-            />
+            {openDropdown.product ? (
+              <MdKeyboardArrowUp size={18} />
+            ) : (
+              <MdKeyboardArrowDown size={18} />
+            )}
+          </button>
+          {openDropdown.product && (
+            <div className="pl-12 pr-2 py-1 flex flex-col gap-0.5">
+              <Link
+                to="/product/list"
+                className={`py-2 text-[11px] font-bold uppercase tracking-wider flex items-center gap-2 ${location.pathname === "/product/list" ? "text-[#5065f6]" : "text-gray-300"}`}
+              >
+                <span className="text-[8px]">●</span> Product List
+              </Link>
+              <Link
+                to="/error"
+                className={`py-2 text-[11px] font-bold uppercase tracking-wider flex items-center gap-2 ${location.pathname === "/product/package" ? "text-[#5065f6]" : "text-gray-300 hover:text-red-400 transition-colors"}`}
+              >
+                <span className="text-[8px]">●</span> Product Package
+              </Link>
+              <Link
+                to="/error"
+                className={`py-2 text-[11px] font-bold uppercase tracking-wider flex items-center gap-2 ${location.pathname === "/product/damage" ? "text-[#5065f6]" : "text-gray-300 hover:text-red-400 transition-colors"}`}
+              >
+                <span className="text-[8px]">●</span> Product Damage
+              </Link>
+            </div>
+          )}
+        </div>
+
+        {/* 5. REPORTS */}
+        <div>
+          <button
+            onClick={() => toggleDropdown("reports")}
+            className="w-full flex items-center justify-between px-4 py-3.5 text-xs font-bold text-gray-400 hover:bg-gray-50 uppercase tracking-wider rounded-2xl"
+          >
+            <div className="flex items-center gap-4">
+              <MdAssessment size={20} />
+              <span>Reports</span>
+            </div>
+            {openDropdown.reports ? (
+              <MdKeyboardArrowUp size={18} />
+            ) : (
+              <MdKeyboardArrowDown size={18} />
+            )}
+          </button>
+        </div>
+
+        {/* 6. STOCK */}
+        <div>
+          <button
+            onClick={() => toggleDropdown("stock")}
+            className={`w-full flex items-center justify-between px-4 py-3.5 text-xs font-bold uppercase tracking-wider rounded-2xl ${location.pathname.includes("stock") ? "text-gray-500 bg-gray-50/50" : "text-gray-400 hover:bg-gray-50"}`}
+          >
+            <div className="flex items-center gap-4">
+              <MdInventory size={20} />
+              <span>Stock</span>
+            </div>
+            {openDropdown.stock ? (
+              <MdKeyboardArrowUp size={18} />
+            ) : (
+              <MdKeyboardArrowDown size={18} />
+            )}
           </button>
 
-          <div
-            className={`overflow-hidden transition-all duration-500 ${isHROpen ? "max-h-80 mt-2 opacity-100" : "max-h-0 opacity-0"}`}
-          >
-            {hrSubMenu.map((sub) => (
-              <NavLink
-                key={sub.path}
-                to={sub.path}
-                className={({ isActive }) =>
-                  `flex items-center pl-14 py-3 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all ${
-                    isActive
-                      ? "text-indigo-600 italic"
-                      : "text-gray-300 hover:text-indigo-600"
-                  }`
-                }
+          {openDropdown.stock && (
+            <div className="pl-12 pr-2 py-1 flex flex-col gap-0.5">
+              {/* Menu ini tidak di-error-kan lagi, diarahkan ke file Stock.jsx kamu */}
+              <Link
+                to="/stock"
+                className={`py-2 text-[11px] font-bold uppercase tracking-wider flex items-center gap-2 ${location.pathname === "/stock" ? "text-[#5065f6]" : "text-gray-300 hover:text-[#5065f6] transition-colors"}`}
               >
-                <div
-                  className={`w-1.5 h-1.5 rounded-full mr-3 ${location.pathname === sub.path ? "bg-indigo-600 shadow-lg" : "bg-gray-200"}`}
-                />
-                {sub.name}
-              </NavLink>
-            ))}
-          </div>
-        </div>
+                <span className="text-[8px]">●</span> Stock Report
+              </Link>
 
-        {/* --- DROPDOWN STOCK --- */}
-        <div className="flex flex-col">
-          <button
-            onClick={() => setIsStockOpen(!isStockOpen)}
-            className={`flex items-center justify-between px-5 py-4 rounded-2xl transition-all duration-300 ${
-              location.pathname.includes("/stock")
-                ? "bg-indigo-50 text-indigo-600 font-bold"
-                : "text-gray-400 hover:bg-gray-50 hover:text-indigo-600"
-            }`}
-          >
-            <div className="flex items-center">
-              <span className="text-2xl mr-4">
-                <MdInventory />
-              </span>
-              <span className="text-sm font-bold uppercase tracking-tight">
-                Stock
-              </span>
+              {/* Menu yang ini tetap di-error-kan */}
+              <Link
+                to="/error"
+                className={`py-2 text-[11px] font-bold uppercase tracking-wider flex items-center gap-2 ${location.pathname === "/stock/batch" ? "text-[#5065f6]" : "text-gray-300 hover:text-red-400 transition-colors"}`}
+              >
+                <span className="text-[8px]">●</span> Stock Report (Batch)
+              </Link>
             </div>
-            <MdExpandMore
-              className={`text-2xl transition-transform duration-300 ${isStockOpen ? "rotate-180" : ""}`}
-            />
-          </button>
-
-          <div
-            className={`overflow-hidden transition-all duration-500 ease-in-out ${isStockOpen ? "max-h-60 mt-2 opacity-100" : "max-h-0 opacity-0"}`}
-          >
-            {stockSubMenu.map((sub) => (
-              <NavLink
-                key={sub.path}
-                to={sub.path}
-                className={({ isActive }) =>
-                  `flex items-center pl-14 py-3 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all ${
-                    isActive
-                      ? "text-indigo-600 italic scale-105"
-                      : "text-gray-300 hover:text-indigo-600"
-                  }`
-                }
-              >
-                <div
-                  className={`w-1.5 h-1.5 rounded-full mr-3 transition-all ${location.pathname === sub.path ? "bg-indigo-600 scale-125 shadow-lg" : "bg-gray-200"}`}
-                />
-                {sub.name}
-              </NavLink>
-            ))}
-          </div>
+          )}
         </div>
 
-        {/* --- DROPDOWN PRODUCT --- */}
-        <div className="flex flex-col">
+        {/* 7. MANUFACTURER */}
+        <div>
           <button
-            onClick={() => setIsProductOpen(!isProductOpen)}
-            className={`flex items-center justify-between px-5 py-4 rounded-2xl transition-all duration-300 ${
-              location.pathname.includes("/product")
-                ? "bg-indigo-50 text-indigo-600 font-bold"
-                : "text-gray-400 hover:bg-gray-50 hover:text-indigo-600"
-            }`}
+            onClick={() => toggleDropdown("manufacturer")}
+            className={`w-full flex items-center justify-between px-4 py-3.5 text-xs font-bold uppercase tracking-wider rounded-2xl ${location.pathname.includes("manufacturer") ? "text-white bg-[#5065f6] shadow-md shadow-blue-100" : "text-gray-400 hover:bg-gray-50"}`}
           >
-            <div className="flex items-center">
-              <span className="text-2xl mr-4">
-                <MdMedication />
-              </span>
-              <span className="text-sm font-bold uppercase tracking-tight">
-                Product
-              </span>
+            <div className="flex items-center gap-4">
+              <MdBusiness size={20} />
+              <span>Manufacturer</span>
             </div>
-            <MdExpandMore
-              className={`text-2xl transition-transform duration-300 ${isProductOpen ? "rotate-180" : ""}`}
-            />
+            {openDropdown.manufacturer ? (
+              <MdKeyboardArrowUp size={18} />
+            ) : (
+              <MdKeyboardArrowDown size={18} />
+            )}
           </button>
-
-          <div
-            className={`overflow-hidden transition-all duration-500 ease-in-out ${isProductOpen ? "max-h-60 mt-2 opacity-100" : "max-h-0 opacity-0"}`}
-          >
-            {productSubMenu.map((sub) => (
-              <NavLink
-                key={sub.path}
-                to={sub.path}
-                className={({ isActive }) =>
-                  `flex items-center pl-14 py-3 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all ${
-                    isActive
-                      ? "text-indigo-600 italic scale-105"
-                      : "text-gray-300 hover:text-indigo-600"
-                  }`
-                }
+          {openDropdown.manufacturer && (
+            <div className="pl-12 pr-2 py-2 flex flex-col gap-0.5 bg-[#F8F9FB] rounded-xl mt-1">
+              <Link
+                to="/manufacturer/list"
+                className={`py-2 text-[11px] font-bold uppercase tracking-wider flex items-center gap-2 ${location.pathname === "/manufacturer/list" ? "text-[#5065f6]" : "text-gray-400"}`}
               >
-                <div
-                  className={`w-1.5 h-1.5 rounded-full mr-3 transition-all ${location.pathname === sub.path ? "bg-indigo-600 scale-125 shadow-lg" : "bg-gray-200"}`}
-                />
-                {sub.name}
-              </NavLink>
-            ))}
-          </div>
+                <span className="text-[6px]">●</span> Manufacturer List
+              </Link>
+              <Link
+                to="/manufacturer/ledger"
+                className={`py-2 text-[11px] font-bold uppercase tracking-wider flex items-center gap-2 ${location.pathname === "/manufacturer/ledger" ? "text-[#5065f6]" : "text-gray-400"}`}
+              >
+                <span className="text-[6px]">●</span> Manufacturer Ledger
+              </Link>
+            </div>
+          )}
         </div>
-      </nav>
 
-      {/* FOOTER VERSION */}
-      <div className="p-8 border-t border-gray-100">
-        <div className="bg-gray-50 p-4 rounded-2xl">
-          <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">
-            Apotek System
-          </p>
-          <p className="text-xs font-bold text-emerald-600">v1.0.4-Stable</p>
+        {/* 8. EMPLOYEE */}
+        <div>
+          <button
+            onClick={() => toggleDropdown("employee")}
+            className={`w-full flex items-center justify-between px-4 py-3.5 text-xs font-bold uppercase tracking-wider rounded-2xl ${location.pathname.includes("employee") ? "text-gray-500 bg-gray-50/50" : "text-gray-400 hover:bg-gray-50"}`}
+          >
+            <div className="flex items-center gap-4">
+              <MdPeople size={20} />
+              <span>Employee</span>
+            </div>
+            {openDropdown.employee ? (
+              <MdKeyboardArrowUp size={18} />
+            ) : (
+              <MdKeyboardArrowDown size={18} />
+            )}
+          </button>
+          {openDropdown.employee && (
+            <div className="pl-12 pr-2 py-1 flex flex-col gap-0.5">
+              <Link
+                to="/employee/list"
+                className={`py-2 text-[11px] font-bold uppercase tracking-wider flex items-center gap-2 ${location.pathname === "/employee/list" ? "text-[#5065f6]" : "text-gray-300"}`}
+              >
+                <span className="text-[8px]">●</span> Employee List
+              </Link>
+              <Link
+                to="/error"
+                className={`py-2 text-[11px] font-bold uppercase tracking-wider flex items-center gap-2 ${location.pathname === "/employee/attendance" ? "text-[#5065f6]" : "text-gray-300 hover:text-red-400 transition-colors"}`}
+              >
+                <span className="text-[8px]">●</span> Attendance
+              </Link>
+            </div>
+          )}
         </div>
+
+        {/* 9. SETTINGS */}
+        <Link
+          to="/settings"
+          className="flex items-center gap-4 px-4 py-3.5 text-xs font-bold text-gray-400 hover:bg-gray-50 uppercase tracking-wider rounded-2xl"
+        >
+          <MdSettings size={20} />
+          <span>Settings</span>
+        </Link>
       </div>
     </aside>
   );

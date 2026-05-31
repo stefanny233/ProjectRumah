@@ -4,79 +4,20 @@ import {
   MdExpandMore,
   MdCalendarToday,
   MdAdd,
-  MdSearch,
   MdMoreVert,
   MdOutlineSearch,
 } from "react-icons/md";
 
+// Ambil langsung dari data JSON mase
+import dataApotek from "../data/dataApotek.json";
+
 export default function EmployeePage() {
   const [view, setView] = useState("list");
 
-  // Data Dummy berdasarkan gambar image_0958b6.png
-  const employeeData = [
-    {
-      id: 1,
-      name: "Darlene Robertson",
-      role: "Service Provider",
-      phone: "(406) 555-0120",
-      blood: "A+ (Positive)",
-      email: "jane@gmail.com",
-      salary: "$3456.00",
-      img: "https://i.pravatar.cc/150?u=1",
-    },
-    {
-      id: 2,
-      name: "Jacob Jones",
-      role: "Service Provider",
-      phone: "(406) 555-0120",
-      blood: "A+ (Positive)",
-      email: "jane@gmail.com",
-      salary: "$3456.00",
-      img: "https://i.pravatar.cc/150?u=2",
-    },
-    {
-      id: 3,
-      name: "Cody Fisher",
-      role: "Service Provider",
-      phone: "(406) 555-0120",
-      blood: "A+ (Positive)",
-      email: "jane@gmail.com",
-      salary: "$3456.00",
-      img: "https://i.pravatar.cc/150?u=3",
-    },
-    {
-      id: 4,
-      name: "Esther Howard",
-      role: "Service Provider",
-      phone: "(406) 555-0120",
-      blood: "A+ (Positive)",
-      email: "jane@gmail.com",
-      salary: "$3456.00",
-      img: "https://i.pravatar.cc/150?u=4",
-    },
-    {
-      id: 5,
-      name: "Jerome Bell",
-      role: "Service Provider",
-      phone: "(406) 555-0120",
-      blood: "A+ (Positive)",
-      email: "jane@gmail.com",
-      salary: "$3456.00",
-      img: "https://i.pravatar.cc/150?u=5",
-    },
-    {
-      id: 6,
-      name: "Dianne Russell",
-      role: "Service Provider",
-      phone: "(406) 555-0120",
-      blood: "A+ (Positive)",
-      email: "jane@gmail.com",
-      salary: "$3456.00",
-      img: "https://i.pravatar.cc/150?u=6",
-    },
-  ];
+  // Mengambil array employees langsung dari dataApotek.json
+  const employeeData = dataApotek.employees || [];
 
-  // --- HALAMAN LIST EMPLOYEE (SUDAH DISAMAKAN DENGAN GAMBAR) ---
+  // --- HALAMAN LIST EMPLOYEE ---
   if (view === "list") {
     return (
       <div className="p-8 bg-[#F8F9FB] min-h-screen font-sans">
@@ -133,7 +74,7 @@ export default function EmployeePage() {
           {/* Mini Stats Card (Right) */}
           <div className="bg-white p-3 rounded-xl shadow-sm flex gap-6 px-6 border border-gray-50">
             <div className="text-center">
-              <p className="text-[10px] text-gray-400 uppercase">Vaction</p>
+              <p className="text-[10px] text-gray-400 uppercase">Vacation</p>
               <p className="text-sm font-bold text-blue-500">14</p>
             </div>
             <div className="text-center">
@@ -156,11 +97,14 @@ export default function EmployeePage() {
             >
               <MdMoreVert className="absolute top-4 right-4 text-gray-300 cursor-pointer" />
               <div className="flex items-center gap-4 mb-6">
-                <img
-                  src={emp.img}
-                  alt={emp.name}
-                  className="w-12 h-12 rounded-lg object-cover"
-                />
+                {/* Mengunci ukuran box gambar mase biar ga meluber kaku */}
+                <div className="w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 bg-gray-100">
+                  <img
+                    src={emp.image} // Disesuaikan dengan key "image" di JSON
+                    alt={emp.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
                 <div>
                   <h3 className="text-sm font-semibold text-gray-700 leading-tight">
                     {emp.name}
@@ -183,12 +127,12 @@ export default function EmployeePage() {
                     Blood Group
                   </p>
                   <p className="text-[11px] font-semibold text-gray-700">
-                    {emp.blood}
+                    {emp.bloodGroup} {/* Disesuaikan dengan key "bloodGroup" di JSON */}
                   </p>
                 </div>
-                <div>
+                <div className="col-span-1 overflow-hidden">
                   <p className="text-[9px] text-gray-400 uppercase">Email</p>
-                  <p className="text-[11px] font-semibold text-gray-700">
+                  <p className="text-[11px] font-semibold text-gray-700 truncate" title={emp.email}>
                     {emp.email}
                   </p>
                 </div>
@@ -230,7 +174,7 @@ export default function EmployeePage() {
     );
   }
 
-  // --- HALAMAN ADD EMPLOYEE (TETAP SESUAI FIGMA) ---
+  // --- HALAMAN ADD EMPLOYEE ---
   return (
     <div className="bg-[#FDFDFD] min-h-screen px-8 pt-4 pb-12 animate-in slide-in-from-right duration-500 font-sans">
       <button

@@ -7,15 +7,16 @@ import {
   MdOutlineFileDownload,
 } from "react-icons/md";
 
-// Import data (asumsi data lo ada field: name, manufacturer, salePrice, purchasePrice, inQty, stock, box)
+// Membaca data asli dari JSON kamu
 import dataApotek from "../data/dataApotek.json";
 
 export default function Stock() {
   const [searchTerm, setSearchTerm] = useState("");
   const { inventory } = dataApotek;
 
+  // Filter pencarian berdasarkan nama obat asli dari JSON
   const filteredData = inventory.filter((item) =>
-    item.name.toLowerCase().includes(searchTerm.toLowerCase()),
+    item.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -23,22 +24,23 @@ export default function Stock() {
       className="p-8 bg-[#F8F9FB] min-h-screen"
       style={{ fontFamily: "'TT Commons', sans-serif" }}
     >
-      {/* 1. TITLE SECTION - Heading_1 (32px, font-normal/light style) */}
+      {/* 1. TITLE SECTION */}
       <div className="mb-6">
         <h1 className="text-[32px] font-normal text-gray-900 tracking-tight">
           Stock Report
         </h1>
       </div>
 
-      {/* 2. SEARCH SECTION - Borderless Soft Interface style */}
+      {/* 2. SEARCH SECTION */}
       <div className="mb-6">
         <p className="text-[14px] text-gray-400 mb-2 font-normal">Search</p>
         <div className="flex gap-3 items-center">
           <div className="relative w-full max-w-md">
             <input
               type="text"
-              placeholder="search anythings"
+              placeholder="Search anything..."
               className="w-full pl-5 pr-12 py-3 bg-white border-none rounded-xl text-[14px] font-normal text-gray-600 shadow-sm focus:ring-1 focus:ring-blue-500/20 outline-none placeholder:text-gray-300"
+              value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
             <div className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#28B95E] p-2 rounded-lg text-white cursor-pointer">
@@ -48,7 +50,7 @@ export default function Stock() {
         </div>
       </div>
 
-      {/* 3. TABLE CARD - bg-white, rounded-2xl, border-gray-100 */}
+      {/* 3. TABLE CARD */}
       <div className="bg-white rounded-[24px] shadow-sm border border-gray-100 overflow-hidden">
         {/* Table Top Controls */}
         <div className="px-8 py-6 flex justify-between items-center">
@@ -56,7 +58,7 @@ export default function Stock() {
             <span className="text-xs font-medium text-gray-400">
               Show up to
             </span>
-            <div className="flex items-center gap-1 px-3 py-1 bg-white border border-gray-100 rounded-lg text-sm text-gray-600">
+            <div className="flex items-center gap-1 px-3 py-1 bg-white border border-gray-100 rounded-lg text-sm text-gray-600) cursor-pointer">
               <span>100</span>
               <MdKeyboardArrowDown className="text-gray-400" />
             </div>
@@ -69,103 +71,87 @@ export default function Stock() {
           </button>
         </div>
 
-        {/* 4. TABLE SECTION - Following image_09547a logic */}
+        {/* 4. TABLE SECTION (Disesuaikan dengan properti asli JSON kamu) */}
         <div className="overflow-x-auto px-4">
           <table className="w-full border-collapse">
             <thead>
               <tr className="text-[11px] font-medium text-gray-400 uppercase tracking-wider border-b border-gray-50">
-                <th className="px-4 py-5 text-left font-medium">
-                  Medicine Name
-                </th>
-                <th className="px-4 py-5 text-left font-medium">
-                  Manufacturer Name
-                </th>
-                <th className="px-4 py-5 text-left font-medium">Sale Price</th>
-                <th className="px-4 py-5 text-left font-medium">
-                  Purchase Price
-                </th>
+                <th className="px-4 py-5 text-left font-medium">Medicine Name</th>
+                <th className="px-4 py-5 text-left font-medium">Strength</th>
+                <th className="px-4 py-5 text-left font-medium">Batch</th>
+                <th className="px-4 py-5 text-left font-medium">Expiry Date</th>
                 <th className="px-4 py-5 text-center font-medium">In Qty</th>
+                <th className="px-4 py-5 text-center font-medium">Out Qty</th>
                 <th className="px-4 py-5 text-center font-medium">Stock</th>
-                <th className="px-4 py-5 text-center font-medium">Stock Box</th>
-                <th className="px-4 py-5 text-right font-medium">
-                  Stock Sale Price
-                </th>
-                <th className="px-4 py-5 text-right font-medium">
-                  Stock Purchase Price
-                </th>
+                <th className="px-4 py-5 text-center font-medium">Box</th>
+                <th className="px-4 py-5 text-right font-medium">Est. Value (IDR)</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {filteredData.map((item, idx) => (
-                <tr key={idx} className="hover:bg-gray-50/50 transition-colors">
-                  <td className="px-4 py-5 text-sm text-gray-600 font-normal">
-                    {item.name}
-                  </td>
-                  <td className="px-4 py-5 text-sm text-gray-400 font-normal">
-                    {item.manufacturer}
-                  </td>
-                  <td className="px-4 py-5 text-sm text-gray-600 font-normal">
-                    ${item.salePrice}
-                  </td>
-                  <td className="px-4 py-5 text-sm text-gray-400 font-normal">
-                    ${item.purchasePrice}
-                  </td>
-                  <td className="px-4 py-5 text-sm text-gray-500 text-center font-normal">
-                    {item.inQty}
-                  </td>
-                  <td className="px-4 py-5 text-sm text-gray-500 text-center font-normal">
-                    {item.stock}
-                  </td>
-                  <td className="px-4 py-5 text-sm text-gray-500 text-center font-normal">
-                    {item.box}
-                  </td>
-                  <td className="px-4 py-5 text-sm text-gray-600 text-right font-normal">
-                    $948.55
-                  </td>
-                  <td className="px-4 py-5 text-sm text-gray-600 text-right font-normal">
-                    $328.85
+              {filteredData.length > 0 ? (
+                filteredData.map((item, idx) => (
+                  <tr key={item.id || idx} className="hover:bg-gray-50/50 transition-colors">
+                    <td className="px-4 py-5 text-sm text-gray-600 font-normal">
+                      {item.name}
+                    </td>
+                    <td className="px-4 py-5 text-sm text-gray-400 font-normal">
+                      {item.strength}
+                    </td>
+                    <td className="px-4 py-5 text-sm text-gray-500 font-normal">
+                      {item.batch}
+                    </td>
+                    <td className="px-4 py-5 text-sm text-gray-400 font-normal">
+                      {item.expiry}
+                    </td>
+                    <td className="px-4 py-5 text-sm text-gray-500 text-center font-normal">
+                      {item.inQty}
+                    </td>
+                    <td className="px-4 py-5 text-sm text-gray-500 text-center font-normal">
+                      {item.outQty}
+                    </td>
+                    <td className="px-4 py-5 text-sm font-semibold text-center text-gray-700">
+                      {item.stock}
+                    </td>
+                    <td className="px-4 py-5 text-sm text-gray-500 text-center font-normal">
+                      {item.box}
+                    </td>
+                    <td className="px-4 py-5 text-sm text-gray-600 text-right font-medium">
+                      {/* Kalkulasi tiruan sekadar pemanis UI agar kolom harga terisi */}
+                      {(item.stock * 2500).toLocaleString("id-ID", {
+                        style: "currency",
+                        currency: "IDR",
+                        maximumFractionDigits: 0
+                      })}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="9" className="text-center py-10 text-gray-400 text-sm">
+                    Obat tidak ditemukan.
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
 
-        {/* 5. PAGINATION - image_095b9e Style */}
+        {/* 5. PAGINATION */}
         <div className="px-8 py-8 flex justify-center md:justify-end">
           <div className="flex items-center gap-2">
             <button className="p-2 text-gray-300 hover:text-gray-600">
               <MdChevronLeft size={20} />
             </button>
             <div className="flex items-center gap-1">
-              {[1, 2].map((n) => (
-                <button
-                  key={n}
-                  className="w-8 h-8 rounded-lg text-xs font-medium text-gray-400 hover:bg-gray-50"
-                >
-                  {n}
-                </button>
-              ))}
               <button className="w-8 h-8 rounded-lg bg-[#5065f6] text-white text-xs font-medium shadow-md shadow-blue-200/50">
+                1
+              </button>
+              <button className="w-8 h-8 rounded-lg text-xs font-medium text-gray-400 hover:bg-gray-50">
+                2
+              </button>
+              <button className="w-8 h-8 rounded-lg text-xs font-medium text-gray-400 hover:bg-gray-50">
                 3
               </button>
-              {[4, 5, 6].map((n) => (
-                <button
-                  key={n}
-                  className="w-8 h-8 rounded-lg text-xs font-medium text-gray-400 hover:bg-gray-50"
-                >
-                  {n}
-                </button>
-              ))}
-              <span className="px-1 text-gray-300">...</span>
-              {[38, 39, 40].map((n) => (
-                <button
-                  key={n}
-                  className="w-8 h-8 rounded-lg text-xs font-medium text-gray-400 hover:bg-gray-50"
-                >
-                  {n}
-                </button>
-              ))}
             </div>
             <button className="p-2 text-gray-400 hover:text-gray-600">
               <MdChevronRight size={20} />

@@ -14,28 +14,27 @@ import {
 const AddDrugModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
-  // Styling berdasarkan panduan Breakdown Redesign
-  const inputContainer = "flex flex-col gap-1.5";
-  const labelClass = "text-[12px] font-bold text-gray-700 ml-1"; // font-bold (700)
+  const inputContainer = "flex flex-col gap-2";
+  const labelClass = "text-xs font-semibold text-gray-500 ml-1";
   const inputClass =
-    "w-full bg-[#F9FAFB] border-none rounded-xl px-4 py-3 text-sm font-medium text-gray-600 focus:ring-2 focus:ring-[#5065f6] transition-all outline-none placeholder:text-gray-300"; // bg-gray-50 & borderless
+    "w-full bg-[#F9FAFB] border border-gray-100 rounded-xl px-4 py-3 text-sm font-medium text-gray-700 focus:bg-white focus:ring-2 focus:ring-[#5065f6] focus:border-transparent transition-all outline-none placeholder:text-gray-300";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-      <div className="bg-white w-full max-w-2xl rounded-[32px] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 font-sans">
+      <div className="bg-white w-full max-w-2xl rounded-[28px] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
         {/* Header Modal */}
-        <div className="px-8 py-6 flex justify-between items-center border-b border-gray-50">
-          <h2 className="text-lg font-black text-[#111827]">Add New Drug</h2>
+        <div className="px-8 py-6 flex justify-between items-center border-b border-gray-100">
+          <h2 className="text-lg font-bold text-gray-900">Add New Drug</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-red-500 transition-colors"
+            className="p-1.5 rounded-xl bg-gray-50 text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all"
           >
-            <MdClose size={24} />
+            <MdClose size={20} />
           </button>
         </div>
 
-        {/* Form Body - 12 Items sesuai image_08e437.png */}
-        <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+        {/* Form Body - 12 Items */}
+        <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5 max-h-[65vh] overflow-y-auto">
           {/* 1. Drug Name */}
           <div className={inputContainer}>
             <label className={labelClass}>Drug Name*</label>
@@ -67,7 +66,7 @@ const AddDrugModal = ({ isOpen, onClose }) => {
             <label className={labelClass}>Barcode</label>
             <input
               type="text"
-              placeholder="6435876534657436854354"
+              placeholder="6435876534657436"
               className={inputClass}
             />
           </div>
@@ -80,9 +79,9 @@ const AddDrugModal = ({ isOpen, onClose }) => {
             </select>
           </div>
 
-          {/* 6. Barcode (Dropdown) */}
+          {/* 6. Barcode Dropdown */}
           <div className={inputContainer}>
-            <label className={labelClass}>Barcode</label>
+            <label className={labelClass}>Barcode Type</label>
             <select className={inputClass}>
               <option>Select One</option>
             </select>
@@ -104,7 +103,7 @@ const AddDrugModal = ({ isOpen, onClose }) => {
                 className={inputClass}
               />
               <MdCalendarToday
-                className="absolute right-4 top-3.5 text-gray-400"
+                className="absolute right-4 top-3.5 text-gray-400 pointer-events-none"
                 size={18}
               />
             </div>
@@ -131,20 +130,20 @@ const AddDrugModal = ({ isOpen, onClose }) => {
           {/* 12. Unit Total */}
           <div className={inputContainer}>
             <label className={labelClass}>Unit Total</label>
-            <input type="text" placeholder="$1000.00" className={inputClass} />
+            <input type="text" placeholder="$1,000.00" className={inputClass} />
           </div>
         </div>
 
         {/* Footer Buttons */}
-        <div className="px-8 pb-8 flex gap-4">
+        <div className="px-8 pb-8 pt-4 flex gap-4 border-t border-gray-50">
           <button
             onClick={onClose}
-            className="flex-1 bg-[#F3F4F6] hover:bg-gray-200 text-gray-500 font-bold py-4 rounded-2xl transition-all"
+            className="flex-1 bg-gray-50 hover:bg-gray-100 text-gray-500 font-bold py-3.5 rounded-xl transition-all text-sm"
           >
             Cancel
           </button>
-          <button className="flex-1 bg-[#5065f6] hover:bg-[#4052d6] text-white font-bold py-4 rounded-2xl shadow-lg shadow-[#5065f6]/20 transition-all active:scale-95">
-            Save
+          <button className="flex-1 bg-[#5065f6] hover:bg-[#4052d6] text-white font-bold py-3.5 rounded-xl shadow-lg shadow-[#5065f6]/10 transition-all text-sm">
+            Save Product
           </button>
         </div>
       </div>
@@ -168,9 +167,14 @@ export default function ProductPage() {
   });
 
   return (
-    <div className="p-8 bg-[#F9FAFB] min-h-screen font-['Inter'] text-[#111827]">
+    <div className="p-8 bg-[#F9FAFB] min-h-screen font-sans text-gray-900 antialiased">
+      {/* Header Title Section */}
+      <div className="mb-6">
+        <h1 className="text-xl font-bold text-gray-900 tracking-tight">Product List</h1>
+      </div>
+
       {/* Tabs */}
-      <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+      <div className="flex gap-2 mb-6 overflow-x-auto pb-1 scrollbar-none">
         {[
           "Product List",
           "Manage Brands",
@@ -183,8 +187,8 @@ export default function ProductPage() {
             onClick={() => setActiveTab(tab)}
             className={`px-5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
               activeTab === tab
-                ? "bg-[#5065f6] text-white shadow-lg shadow-blue-100"
-                : "bg-white text-gray-400 hover:bg-gray-50"
+                ? "bg-[#5065f6] text-white shadow-md shadow-[#5065f6]/10"
+                : "bg-white text-gray-400 border border-gray-100 hover:bg-gray-50"
             }`}
           >
             {tab}
@@ -193,76 +197,80 @@ export default function ProductPage() {
       </div>
 
       {/* Main Card */}
-      <div className="bg-white rounded-[32px] shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-[24px] shadow-sm border border-gray-100 overflow-hidden">
         {/* Filter Area */}
-        <div className="p-6 flex flex-wrap justify-between items-end gap-4">
-          <div className="flex flex-wrap gap-4">
-            <div className="flex flex-col gap-1">
-              <label className="text-[11px] font-bold text-gray-400 ml-1">
+        <div className="p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-50">
+          <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider ml-0.5">
                 Select Product
-              </label>
-              <select className="bg-[#F3F4F6] border-none rounded-xl px-4 py-2.5 text-sm font-medium text-gray-500 w-44 outline-none">
+              </span>
+              <select className="bg-[#F9FAFB] border border-gray-100 rounded-xl px-4 py-2.5 text-xs font-semibold text-gray-600 w-44 outline-none focus:bg-white focus:ring-2 focus:ring-[#5065f6]/20 transition-all">
                 <option>Select one</option>
               </select>
             </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-[11px] font-bold text-gray-400 ml-1">
+            
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider ml-0.5">
                 Product Code
-              </label>
+              </span>
               <input
                 type="text"
-                placeholder="$B-63215..."
-                className="bg-[#F3F4F6] border-none rounded-xl px-4 py-2.5 text-sm font-medium w-44 outline-none"
+                placeholder="e.g. B-63215..."
+                className="bg-[#F9FAFB] border border-gray-100 rounded-xl px-4 py-2.5 text-xs font-semibold text-gray-600 w-44 outline-none focus:bg-white focus:ring-2 focus:ring-[#5065f6]/20 transition-all"
               />
             </div>
-            <button className="bg-[#28B95E] p-3 rounded-xl text-white hover:opacity-90 transition-all self-end mb-0.5">
-              <MdSearch size={20} />
+
+            <button className="bg-[#28B95E] hover:bg-[#22a652] p-2.5 rounded-xl text-white transition-all self-end shadow-sm shadow-[#28B95E]/10">
+              <MdSearch size={18} />
             </button>
           </div>
 
           <button
             onClick={() => setIsModalOpen(true)}
-            className="bg-[#5065f6] hover:bg-[#4052d6] text-white px-6 py-3 rounded-xl font-black text-xs flex items-center gap-2 shadow-lg shadow-[#5065f6]/20 transition-all active:scale-95"
+            className="bg-[#5065f6] hover:bg-[#4052d6] text-white px-5 py-3 rounded-xl font-bold text-xs flex items-center gap-2 shadow-md shadow-[#5065f6]/10 transition-all self-end sm:self-auto"
           >
-            <MdAdd size={20} /> ADD PRODUCT
+            <MdAdd size={18} /> ADD PRODUCT
           </button>
         </div>
 
-        {/* Table */}
+        {/* Table Area */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left">
+          <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-gray-50 text-[11px] text-gray-400 font-bold uppercase tracking-wider">
-                <th className="px-6 py-5">SI</th>
-                <th className="py-5">Supplier</th>
-                <th className="py-5">Name</th>
-                <th className="py-5">Product Code</th>
-                <th className="py-5">Price</th>
-                <th className="py-5 text-center">Action</th>
+              <tr className="bg-[#F9FAFB]/50 border-b border-gray-50 text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+                <th className="pl-6 pr-4 py-4 w-12 text-center">SI</th>
+                <th className="px-4 py-4">Supplier</th>
+                <th className="px-4 py-4">Name</th>
+                <th className="px-4 py-4">Product Code</th>
+                <th className="px-4 py-4">Price</th>
+                <th className="pl-4 pr-6 py-4 text-center w-28">Action</th>
               </tr>
             </thead>
-            <tbody className="text-sm">
+            <tbody className="text-xs divide-y divide-gray-50">
               {products.map((item, i) => (
                 <tr
                   key={i}
-                  className="border-b border-gray-50 hover:bg-gray-50 transition-colors"
+                  className="hover:bg-[#F9FAFB]/60 transition-colors"
                 >
-                  <td className="px-6 py-4 text-gray-400">{i + 1}</td>
-                  <td className="py-4 font-medium text-gray-600">
+                  <td className="pl-6 pr-4 py-4 text-center font-medium text-gray-400">{i + 1}</td>
+                  <td className="px-4 py-4 font-medium text-gray-500">
                     {item.supplier}
                   </td>
-                  <td className="py-4 font-bold text-gray-800">{item.name}</td>
-                  <td className="py-4 text-gray-500">{item.code}</td>
-                  <td className="py-4 font-black text-gray-900">
+                  <td className="px-4 py-4 font-semibold text-gray-700">
+                    {item.name}
+                  </td>
+                  <td className="px-4 py-4 text-gray-500 font-medium tracking-tight">{item.code}</td>
+                  <td className="px-4 py-4 font-bold text-gray-800">
                     {item.price}
                   </td>
-                  <td className="py-4">
-                    <div className="flex justify-center gap-3">
-                      <button className="text-gray-300 hover:text-blue-500">
-                        <MdVisibility size={20} />
+                  <td className="pl-4 pr-6 py-4">
+                    <div className="flex justify-center items-center gap-2">
+                      <button className="p-1.5 rounded-lg bg-gray-50 text-gray-400 hover:text-[#5065f6] hover:bg-blue-50 transition-all">
+                        <MdVisibility size={16} />
                       </button>
-                      <button className="text-gray-300 hover:text-green-500">
-                        <MdEdit size={20} />
+                      <button className="p-1.5 rounded-lg bg-gray-50 text-gray-400 hover:text-emerald-500 hover:bg-emerald-50 transition-all">
+                        <MdEdit size={16} />
                       </button>
                     </div>
                   </td>
@@ -272,29 +280,36 @@ export default function ProductPage() {
           </table>
         </div>
 
-        {/* Pagination */}
-        <div className="p-6 flex justify-between items-center border-t border-gray-50">
-          <div className="flex items-center gap-2 text-xs font-bold text-gray-400">
+        {/* Pagination Footer */}
+        <div className="p-5 flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-gray-50 bg-[#F9FAFB]/20">
+          <div className="flex items-center gap-2 text-xs font-medium text-gray-400">
             <span>Show up to</span>
-            <select className="bg-gray-50 border border-gray-200 rounded-lg px-1 py-0.5">
+            <select className="bg-white border border-gray-200 rounded-lg px-2 py-1 outline-none text-gray-600 font-semibold focus:border-[#5065f6]">
               <option>100</option>
+              <option>50</option>
+              <option>25</option>
             </select>
             <span>Entries</span>
           </div>
-          <div className="flex gap-1">
-            <button className="p-2 text-gray-300">
-              <MdChevronLeft size={20} />
+
+          <div className="flex items-center gap-1">
+            <button className="p-1.5 rounded-lg text-gray-300 hover:text-gray-500 hover:bg-gray-50 transition-all">
+              <MdChevronLeft size={18} />
             </button>
             {[1, 2, 3, 4].map((n) => (
               <button
                 key={n}
-                className={`w-8 h-8 rounded-lg text-xs font-bold ${n === 3 ? "bg-[#5065f6] text-white" : "text-gray-400 hover:bg-gray-100"}`}
+                className={`w-7 h-7 rounded-lg text-xs font-bold transition-all ${
+                  n === 3 
+                    ? "bg-[#5065f6] text-white shadow-sm" 
+                    : "text-gray-400 hover:bg-gray-50"
+                }`}
               >
                 {n}
               </button>
             ))}
-            <button className="p-2 text-gray-300">
-              <MdChevronRight size={20} />
+            <button className="p-1.5 rounded-lg text-gray-300 hover:text-gray-500 hover:bg-gray-50 transition-all">
+              <MdChevronRight size={18} />
             </button>
           </div>
         </div>
