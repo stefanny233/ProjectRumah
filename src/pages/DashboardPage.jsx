@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react"; 
 import { 
   MdPeople, 
   MdTrendingUp, 
@@ -6,6 +6,8 @@ import {
   MdReportProblem,
   MdRefresh 
 } from "react-icons/md";
+// TAMBAHAN: Import icon WhatsApp dan close untuk pop-up
+import { FaWhatsapp, FaTimes } from "react-icons/fa";
 
 export default function Dashboard() {
   const expiringData = [
@@ -24,13 +26,21 @@ export default function Dashboard() {
   ];
 
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  // Persentase tinggi bar untuk menyamai naik turunnya grafik di figma mase
+  
+  // Data nama bulan panjang untuk kebutuhan tooltip mase
+  const fullMonthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   const progressValues = [72, 45, 52, 78, 18, 42, 85, 48, 68, 48, 62, 32]; 
 
+  // State untuk melacak bar mana yang sedang di-hover
+  const [hoveredIndex, setHoveredIndex] = useState(null);
+
+  // TAMBAHAN: State untuk membuka/tutup pop-up chat kecil WhatsApp
+  const [isChatOpen, setIsChatOpen] = useState(false);
+
   return (
-    <div className="w-full bg-[#F8F9FB] font-sans antialiased text-gray-600 select-none flex flex-col gap-6">
+    <div className="w-full bg-[#F8F9FB] font-sans antialiased text-gray-600 select-none flex flex-col gap-6 relative">
       
-      {/* ROW 1: 4 STATISTIC CARDS (Sangat Mirip Figma) */}
+      {/* ROW 1: 4 STATISTIC CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         
         {/* Card 1: Total Customer */}
@@ -91,7 +101,7 @@ export default function Dashboard() {
 
       </div>
 
-      {/* ROW 2: TABLES AREA (EXPIRING LIST & RECENT ORDERS) */}
+      {/* ROW 2: TABLES AREA */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         
         {/* TABEL KIRI: Expiring List */}
@@ -178,27 +188,31 @@ export default function Dashboard() {
       {/* ROW 3: PROGRESS & TOTAL EARNING GRAPHICS */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         
-        {/* KIRI: Monthly Progress (Bar Chart) */}
+        {/* KIRI: Monthly Progress (Bar Chart Interaktif) */}
         <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.01)] lg:col-span-2 flex flex-col">
           <h3 className="text-sm font-bold text-gray-700 tracking-tight mb-8">Monthly Progress</h3>
           
           <div className="flex items-end justify-between h-40 px-2 relative border-b border-gray-100 pb-2">
-            {/* Background Grid Lines Indikator Angka Tiruan */}
             <div className="absolute left-0 bottom-10 w-full border-t border-dashed border-gray-100"></div>
             <div className="absolute left-0 bottom-20 w-full border-t border-dashed border-gray-100"></div>
             <div className="absolute left-0 bottom-30 w-full border-t border-dashed border-gray-100"></div>
 
             {months.map((month, idx) => (
-              <div key={idx} className="flex flex-col items-center gap-2.5 flex-1 group relative z-10">
+              <div 
+                key={idx} 
+                className="flex flex-col items-center gap-2.5 flex-1 group relative z-10 cursor-pointer"
+                onMouseEnter={() => setHoveredIndex(idx)} // Deteksi saat mouse masuk
+                onMouseLeave={() => setHoveredIndex(null)}  // Deteksi saat mouse keluar
+              >
                 
-                {/* TOOLTIP MELAYANG PADA BULAN JULI (Sesuai Gambar Figma) */}
-                {month === "Jul" && (
-                  <div className="absolute -top-11 bg-[#23262F] text-white text-[9px] font-semibold px-2 py-1 rounded flex flex-col items-center shadow-lg z-20">
-                    <span className="text-gray-400 text-[8px] font-normal">September</span>
+                {hoveredIndex === idx && (
+                  <div className="absolute -top-11 bg-[#23262F] text-white text-[9px] font-semibold px-2 py-1 rounded flex flex-col items-center shadow-lg z-20 whitespace-nowrap animate-fade-in">
+                    <span className="text-gray-400 text-[8px] font-normal">{fullMonthNames[idx]}</span>
                     <span className="flex items-center gap-1 mt-0.5">
-                      <span className="w-1.5 h-1.5 bg-[#28B95E] rounded-xs"></span> 20k
+                      <span className={`w-1.5 h-1.5 rounded-xs ${month === "Jul" ? "bg-white" : "bg-[#28B95E]"}`}></span> 
+
+                      {progressValues[idx] / 3}k 
                     </span>
-                    {/* Segitiga kecil lancip ke bawah */}
                     <div className="w-1.5 h-1.5 bg-[#23262F] rotate-45 absolute -bottom-0.5 left-1/2 -translate-x-1/2"></div>
                   </div>
                 )}
@@ -207,16 +221,20 @@ export default function Dashboard() {
                 <div className="w-3.5 bg-[#F4F5F6] rounded-t-xs h-32 flex items-end overflow-hidden">
                   <div 
                     style={{ height: `${progressValues[idx]}%` }}
-                    className={`w-full rounded-t-xs transition-all duration-500 ${month === "Jul" ? "bg-gray-900" : "bg-[#28B95E]"}`}
+                    className={`w-full rounded-t-xs transition-all duration-300 ${
+                      month === "Jul" 
+                        ? "bg-gray-900" 
+                        : hoveredIndex === idx ? "bg-[#1E9E4C]" : "bg-[#28B95E]" // Efek warna agak gelap sedikit saat di-hover agar lebih berasa interaktif
+                    }`}
                   ></div>
                 </div>
-                <span className="text-[10px] font-bold text-gray-300 tracking-wide">{month}</span>
+                <span className={`text-[10px] font-bold tracking-wide transition-colors ${hoveredIndex === idx ? "text-gray-600" : "text-gray-300"}`}>{month}</span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* KANAN: Total Earning (Circular Ring) */}
+        {/* KANAN: Total Earning */}
         <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.01)] flex flex-col justify-between min-h-[230px]">
           <div>
             <h3 className="text-sm font-bold text-gray-700 tracking-tight">Total Earning</h3>
@@ -226,28 +244,22 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Render Lingkaran Donut Berlapis dengan SVG Presisi Tinggi */}
           <div className="flex justify-center items-center my-3">
             <svg width="120" height="120" viewBox="0 0 36 36" className="transform -rotate-90">
-              {/* Ring 1: Merah (Paling Luar) */}
               <circle cx="18" cy="18" r="16" fill="transparent" stroke="#FFEBEB" strokeWidth="2"></circle>
               <circle cx="18" cy="18" r="16" fill="transparent" stroke="#FF4D4D" strokeWidth="2" strokeDasharray="75 100"></circle>
               
-              {/* Ring 2: Kuning */}
               <circle cx="18" cy="18" r="13.2" fill="transparent" stroke="#FFF9E6" strokeWidth="2"></circle>
               <circle cx="18" cy="18" r="13.2" fill="transparent" stroke="#F5B800" strokeWidth="2" strokeDasharray="60 100" strokeDashoffset="-8"></circle>
 
-              {/* Ring 3: Blue */}
               <circle cx="18" cy="18" r="10.4" fill="transparent" stroke="#EEF0FF" strokeWidth="2"></circle>
               <circle cx="18" cy="18" r="10.4" fill="transparent" stroke="#5065f6" strokeWidth="2" strokeDasharray="45 100" strokeDashoffset="-16"></circle>
 
-              {/* Ring 4: Hijau (Paling Dalam) */}
               <circle cx="18" cy="18" r="7.6" fill="transparent" stroke="#EBF7EE" strokeWidth="2"></circle>
               <circle cx="18" cy="18" r="7.6" fill="transparent" stroke="#28B95E" strokeWidth="2" strokeDasharray="30 100" strokeDashoffset="-24"></circle>
             </svg>
           </div>
 
-          {/* Legenda Indikator */}
           <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-[9px] font-bold text-gray-400 uppercase tracking-wider">
             <div className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-[#FF4D4D]"></span> Total Purchase</div>
             <div className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-[#F5B800]"></span> Cash Received</div>
@@ -258,6 +270,65 @@ export default function Dashboard() {
 
       </div>
 
+      {/* ========================================================================= */}
+      {/* TAMBAHAN BARU: POP-UP WHATSAPP DI POJOK KANAN BAWAH */}
+      {/* ========================================================================= */}
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end font-sans">
+        
+        {/* Kotak Pop-up Kecil (Hanya muncul jika isChatOpen === true) */}
+        {isChatOpen && (
+          <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 w-72 mb-4 overflow-hidden transform transition-all duration-300 ease-out animate-fade-in-up">
+            {/* Header Pop-up */}
+            <div className="bg-[#25D366] p-4 text-white flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="relative">
+                  <FaWhatsapp size={28} />
+                  <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 border-2 border-white rounded-full"></span>
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold tracking-wide">Customer Support</h4>
+                  <p className="text-[10px] text-emerald-100">Online • Siap membantu</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setIsChatOpen(false)}
+                className="text-white/80 hover:text-white transition-colors"
+              >
+                <FaTimes size={14} />
+              </button>
+            </div>
+            
+            {/* Isi Chat/Pesan singkat */}
+            <div className="p-4 bg-[#F0F2F5] min-h-[80px] flex items-start">
+              <div className="bg-white p-3 rounded-xl rounded-tl-none shadow-sm text-[11px] font-medium text-gray-700 max-w-[90%] leading-relaxed">
+                Halo mase! Ada yang bisa kami bantu mengenai data dashboard atau pesanan obat? 💊
+              </div>
+            </div>
+
+            {/* Tombol Aksi Hubungi */}
+            <div className="p-3 bg-white border-t border-gray-50 flex">
+              <a 
+                href="https://wa.me/08117696236" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-full bg-[#25D366] hover:bg-[#20ba59] text-white text-center py-2 rounded-xl text-xs font-bold transition-all shadow-md shadow-emerald-100 flex items-center justify-center gap-1.5"
+              >
+                <FaWhatsapp size={16} />
+                Mulai Chat Sekarang
+              </a>
+            </div>
+          </div>
+        )}
+
+        <button
+          onClick={() => setIsChatOpen(!isChatOpen)}
+          className={`w-14 h-14 rounded-full flex items-center justify-center text-white shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95 ${
+            isChatOpen ? "bg-gray-800 shadow-gray-200" : "bg-[#25D366] hover:bg-[#20ba59] shadow-emerald-200"
+          }`}
+        >
+          {isChatOpen ? <FaTimes size={20} /> : <FaWhatsapp size={28} />}
+        </button>
+      </div>
     </div>
   );
 }

@@ -16,7 +16,7 @@ export default function Stock() {
 
   // Filter pencarian berdasarkan nama obat asli dari JSON
   const filteredData = inventory.filter((item) =>
-    item.name.toLowerCase().includes(searchTerm.toLowerCase())
+    item.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   return (
@@ -58,10 +58,11 @@ export default function Stock() {
             <span className="text-xs font-medium text-gray-400">
               Show up to
             </span>
-            <div className="flex items-center gap-1 px-3 py-1 bg-white border border-gray-100 rounded-lg text-sm text-gray-600) cursor-pointer">
-              <span>100</span>
-              <MdKeyboardArrowDown className="text-gray-400" />
-            </div>
+            <select className="select select-bordered select-sm bg-white border-gray-200 rounded-xl text-xs text-gray-600 focus:outline-none">
+              <option>10 Entries</option>
+              <option selected>100 Entries</option>
+              <option>250 Entries</option>
+            </select>
             <span className="text-xs font-medium text-gray-400">Entries</span>
           </div>
 
@@ -76,7 +77,9 @@ export default function Stock() {
           <table className="w-full border-collapse">
             <thead>
               <tr className="text-[11px] font-medium text-gray-400 uppercase tracking-wider border-b border-gray-50">
-                <th className="px-4 py-5 text-left font-medium">Medicine Name</th>
+                <th className="px-4 py-5 text-left font-medium">
+                  Medicine Name
+                </th>
                 <th className="px-4 py-5 text-left font-medium">Strength</th>
                 <th className="px-4 py-5 text-left font-medium">Batch</th>
                 <th className="px-4 py-5 text-left font-medium">Expiry Date</th>
@@ -84,13 +87,18 @@ export default function Stock() {
                 <th className="px-4 py-5 text-center font-medium">Out Qty</th>
                 <th className="px-4 py-5 text-center font-medium">Stock</th>
                 <th className="px-4 py-5 text-center font-medium">Box</th>
-                <th className="px-4 py-5 text-right font-medium">Est. Value (IDR)</th>
+                <th className="px-4 py-5 text-right font-medium">
+                  Est. Value (IDR)
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
               {filteredData.length > 0 ? (
                 filteredData.map((item, idx) => (
-                  <tr key={item.id || idx} className="hover:bg-gray-50/50 transition-colors">
+                  <tr
+                    key={item.id || idx}
+                    className="hover:bg-gray-50/50 transition-colors"
+                  >
                     <td className="px-4 py-5 text-sm text-gray-600 font-normal">
                       {item.name}
                     </td>
@@ -120,14 +128,17 @@ export default function Stock() {
                       {(item.stock * 2500).toLocaleString("id-ID", {
                         style: "currency",
                         currency: "IDR",
-                        maximumFractionDigits: 0
+                        maximumFractionDigits: 0,
                       })}
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="9" className="text-center py-10 text-gray-400 text-sm">
+                  <td
+                    colSpan="9"
+                    className="text-center py-10 text-gray-400 text-sm"
+                  >
                     Obat tidak ditemukan.
                   </td>
                 </tr>
