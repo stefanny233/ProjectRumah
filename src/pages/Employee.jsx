@@ -169,6 +169,7 @@ export default function EmployeePage() {
               <MdOutlineSearch size={24} />
             </button>
           </div>
+          
 
           {/* Mini Stats Card */}
           <div className="bg-white p-3 rounded-xl shadow-sm flex gap-6 px-6 border border-gray-50">
