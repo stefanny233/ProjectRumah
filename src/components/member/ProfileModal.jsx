@@ -2,85 +2,66 @@ import React from "react";
 import { CreditCard, X, QrCode, Sparkles } from "lucide-react";
 
 export default function ProfileModal({ userData, onClose }) {
-  // Jika data belum siap, jangan render apa pun
   if (!userData) return null;
 
   return (
     <div 
       onClick={onClose} 
-      style={{ 
-        position: "fixed", 
-        inset: 0, 
-        background: "rgba(0,0,0,.55)", 
-        display: "flex", 
-        alignItems: "center", 
-        justifyContent: "center", 
-        padding: 16, 
-        zIndex: 99999, 
-        backdropFilter: "blur(4px)" 
-      }}
+      className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-[99999]"
     >
       <div 
         onClick={e => e.stopPropagation()} 
-        style={{ 
-          background: "#fff", 
-          borderRadius: 24, 
-          width: "100%", 
-          maxWidth: 440, 
-          padding: 24, 
-          border: "0.5px solid #d4ddd4",
-          boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
-        }}
+        className="bg-white rounded-3xl w-full max-w-md p-6 border border-slate-200/60 shadow-2xl relative text-left"
       >
         {/* HEADER MODAL */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <CreditCard style={{ width: 18, height: 18, color: "#1d9e75" }} />
-            <span style={{ fontSize: 15, fontWeight: 700, color: "#0a1f0a" }}>Patient Priority Pass</span>
+        <div className="flex justify-between items-center mb-5">
+          <div className="flex items-center gap-2">
+            <CreditCard className="w-5 h-5 text-[#10b981]" />
+            <span className="text-sm font-bold text-slate-800">Patient Priority Pass</span>
           </div>
           <button 
             onClick={onClose} 
             type="button"
-            style={{ width: 28, height: 28, borderRadius: "50%", background: "#f4f6f3", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+            className="w-7 h-7 rounded-full bg-slate-50 border-none flex items-center justify-center cursor-pointer hover:bg-slate-100 transition text-slate-400 active:scale-95"
           >
-            <X style={{ width: 14, height: 14, color: "#5a6e5a" }} />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* KARTU MEMBER */}
-        <div style={{ background: "#0a1f0a", borderRadius: 18, padding: 22, color: "#fff", marginBottom: 20, position: "relative", overflow: "hidden" }}>
-          <div style={{ position: "absolute", right: -20, top: -20, width: 100, height: 100, background: "rgba(29,158,117,.1)", borderRadius: "50%" }} />
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 28 }}>
+        <div className="bg-slate-900 rounded-2xl p-5 text-white mb-5 relative overflow-hidden shadow-md">
+          <div className="absolute -right-6 -top-6 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl pointer-events-none" />
+          <div className="flex justify-between items-start mb-6">
             <div>
-              <div style={{ fontSize: 10, color: "#5dcaa5", textTransform: "uppercase", letterSpacing: ".1em", fontWeight: 600, marginBottom: 4 }}>Luna Digital Pharmacy Card</div>
-              <div style={{ fontSize: 16, fontWeight: 700 }}>{userData.name}</div>
+              <span className="text-[9px] text-emerald-400 uppercase tracking-widest font-bold block mb-1">Luna Digital Pharmacy Card</span>
+              <h4 className="text-base font-bold">{userData.name}</h4>
             </div>
-            <div style={{ background: "#f59e0b", color: "#451a03", fontSize: 10, fontWeight: 700, padding: "4px 10px", borderRadius: 8, display: "flex", alignItems: "center", gap: 4, textTransform: "uppercase" }}>
-              <Sparkles style={{ width: 10, height: 10, fill: "#451a03" }} /> Gold Care
+            <div className="bg-gradient-to-r from-amber-400 to-amber-500 text-amber-950 text-[9px] font-black px-2.5 py-1 rounded-lg uppercase tracking-wider flex items-center gap-1">
+              <Sparkles className="w-3 h-3 text-amber-950 fill-amber-950 animate-pulse" /> Gold Care
             </div>
           </div>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", borderTop: "0.5px solid #1a3a1a", paddingTop: 16 }}>
+          <div className="flex justify-between items-end border-t border-slate-800 pt-4">
             <div>
-              <div style={{ fontSize: 10, color: "#5dcaa5", marginBottom: 3 }}>No. Rekam Medis (RM)</div>
-              <div style={{ fontSize: 13, fontFamily: "monospace", fontWeight: 700, letterSpacing: ".1em" }}>{userData.patientRecordId}</div>
+              <span className="text-[9px] text-slate-400 block mb-0.5">No. Rekam Medis (RM)</span>
+              <span className="text-xs font-mono font-bold tracking-widest text-[#e1f5ee]">{userData.patientRecordId}</span>
             </div>
-            <div style={{ background: "#fff", padding: 6, borderRadius: 8 }}>
-              <QrCode style={{ width: 36, height: 36, color: "#0a1f0a" }} />
+            <div className="bg-white p-1 rounded-lg shadow-sm">
+              <QrCode className="w-9 h-9 text-slate-950" />
             </div>
           </div>
         </div>
 
         {/* DETAIL INFO */}
-        <div style={{ marginBottom: 16 }}>
+        <div className="divide-y divide-slate-100 mb-6">
           {[
             { label: "Email Pasien", value: userData.email },
             { label: "Nomor Telepon", value: userData.phone },
             { label: "Tanggal Registrasi", value: userData.joinDate },
-            { label: "Status Akses", value: userData.status, bold: true, color: "#1d9e75" },
+            { label: "Status Akses", value: userData.status, bold: true, color: "text-[#10b981]" },
           ].map((row, i) => (
-            <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: i < 3 ? "0.5px solid #e8f0e8" : "none", fontSize: 13 }}>
-              <span style={{ color: "#8a9e8a" }}>{row.label}</span>
-              <span style={{ fontWeight: row.bold ? 700 : 500, color: row.color || "#0a1f0a" }}>{row.value}</span>
+            <div key={i} className="flex justify-between py-3 text-xs">
+              <span className="text-slate-400">{row.label}</span>
+              <span className={`font-semibold ${row.color || "text-slate-800"}`}>{row.value}</span>
             </div>
           ))}
         </div>
@@ -89,7 +70,7 @@ export default function ProfileModal({ userData, onClose }) {
         <button 
           onClick={onClose} 
           type="button"
-          style={{ width: "100%", background: "#0a1f0a", color: "#fff", border: "none", borderRadius: 10, padding: "12px 0", fontSize: 13, fontWeight: 600, cursor: "pointer" }}
+          className="w-full bg-slate-950 hover:bg-[#059669] text-white text-xs font-bold py-3 rounded-xl transition cursor-pointer active:scale-95"
         >
           Kembali ke Dashboard
         </button>

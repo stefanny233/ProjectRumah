@@ -2,16 +2,16 @@ import React from "react";
 import { Pill, Sparkles, FileText, Truck, MessageCircle, Star, ChevronRight, HelpCircle, ChevronDown } from "lucide-react";
 
 const quickActions = [
-  { icon: <FileText style={{ width: 14, height: 14 }} />, label: "Lihat Riwayat Resep", color: "#1d9e75" },
-  { icon: <Truck style={{ width: 14, height: 14 }} />, label: "Lacak Pengiriman Obat", color: "#3b82f6" },
-  { icon: <MessageCircle style={{ width: 14, height: 14 }} />, label: "Chat Apoteker", color: "#8b5cf6" },
-  { icon: <Star style={{ width: 14, height: 14 }} />, label: "Tukar Poin Reward", color: "#f59e0b" },
+  { icon: <FileText className="w-4 h-4" />, label: "Lihat Riwayat Resep", color: "text-emerald-600 bg-emerald-50" },
+  { icon: <Truck className="w-4 h-4" />, label: "Lacak Pengiriman Obat", color: "text-blue-600 bg-blue-50" },
+  { icon: <MessageCircle className="w-4 h-4" />, label: "Chat Apoteker", color: "text-purple-600 bg-purple-50" },
+  { icon: <Star className="w-4 h-4" />, label: "Tukar Poin Reward", color: "text-amber-600 bg-amber-50" },
 ];
 
 const recentActivities = [
-  { label: "Penebusan Resep #RSP-2026-0041", time: "2 jam lalu", status: "Selesai", statusColor: "#1d9e75" },
-  { label: "Tukar Poin — Vitamin C Strip", time: "Kemarin", status: "Diproses", statusColor: "#f59e0b" },
-  { label: "Konsultasi Apoteker Online", time: "3 hari lalu", status: "Selesai", statusColor: "#1d9e75" },
+  { label: "Penebusan Resep #RSP-2026-0041", time: "2 jam lalu", status: "Selesai", statusColor: "text-emerald-700 bg-emerald-50 border-emerald-100" },
+  { label: "Tukar Poin — Vitamin C Strip", time: "Kemarin", status: "Diproses", statusColor: "text-amber-700 bg-amber-50 border-amber-100" },
+  { label: "Konsultasi Apoteker Online", time: "3 hari lalu", status: "Selesai", statusColor: "text-emerald-700 bg-emerald-50 border-emerald-100" },
 ];
 
 const faqs = [
@@ -22,80 +22,98 @@ const faqs = [
 
 export default function MemberSidebar({ userData, onProfileOpen, openFaq, setOpenFaq }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <div className="flex flex-col gap-6 text-left">
 
       {/* MEMBER CARD MINI */}
-      <div style={{ background: "#0a1f0a", borderRadius: 16, padding: 20, color: "#fff", position: "relative", overflow: "hidden" }}>
-        <div style={{ position: "absolute", right: -20, bottom: -20, opacity: .05 }}>
-          <Pill style={{ width: 100, height: 100 }} />
+      <div className="bg-slate-900 rounded-3xl p-6 text-white relative overflow-hidden shadow-lg border border-slate-800">
+        <div className="absolute right-[-20px] bottom-[-20px] opacity-10 pointer-events-none">
+          <Pill className="w-24 h-24 text-white" />
         </div>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
+        <div className="flex justify-between items-start mb-6">
           <div>
-            <div style={{ fontSize: 10, color: "#5dcaa5", textTransform: "uppercase", letterSpacing: ".08em", fontWeight: 600, marginBottom: 3 }}>Luna Priority Card</div>
-            <div style={{ fontSize: 15, fontWeight: 700, color: "#fff" }}>{userData.name}</div>
+            <span className="text-[9px] text-emerald-400 uppercase tracking-widest font-bold block mb-1">Luna Priority Card</span>
+            <h3 className="text-base font-bold text-white">{userData.name}</h3>
           </div>
-          <span style={{ background: "#f59e0b", color: "#451a03", fontSize: 9, fontWeight: 700, padding: "3px 8px", borderRadius: 6, textTransform: "uppercase", display: "flex", alignItems: "center", gap: 3 }}>
-            <Sparkles style={{ width: 9, height: 9, fill: "#451a03" }} /> Gold
+          <span className="bg-gradient-to-r from-amber-400 to-amber-500 text-amber-950 text-[9px] font-black px-2.5 py-1 rounded-lg uppercase tracking-wider flex items-center gap-1">
+            <Sparkles className="w-3 h-3 text-amber-950 fill-amber-950" /> Gold
           </span>
         </div>
-        <div style={{ borderTop: "0.5px solid #1a3a1a", paddingTop: 14, display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+        <div className="border-t border-slate-800 pt-4 flex justify-between items-end">
           <div>
-            <div style={{ fontSize: 10, color: "#5dcaa5", marginBottom: 2 }}>No. Rekam Medis</div>
-            <div style={{ fontSize: 12, fontFamily: "monospace", fontWeight: 600, letterSpacing: ".08em", color: "#e1f5ee" }}>{userData.patientRecordId}</div>
+            <span className="text-[9px] text-slate-400 block">No. Rekam Medis</span>
+            <span className="text-xs font-mono font-bold tracking-widest text-[#e1f5ee]">{userData.patientRecordId}</span>
           </div>
-          <button onClick={onProfileOpen} style={{ background: "rgba(29,158,117,.2)", border: "0.5px solid rgba(93,202,165,.2)", color: "#9fe1cb", borderRadius: 8, padding: "6px 12px", fontSize: 11, fontWeight: 600, cursor: "pointer" }}>
+          <button 
+            onClick={onProfileOpen} 
+            className="bg-emerald-500/20 hover:bg-emerald-500/35 border border-emerald-500/30 text-[#9fe1cb] rounded-lg px-3 py-1.5 text-[10px] font-bold transition cursor-pointer active:scale-95"
+          >
             Detail Kartu
           </button>
         </div>
       </div>
 
       {/* QUICK ACTIONS */}
-      <div style={{ background: "#fff", border: "0.5px solid #d4ddd4", borderRadius: 16, padding: 20 }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#0a1f0a", marginBottom: 12 }}>Aksi Cepat</div>
-        {quickActions.map((a, i) => (
-          <button key={i} style={{ width: "100%", background: "transparent", border: "none", padding: "10px 0", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", borderBottom: i < quickActions.length - 1 ? "0.5px solid #e8f0e8" : "none" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13, color: "#2a3b2a", fontWeight: 500 }}>
-              <div style={{ width: 30, height: 30, borderRadius: 8, background: `${a.color}18`, display: "flex", alignItems: "center", justifyContent: "center", color: a.color }}>
-                {a.icon}
+      <div className="bg-white/80 backdrop-blur-md border border-slate-200/60 rounded-3xl p-6 shadow-sm">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Aksi Cepat</h3>
+        <div className="divide-y divide-slate-100">
+          {quickActions.map((a, i) => (
+            <button 
+              key={i} 
+              className="w-full bg-transparent border-none py-3.5 flex items-center justify-between cursor-pointer group"
+            >
+              <div className="flex items-center gap-3 text-xs text-slate-700 font-semibold group-hover:text-[#10b981] transition">
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${a.color}`}>
+                  {a.icon}
+                </div>
+                {a.label}
               </div>
-              {a.label}
-            </div>
-            <ChevronRight style={{ width: 14, height: 14, color: "#9ab09a" }} />
-          </button>
-        ))}
+              <ChevronRight className="w-4 h-4 text-slate-300 group-hover:translate-x-0.5 transition-transform" />
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* AKTIVITAS TERKINI */}
-      <div style={{ background: "#fff", border: "0.5px solid #d4ddd4", borderRadius: 16, padding: 20 }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#0a1f0a", marginBottom: 12 }}>Aktivitas Terkini</div>
-        {recentActivities.map((a, i) => (
-          <div key={i} style={{ padding: "10px 0", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: i < recentActivities.length - 1 ? "0.5px solid #e8f0e8" : "none" }}>
-            <div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: "#1a1f1a", marginBottom: 2 }}>{a.label}</div>
-              <div style={{ fontSize: 11, color: "#8a9e8a" }}>{a.time}</div>
+      <div className="bg-white/80 backdrop-blur-md border border-slate-200/60 rounded-3xl p-6 shadow-sm">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Aktivitas Terkini</h3>
+        <div className="divide-y divide-slate-100">
+          {recentActivities.map((a, i) => (
+            <div key={i} className="py-3 flex justify-between items-center text-xs">
+              <div>
+                <h4 className="font-bold text-slate-800 mb-1">{a.label}</h4>
+                <span className="text-[10px] text-slate-400">{a.time}</span>
+              </div>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${a.statusColor}`}>{a.status}</span>
             </div>
-            <span style={{ fontSize: 11, fontWeight: 600, color: a.statusColor, background: `${a.statusColor}18`, padding: "3px 9px", borderRadius: 20, whiteSpace: "nowrap" }}>{a.status}</span>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
       {/* FAQ */}
-      <div style={{ background: "#fff", border: "0.5px solid #d4ddd4", borderRadius: 16, overflow: "hidden" }}>
-        <div style={{ padding: "16px 20px 12px", fontSize: 13, fontWeight: 700, color: "#0a1f0a" }}>FAQ Layanan</div>
-        {faqs.map((f, i) => (
-          <div key={i} style={{ borderTop: "0.5px solid #e8f0e8" }}>
-            <button onClick={() => setOpenFaq(openFaq === i ? null : i)} type="button" style={{ width: "100%", textAlign: "left", background: "#fff", border: "none", cursor: "pointer", padding: "14px 16px", fontSize: 13, fontWeight: 600, color: "#1a1f1a", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
-              <span style={{ display: "flex", alignItems: "center", gap: 8, flex: 1 }}>
-                <HelpCircle style={{ width: 13, height: 13, color: "#1d9e75", flexShrink: 0 }} />
-                <span style={{ fontSize: 12, lineHeight: 1.4 }}>{f.q}</span>
-              </span>
-              <ChevronDown style={{ width: 13, height: 13, color: "#1d9e75", transform: openFaq === i ? "rotate(180deg)" : "none", transition: "transform .2s", flexShrink: 0 }} />
-            </button>
-            {openFaq === i && (
-              <div style={{ padding: "0 16px 14px 37px", fontSize: 12, color: "#4a5e4a", lineHeight: 1.6, borderTop: "0.5px solid #e8f0e8" }}>{f.a}</div>
-            )}
-          </div>
-        ))}
+      <div className="bg-white/80 backdrop-blur-md border border-slate-200/60 rounded-3xl overflow-hidden shadow-sm">
+        <h3 className="p-5 pb-3 text-xs font-bold uppercase tracking-wider text-slate-400">FAQ Layanan</h3>
+        <div className="divide-y divide-slate-100">
+          {faqs.map((f, i) => (
+            <div key={i}>
+              <button 
+                onClick={() => setOpenFaq(openFaq === i ? null : i)} 
+                type="button" 
+                className="w-full text-left bg-transparent border-none cursor-pointer p-4 text-xs font-bold text-slate-700 flex justify-between items-center gap-3 hover:bg-slate-50/50"
+              >
+                <span className="flex items-center gap-2 flex-1">
+                  <HelpCircle className="w-3.5 h-3.5 text-[#10b981] shrink-0" />
+                  <span className="line-height-1.4">{f.q}</span>
+                </span>
+                <ChevronDown className={`w-3.5 h-3.5 text-[#10b981] shrink-0 transition-transform ${openFaq === i ? "rotate-180" : ""}`} />
+              </button>
+              {openFaq === i && (
+                <div className="px-5 pb-4 pl-9 text-xs text-slate-400 leading-relaxed border-t border-slate-50/50 pt-3">
+                  {f.a}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
 
     </div>

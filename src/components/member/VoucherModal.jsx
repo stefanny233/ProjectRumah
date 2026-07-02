@@ -1,31 +1,39 @@
 import React from "react";
-import { FileText } from "lucide-react";
+import { FileText, X } from "lucide-react";
 
 export default function VoucherModal({ activeVoucher, onClose }) {
   if (!activeVoucher) return null;
 
   return (
-    <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.55)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16, zIndex: 9999 }}>
-      <div onClick={e => e.stopPropagation()} style={{ background: "#fff", borderRadius: 24, width: "100%", maxWidth: 400, padding: 24, border: "0.5px solid #d4ddd4", textAlign: "center" }}>
-
-        <div style={{ width: 52, height: 52, background: "#e1f5ee", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", border: "0.5px solid #9fe1cb" }}>
-          <FileText style={{ width: 22, height: 22, color: "#0f6e56" }} />
+    <div 
+      onClick={onClose} 
+      className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-[9999]"
+    >
+      <div 
+        onClick={e => e.stopPropagation()} 
+        className="bg-white rounded-3xl w-full max-w-xs p-6 border border-slate-200/60 shadow-2xl relative text-center"
+      >
+        <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-emerald-100">
+          <FileText className="w-5 h-5 text-emerald-600" />
         </div>
 
-        <div style={{ fontSize: 15, fontWeight: 700, color: "#0a1f0a", marginBottom: 5 }}>Voucher Berhasil Diaktifkan!</div>
-        <p style={{ fontSize: 13, color: "#5a6e5a", lineHeight: 1.6, marginBottom: 16 }}>
-          Kode diskon untuk <strong style={{ color: "#0a1f0a" }}>"{activeVoucher.title}"</strong> sudah tersambung ke kasir.
+        <h3 className="text-sm font-bold text-slate-800 mb-1">Voucher Berhasil Diaktifkan!</h3>
+        <p className="text-xs text-slate-500 leading-relaxed mb-4">
+          Kode diskon untuk <strong>"{activeVoucher.title}"</strong> telah terhubung ke sistem kasir.
         </p>
 
-        <div style={{ background: "#f4f6f3", border: "1.5px dashed #9ab09a", borderRadius: 12, padding: "12px 20px", fontFamily: "monospace", fontSize: 18, fontWeight: 700, letterSpacing: ".15em", color: "#1d9e75", marginBottom: 16, userSelect: "all" }}>
+        <div className="bg-slate-50 border-2 border-dashed border-emerald-300 rounded-xl py-3 px-4 font-mono text-lg font-black tracking-widest text-[#10b981] mb-4 select-all">
           {activeVoucher.code}
         </div>
 
-        <p style={{ fontSize: 11, color: "#9ab09a", lineHeight: 1.6, marginBottom: 20 }}>
-          *Tunjukkan kode ini atau scan barcode rekam medis digital di kasir Luna Apotek.
+        <p className="text-[10px] text-slate-400 leading-normal mb-5">
+          *Tunjukkan kode ini atau sebutkan nomor rekam medis Anda ke kasir Luna Apotek saat melakukan pembayaran.
         </p>
 
-        <button onClick={onClose} style={{ width: "100%", background: "#1d9e75", color: "#fff", border: "none", borderRadius: 10, padding: "12px 0", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+        <button 
+          onClick={onClose} 
+          className="w-full bg-[#10b981] hover:bg-[#059669] text-white text-xs font-bold py-3 rounded-xl transition cursor-pointer active:scale-95"
+        >
           Selesai & Tutup
         </button>
       </div>

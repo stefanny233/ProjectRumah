@@ -5,41 +5,63 @@ import { Pill, LogOut, Bell, User, Sparkles } from "lucide-react";
 export default function MemberNavbar({ userData, memberTier, onProfileOpen }) {
   const navigate = useNavigate();
 
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate("/login");
+  };
+
   return (
-    <nav style={{ background: "#fff", borderBottom: "0.5px solid #d4ddd4", padding: "0 24px", display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: 0, zIndex: 50, height: 60 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <div style={{ width: 36, height: 36, background: "#1d9e75", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <Pill style={{ width: 18, height: 18, color: "#fff" }} />
+    <nav className="sticky top-0 z-50 bg-white/75 backdrop-blur-md border-b border-slate-200/50 px-6 lg:px-10 py-4 flex justify-between items-center shadow-sm">
+      {/* SISI KIRI: LOGO */}
+      <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/")}>
+        <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
+          <Pill className="w-5 h-5 text-white" />
         </div>
         <div>
-          <div style={{ fontSize: 14, fontWeight: 700, color: "#0a1f0a", display: "flex", alignItems: "center", gap: 6 }}>
-            Apotek
-            <span style={{ fontSize: 10, background: "#e1f5ee", color: "#0f6e56", border: "0.5px solid #9fe1cb", padding: "2px 7px", borderRadius: 6, fontWeight: 700, letterSpacing: ".05em" }}>PRIORITY</span>
+          <div className="text-sm font-bold text-slate-800 flex items-center gap-2 leading-none">
+            <span>SIApotek</span>
+            <span className="text-[8px] bg-emerald-100 text-emerald-700 border border-emerald-200 px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider">
+              PRIORITY
+            </span>
           </div>
-          <div style={{ fontSize: 11, color: "#6b7c6b" }}>Digital Pharmacy System</div>
+          <span className="text-[10px] text-slate-400 block font-semibold uppercase tracking-wider mt-1">
+            Digital Pharmacy System
+          </span>
         </div>
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <button style={{ position: "relative", width: 36, height: 36, background: "#f4f6f3", border: "0.5px solid #d4ddd4", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
-          <Bell style={{ width: 16, height: 16, color: "#5a6e5a" }} />
-          <span style={{ position: "absolute", top: 7, right: 7, width: 7, height: 7, background: "#1d9e75", borderRadius: "50%", border: "1.5px solid #fff" }} />
+      {/* SISI KANAN: MENU USER & LOGOUT */}
+      <div className="flex items-center gap-3">
+        {/* Notifikasi */}
+        <button className="relative w-9 h-9 bg-slate-50 border border-slate-200 hover:bg-slate-100 rounded-xl flex items-center justify-center text-slate-500 transition cursor-pointer active:scale-95">
+          <Bell className="w-4 h-4" />
+          <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-emerald-500 rounded-full border border-white" />
         </button>
 
-        <button onClick={onProfileOpen} style={{ display: "flex", alignItems: "center", gap: 8, background: "#f4f6f3", border: "0.5px solid #d4ddd4", borderRadius: 10, padding: "6px 12px 6px 6px", cursor: "pointer" }}>
-          <div style={{ width: 28, height: 28, background: "#1d9e75", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <User style={{ width: 14, height: 14, color: "#fff" }} />
+        {/* Profil Member */}
+        <button 
+          onClick={onProfileOpen} 
+          className="flex items-center gap-2.5 bg-slate-50 border border-slate-200 hover:bg-slate-100 rounded-xl p-1 pr-3 transition cursor-pointer active:scale-95"
+        >
+          <div className="w-7 h-7 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center text-white">
+            <User className="w-4 h-4" />
           </div>
-          <div style={{ textAlign: "left" }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: "#0a1f0a", lineHeight: 1.3 }}>{userData.name.split(" ").slice(0, 2).join(" ")}</div>
-            <div style={{ fontSize: 10, color: "#1d9e75", fontWeight: 500, display: "flex", alignItems: "center", gap: 3 }}>
-              <Sparkles style={{ width: 10, height: 10, fill: "#f59e0b", color: "#f59e0b" }} /> {memberTier}
+          <div className="text-left hidden sm:block">
+            <div className="text-xs font-bold text-slate-800 leading-tight">
+              {userData.name.split(" ").slice(0, 2).join(" ")}
+            </div>
+            <div className="text-[9px] text-[#10b981] font-bold flex items-center gap-0.5">
+              <Sparkles className="w-2.5 h-2.5 text-amber-500 fill-amber-500 animate-bounce" /> {memberTier}
             </div>
           </div>
         </button>
 
-        <button onClick={() => navigate("/login")} style={{ width: 34, height: 34, background: "#fef2f2", border: "0.5px solid #fecaca", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
-          <LogOut style={{ width: 15, height: 15, color: "#ef4444" }} />
+        {/* Tombol Logout */}
+        <button 
+          onClick={handleLogout} 
+          className="w-9 h-9 bg-rose-50 border border-rose-100 hover:bg-rose-100 hover:border-rose-200 text-rose-600 rounded-xl flex items-center justify-center transition cursor-pointer active:scale-95"
+        >
+          <LogOut className="w-4 h-4" />
         </button>
       </div>
     </nav>

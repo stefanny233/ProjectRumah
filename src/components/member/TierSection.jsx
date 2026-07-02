@@ -33,27 +33,54 @@ const tiers = [
 
 export default function TierSection() {
   return (
-    <div>
-      <div style={{ marginBottom: 14 }}>
-        <div style={{ fontSize: 11, color: "#6b7c6b", fontWeight: 500, textTransform: "uppercase", letterSpacing: ".07em", marginBottom: 2 }}>Pharmacy Tiers</div>
-        <div style={{ fontSize: 17, fontWeight: 700, color: "#0a1f0a" }}>Pilihan Kelas Keanggotaan</div>
+    <div className="text-left">
+      <div className="mb-4">
+        <span className="text-[10px] text-[#10b981] font-bold uppercase tracking-widest block mb-0.5">Pharmacy Tiers</span>
+        <h2 className="text-lg font-bold text-slate-800">Pilihan Kelas Keanggotaan</h2>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 14 }}>
+      
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {tiers.map((t, i) => (
-          <div key={i} style={{ borderRadius: 16, padding: 24, border: t.active ? "2px solid #1d9e75" : "0.5px solid #d4ddd4", background: t.dark ? "#0a1f0a" : "#fff", position: "relative" }}>
+          <div 
+            key={i} 
+            className={`rounded-3xl p-6 border relative flex flex-col justify-between transition-all duration-300 ${
+              t.active 
+                ? "border-[#10b981] bg-emerald-50/20 shadow-md shadow-emerald-500/5" 
+                : t.dark 
+                ? "bg-slate-900 border-slate-800 text-white shadow-sm" 
+                : "bg-white/80 border-slate-200/60 shadow-sm"
+            }`}
+          >
             {t.badge && (
-              <span style={{ position: "absolute", top: -1, right: 20, transform: "translateY(-50%)", background: "#1d9e75", color: "#fff", fontSize: 10, fontWeight: 700, padding: "3px 10px", borderRadius: 20 }}>{t.badge}</span>
+              <span className="absolute top-0 right-6 -translate-y-1/2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-wider shadow">
+                {t.badge}
+              </span>
             )}
-            <div style={{ marginBottom: 14 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".06em", color: t.dark ? "#5dcaa5" : t.active ? "#1d9e75" : "#888", marginBottom: 4 }}>{t.name}</div>
-              <div style={{ fontSize: 22, fontWeight: 700, color: t.dark ? "#fff" : "#0a1f0a" }}>
-                {t.price}<span style={{ fontSize: 12, fontWeight: 400, color: t.dark ? "#5dcaa5" : "#888" }}>{t.period}</span>
+            
+            <div className="mb-6">
+              <span className={`text-[10px] font-bold uppercase tracking-wider block mb-1 ${
+                t.dark ? "text-emerald-400" : t.active ? "text-emerald-600" : "text-slate-400"
+              }`}>
+                {t.name}
+              </span>
+              <div className="flex items-baseline gap-1 mt-2">
+                <span className="text-2xl font-black">{t.price}</span>
+                <span className={`text-xs ${t.dark ? "text-slate-400" : "text-slate-400"}`}>{t.period}</span>
               </div>
             </div>
-            <ul style={{ listStyle: "none", padding: 0, margin: 0, borderTop: `0.5px solid ${t.dark ? "#1a3a1a" : "#e8f0e8"}`, paddingTop: 14, display: "flex", flexDirection: "column", gap: 9 }}>
+
+            <ul className={`space-y-3 pt-5 border-t ${t.dark ? "border-slate-800" : "border-slate-100"}`}>
               {t.perks.map((p, j) => (
-                <li key={j} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: p.ok ? (t.dark ? "#9fe1cb" : "#4a5e4a") : "#c4d4c4", textDecoration: p.ok ? "none" : "line-through" }}>
-                  <CheckCircle2 style={{ width: 14, height: 14, color: p.ok ? "#1d9e75" : "#c4d4c4", flexShrink: 0 }} /> {p.text}
+                <li 
+                  key={j} 
+                  className={`flex items-center gap-2 text-xs ${
+                    p.ok 
+                      ? t.dark ? "text-slate-200" : "text-slate-600" 
+                      : "text-slate-300 line-through"
+                  }`}
+                >
+                  <CheckCircle2 className={`w-4 h-4 shrink-0 ${p.ok ? "text-emerald-500" : "text-slate-300"}`} />
+                  <span>{p.text}</span>
                 </li>
               ))}
             </ul>

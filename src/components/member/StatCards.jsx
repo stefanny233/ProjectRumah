@@ -3,25 +3,25 @@ import { Star, FileText, Package, MessageCircle } from "lucide-react";
 
 export default function StatCards({ memberPoints }) {
   const stats = [
-    { label: "Poin Reward", value: memberPoints.toLocaleString(), icon: <Star style={{ width: 16, height: 16 }} />, color: "#f59e0b" },
-    { label: "Resep Aktif", value: "3", icon: <FileText style={{ width: 16, height: 16 }} />, color: "#1d9e75" },
-    { label: "Obat Diambil", value: "24", icon: <Package style={{ width: 16, height: 16 }} />, color: "#3b82f6" },
-    { label: "Konsultasi", value: "7", icon: <MessageCircle style={{ width: 16, height: 16 }} />, color: "#8b5cf6" },
+    { label: "Poin Reward", value: memberPoints.toLocaleString() + " Pts", icon: <Star className="w-4.5 h-4.5" />, color: "text-amber-500 bg-amber-50" },
+    { label: "Resep Aktif", value: "3 Resep", icon: <FileText className="w-4.5 h-4.5" />, color: "text-emerald-600 bg-emerald-50" },
+    { label: "Obat Diambil", value: "24 Item", icon: <Package className="w-4.5 h-4.5" />, color: "text-blue-600 bg-blue-50" },
+    { label: "Konsultasi", value: "7 Sesi", icon: <MessageCircle className="w-4.5 h-4.5" />, color: "text-purple-600 bg-purple-50" },
   ];
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 12, marginBottom: 24 }}>
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
       {stats.map((s, i) => (
-        <div key={i} style={{ background: "#fff", border: "0.5px solid #d4ddd4", borderRadius: 16, padding: "16px 18px", display: "flex", alignItems: "center", gap: 14, transition: "transform .15s", cursor: "default" }}
-          onMouseEnter={e => e.currentTarget.style.transform = "translateY(-1px)"}
-          onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}
+        <div 
+          key={i} 
+          className="bg-white/80 backdrop-blur-md border border-slate-200/60 rounded-2xl p-5 flex items-center gap-4 hover:-translate-y-0.5 hover:shadow-md transition-all duration-300 cursor-default text-left"
         >
-          <div style={{ width: 40, height: 40, borderRadius: 10, background: `${s.color}18`, display: "flex", alignItems: "center", justifyContent: "center", color: s.color, flexShrink: 0 }}>
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${s.color}`}>
             {s.icon}
           </div>
           <div>
-            <div style={{ fontSize: 11, color: "#6b7c6b", marginBottom: 2 }}>{s.label}</div>
-            <div style={{ fontSize: 20, fontWeight: 700, color: "#0a1f0a" }}>{s.value}</div>
+            <span className="text-[10px] text-slate-400 block font-semibold uppercase tracking-wider">{s.label}</span>
+            <span className="text-lg font-bold text-slate-800 mt-1 block">{s.value}</span>
           </div>
         </div>
       ))}

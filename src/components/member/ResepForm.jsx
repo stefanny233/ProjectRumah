@@ -3,28 +3,50 @@ import { PlusCircle, CheckCircle2, Clock } from "lucide-react";
 
 export default function ResepForm({ isRegistered, patientData, onChange, onSubmit, onReset }) {
   return (
-    <div style={{ marginBottom: 24 }}>
-      <div style={{ marginBottom: 14 }}>
-        <div style={{ fontSize: 11, color: "#1d9e75", fontWeight: 500, textTransform: "uppercase", letterSpacing: ".07em", marginBottom: 2 }}>Prescription Submission</div>
-        <div style={{ fontSize: 17, fontWeight: 700, color: "#0a1f0a" }}>Ajukan Penebusan Resep</div>
-        <div style={{ fontSize: 12, color: "#5a6e5a", marginTop: 3 }}>Kirim data resep, obat akan disiapkan sebelum kamu tiba di loket.</div>
+    <div className="mb-8">
+      <div className="mb-4 text-left">
+        <span className="text-[10px] text-[#10b981] font-bold uppercase tracking-widest block mb-0.5">Prescription Submission</span>
+        <h2 className="text-lg font-bold text-slate-800">Ajukan Penebusan Resep VIP</h2>
+        <p className="text-xs text-slate-400 mt-1">Kirim data resep sekarang, obat akan disiapkan dan siap diambil lewat jalur antrean prioritas.</p>
       </div>
 
-      <div style={{ background: "#fff", border: "0.5px solid #d4ddd4", borderRadius: 16, padding: 20 }}>
+      <div className="bg-white/80 backdrop-blur-md border border-slate-200/60 rounded-3xl p-6 shadow-sm">
         {!isRegistered ? (
-          <form onSubmit={onSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12 }}>
-              <div>
-                <label style={{ fontSize: 11, fontWeight: 600, color: "#4a5e4a", display: "block", marginBottom: 6 }}>Nama Lengkap Pasien</label>
-                <input type="text" name="patientName" required placeholder="Contoh: Budi Sudarsono" value={patientData.patientName} onChange={onChange} style={{ width: "100%", padding: "10px 14px", fontSize: 13, border: "0.5px solid #c4d4c4", borderRadius: 10, background: "#fff", color: "#1a1f1a", outline: "none", fontFamily: "inherit" }} />
+          <form onSubmit={onSubmit} className="space-y-5 text-left">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="flex flex-col">
+                <label className="text-[11px] font-semibold text-slate-600 mb-2">Nama Lengkap Pasien</label>
+                <input 
+                  type="text" 
+                  name="patientName" 
+                  required 
+                  placeholder="Contoh: Budi Sudarsono" 
+                  value={patientData.patientName} 
+                  onChange={onChange} 
+                  className="w-full text-xs px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#10b981] focus:ring-2 focus:ring-[#10b981]/20 text-slate-800" 
+                />
               </div>
-              <div>
-                <label style={{ fontSize: 11, fontWeight: 600, color: "#4a5e4a", display: "block", marginBottom: 6 }}>No. ID Resep Dokter</label>
-                <input type="text" name="prescriptionId" required placeholder="RSP-2026-8812" value={patientData.prescriptionId} onChange={onChange} style={{ width: "100%", padding: "10px 14px", fontSize: 13, border: "0.5px solid #c4d4c4", borderRadius: 10, background: "#fff", color: "#1a1f1a", outline: "none", fontFamily: "inherit" }} />
+              <div className="flex flex-col">
+                <label className="text-[11px] font-semibold text-slate-600 mb-2">No. ID Resep Dokter</label>
+                <input 
+                  type="text" 
+                  name="prescriptionId" 
+                  required 
+                  placeholder="RSP-2026-8812" 
+                  value={patientData.prescriptionId} 
+                  onChange={onChange} 
+                  className="w-full text-xs px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#10b981] focus:ring-2 focus:ring-[#10b981]/20 text-slate-800" 
+                />
               </div>
-              <div>
-                <label style={{ fontSize: 11, fontWeight: 600, color: "#4a5e4a", display: "block", marginBottom: 6 }}>Metode Pengambilan</label>
-                <select name="serviceChoice" required value={patientData.serviceChoice} onChange={onChange} style={{ width: "100%", padding: "10px 14px", fontSize: 13, border: "0.5px solid #c4d4c4", borderRadius: 10, background: "#fff", color: "#1a1f1a", outline: "none", fontFamily: "inherit" }}>
+              <div className="flex flex-col">
+                <label className="text-[11px] font-semibold text-slate-600 mb-2">Metode Pengambilan</label>
+                <select 
+                  name="serviceChoice" 
+                  required 
+                  value={patientData.serviceChoice} 
+                  onChange={onChange} 
+                  className="w-full text-xs px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#10b981] focus:ring-2 focus:ring-[#10b981]/20 text-slate-800 cursor-pointer"
+                >
                   <option value="">Pilih Layanan</option>
                   <option value="Ambil Langsung via Jalur Cepat VIP">Ambil Langsung via Jalur VIP</option>
                   <option value="Kirim Gratis ke Alamat Rumah">Kirim Gratis ke Rumah</option>
@@ -32,28 +54,42 @@ export default function ResepForm({ isRegistered, patientData, onChange, onSubmi
                 </select>
               </div>
             </div>
-            <div>
-              <label style={{ fontSize: 11, fontWeight: 600, color: "#4a5e4a", display: "block", marginBottom: 6 }}>Catatan (Alergi / Permintaan Merk)</label>
-              <textarea name="notes" rows={3} required placeholder="Alergi antibiotik tertentu, atau catatan pengantaran..." value={patientData.notes} onChange={onChange} style={{ width: "100%", padding: "10px 14px", fontSize: 13, border: "0.5px solid #c4d4c4", borderRadius: 10, background: "#fff", color: "#1a1f1a", outline: "none", fontFamily: "inherit", resize: "vertical" }} />
+            <div className="flex flex-col">
+              <label className="text-[11px] font-semibold text-slate-600 mb-2">Catatan (Alergi / Permintaan Merk)</label>
+              <textarea 
+                name="notes" 
+                rows={3} 
+                required 
+                placeholder="Alergi antibiotik tertentu, atau catatan pengantaran..." 
+                value={patientData.notes} 
+                onChange={onChange} 
+                className="w-full text-xs px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#10b981] focus:ring-2 focus:ring-[#10b981]/20 text-slate-800 resize-y" 
+              />
             </div>
-            <button type="submit" style={{ background: "#1d9e75", color: "#fff", border: "none", borderRadius: 10, padding: "12px 0", fontSize: 13, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
-              <PlusCircle style={{ width: 15, height: 15 }} /> Ajukan Penebusan Resep
+            <button 
+              type="submit" 
+              className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-xs font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 transition cursor-pointer shadow-md"
+            >
+              <PlusCircle className="w-4 h-4" /> Ajukan Penebusan Resep
             </button>
           </form>
         ) : (
-          <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
-            <div style={{ width: 44, height: 44, background: "#e1f5ee", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <CheckCircle2 style={{ width: 22, height: 22, color: "#0f6e56" }} />
+          <div className="flex items-start gap-4 py-4 text-left">
+            <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center flex-shrink-0 border border-emerald-100">
+              <CheckCircle2 className="w-6 h-6 text-emerald-600" />
             </div>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: "#0a1f0a", marginBottom: 5 }}>Tiket Resep Berhasil Masuk Sistem!</div>
-              <p style={{ fontSize: 13, color: "#4a5e4a", lineHeight: 1.6, marginBottom: 8 }}>
+            <div className="flex-1">
+              <h3 className="text-sm font-bold text-slate-800 mb-1">Tiket Resep Berhasil Masuk Sistem!</h3>
+              <p className="text-xs text-slate-500 leading-relaxed mb-3">
                 Halo <strong>{patientData.patientName}</strong>, resep ID <strong>{patientData.prescriptionId}</strong> sedang divalidasi apoteker via <strong>{patientData.serviceChoice}</strong>.
               </p>
-              <div style={{ fontSize: 12, color: "#0f6e56", fontWeight: 500, display: "flex", alignItems: "center", gap: 5, marginBottom: 12 }}>
-                <Clock style={{ width: 13, height: 13 }} /> Waktu tunggu kamu sudah dipotong. Silakan duduk di ruang tunggu Gold ber-AC.
+              <div className="text-xs text-emerald-600 font-bold bg-emerald-50 w-fit px-3 py-1.5 rounded-xl border border-emerald-100 flex items-center gap-1.5 mb-4">
+                <Clock className="w-4 h-4 animate-pulse" /> Waktu tunggu Anda dipotong. Silakan langsung ke loket priority.
               </div>
-              <button onClick={onReset} style={{ background: "transparent", border: "0.5px solid #c4d4c4", borderRadius: 10, padding: "9px 18px", fontSize: 12, fontWeight: 500, color: "#2a3b2a", cursor: "pointer" }}>
+              <button 
+                onClick={onReset} 
+                className="bg-white border border-slate-200 text-slate-700 text-xs font-bold px-5 py-2 rounded-xl hover:bg-slate-50 transition cursor-pointer"
+              >
                 Ajukan Resep Lain
               </button>
             </div>

@@ -3,38 +3,28 @@ import React from "react";
 const navTabs = [
   { id: "beranda", label: "Beranda" },
   { id: "resep", label: "Tebus Resep" },
-  { id: "reward", label: "Reward" },
-  { id: "riwayat", label: "Riwayat" },
+  { id: "reward", label: "Reward & Tier" },
+  { id: "riwayat", label: "Riwayat Transaksi" },
 ];
 
 export default function MemberTabs({ activeTab, setActiveTab }) {
   return (
-    <div 
-      style={{ 
-        background: "#fff", 
-        borderBottom: "0.5px solid #d4ddd4", 
-        padding: "0 24px", 
-        display: "flex", 
-        gap: 4,
-        justifyContent: "center" // PERBAIKAN: Menyejajarkan tab ke posisi tengah layar
-      }}
-    >
-      {navTabs.map(t => (
-        <button
-          key={t.id}
-          onClick={() => setActiveTab(t.id)}
-          style={{
-            margin: "8px 0", padding: "8px 18px", borderRadius: 8, fontSize: 13,
-            fontWeight: 500, cursor: "pointer", border: "none", transition: "all .15s",
-            background: activeTab === t.id ? "#1d9e75" : "transparent",
-            color: activeTab === t.id ? "#fff" : "#5a6e5a",
-          }}
-          onMouseEnter={e => { if (activeTab !== t.id) { e.currentTarget.style.background = "#e1f5ee"; e.currentTarget.style.color = "#0f6e56"; }}}
-          onMouseLeave={e => { if (activeTab !== t.id) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#5a6e5a"; }}}
-        >
-          {t.label}
-        </button>
-      ))}
+    <div className="bg-white/60 backdrop-blur-md border-b border-slate-200/60 px-6 py-2 flex gap-2 justify-center sticky top-[72px] z-30">
+      <div className="flex bg-slate-100/80 p-1 rounded-xl border border-slate-200/50">
+        {navTabs.map(t => (
+          <button
+            key={t.id}
+            onClick={() => setActiveTab(t.id)}
+            className={`px-5 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              activeTab === t.id 
+                ? "bg-white text-slate-900 shadow-sm" 
+                : "text-slate-500 hover:text-slate-800"
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

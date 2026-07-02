@@ -3,40 +3,48 @@ import { CreditCard, QrCode } from "lucide-react";
 
 export default function WelcomeBanner({ userData, memberPoints, nextTierPoints, progressPct, onProfileOpen }) {
   return (
-    <div style={{ background: "#0a1f0a", borderRadius: 20, padding: "28px 32px", marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 20, flexWrap: "wrap", overflow: "hidden", position: "relative" }}>
-      <div style={{ position: "absolute", right: -30, top: -30, width: 180, height: 180, background: "rgba(29,158,117,.08)", borderRadius: "50%" }} />
-      <div style={{ position: "absolute", right: 60, bottom: -40, width: 120, height: 120, background: "rgba(29,158,117,.05)", borderRadius: "50%" }} />
+    <div className="relative overflow-hidden bg-slate-900 text-white rounded-3xl p-8 mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-xl border border-slate-800">
+      {/* Decorative Blur Circles */}
+      <div className="absolute -right-8 -top-8 w-44 h-44 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
+      <div className="absolute right-12 -bottom-12 w-32 h-32 bg-emerald-500/5 rounded-full blur-xl pointer-events-none" />
 
-      <div style={{ zIndex: 1 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-          <span style={{ background: "rgba(29,158,117,.2)", color: "#5dcaa5", fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20, border: "0.5px solid rgba(93,202,165,.2)" }}>
-            Selamat datang kembali 👋
-          </span>
-        </div>
-        <h1 style={{ fontSize: 22, fontWeight: 700, color: "#fff", marginBottom: 6, lineHeight: 1.3 }}>
+      <div className="relative z-10 flex-1 text-left">
+        <span className="inline-block bg-emerald-500/20 text-emerald-400 text-[10px] font-extrabold px-3 py-1 rounded-full mb-3 uppercase tracking-wider border border-emerald-500/10">
+          Selamat datang kembali 👋
+        </span>
+        <h1 className="text-2xl md:text-3xl font-master-bold text-white mb-2 tracking-tight">
           Halo, {userData.name.split(" ")[0]}!
         </h1>
-        <p style={{ fontSize: 13, color: "#5dcaa5", maxWidth: 440, lineHeight: 1.6 }}>
-          Kamu punya <strong style={{ color: "#9fe1cb" }}>{memberPoints} poin</strong> aktif. Tinggal {nextTierPoints - memberPoints} poin lagi untuk naik ke tier Platinum!
+        <p className="text-xs text-slate-300 max-w-lg leading-relaxed mb-5">
+          Kamu memiliki <strong className="text-emerald-400 font-bold">{memberPoints} poin</strong> aktif. Kumpulkan {nextTierPoints - memberPoints} poin lagi untuk otomatis naik ke tier Platinum!
         </p>
-        <div style={{ marginTop: 14, maxWidth: 320 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "#5dcaa5", marginBottom: 5 }}>
+        <div className="max-w-xs">
+          <div className="flex justify-between text-[10px] text-slate-400 mb-1.5 font-medium">
             <span>Gold Care</span>
-            <span>{memberPoints} / {nextTierPoints} poin</span>
+            <span className="font-bold text-emerald-400">{memberPoints} / {nextTierPoints} Poin</span>
             <span>Platinum</span>
           </div>
-          <div style={{ height: 6, background: "#e1f5ee", borderRadius: 99, overflow: "hidden" }}>
-            <div style={{ height: "100%", background: "linear-gradient(90deg, #1d9e75, #5dcaa5)", borderRadius: 99, width: `${progressPct}%`, transition: "width .6s" }} />
+          <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-500" 
+              style={{ width: `${progressPct}%` }}
+            />
           </div>
         </div>
       </div>
 
-      <div style={{ zIndex: 1, display: "flex", gap: 10 }}>
-        <button onClick={onProfileOpen} style={{ background: "#1d9e75", color: "#fff", border: "none", borderRadius: 10, padding: "10px 20px", fontSize: 13, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>
-          <CreditCard style={{ width: 14, height: 14 }} /> Kartu Member
+      <div className="relative z-10 flex gap-3 w-full md:w-auto">
+        <button 
+          onClick={onProfileOpen} 
+          className="flex-1 md:flex-initial flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-5 py-3 rounded-xl transition shadow-md hover:shadow-lg active:scale-95 cursor-pointer"
+        >
+          <CreditCard className="w-4 h-4" /> Kartu Member
         </button>
-        <button style={{ background: "rgba(255,255,255,.07)", border: "0.5px solid rgba(255,255,255,.15)", color: "#9fe1cb", borderRadius: 10, padding: "10px 20px", fontSize: 13, fontWeight: 500, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>
-          <QrCode style={{ width: 14, height: 14 }} /> Scan Kartu
+        <button 
+          onClick={onProfileOpen} 
+          className="flex-1 md:flex-initial flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 hover:border-slate-600 text-xs font-bold px-5 py-3 rounded-xl transition active:scale-95 cursor-pointer"
+        >
+          <QrCode className="w-4 h-4" /> Scan QR
         </button>
       </div>
     </div>

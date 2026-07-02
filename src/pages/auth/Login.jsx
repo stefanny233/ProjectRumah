@@ -21,10 +21,11 @@ export default function Login() {
     setError("");
 
     try {
+      // 1. Ambil data nama, role, dan password berdasarkan email dari Supabase (Email dipotong spasi & diubah ke huruf kecil)
       const { data: userData, error: dbError } = await supabase
         .from("user")
-        .select("role, password")
-        .eq("email", email)
+        .select("name, role, password")
+        .eq("email", email.trim().toLowerCase())
         .maybeSingle();
 
       if (dbError) throw dbError;
@@ -33,12 +34,19 @@ export default function Login() {
         throw new Error("Akun email tidak terdaftar di sistem!");
       }
 
+      // 2. Cocokkan password
       if (userData.password !== password) {
         throw new Error("Password yang mase masukkan salah!");
       }
 
       const userRole = userData?.role?.toLowerCase(); 
 
+      // 3. Simpan Sesi Login ke LocalStorage agar halaman lain (seperti Header) bisa membaca nama & role
+      localStorage.setItem("userEmail", email.trim().toLowerCase());
+      localStorage.setItem("userRole", userRole);
+      localStorage.setItem("userName", userData?.name || "User");
+
+      // 4. Arahkan ke rute berdasarkan role
       if (userRole === "admin" || userRole === "director" || userRole === "manager") {
         navigate("/dashboard"); 
       } else {

@@ -24,6 +24,8 @@ import {
   MessageSquare,
   AlertTriangle,
   RefreshCw,
+  ArrowRight,
+  PlayCircle,
 } from "lucide-react";
 
 export default function GuestHome() {
@@ -43,25 +45,28 @@ export default function GuestHome() {
     totalTransactions: 234,
   });
   const [loading, setLoading] = useState(false);
-  const [orderLogs, setOrderLogs] = useState([]); // Menyimpan log pesanan lokal untuk cadangan/offline demo
-  const [dbStatus, setDbStatus] = useState("checking"); // 'connected' | 'error' | 'checking'
+  const [orderLogs, setOrderLogs] = useState([]); 
+  const [dbStatus, setDbStatus] = useState("checking"); 
   const [dbErrorMsg, setDbErrorMsg] = useState("");
 
-  // CRM Fitur: Simulator Poin & Tier Member
+  const faqs = [
+    { q: "Apakah obat yang dijual sudah terdaftar BPOM?", a: "Ya, 100% produk kami telah mendapatkan izin edar resmi dari BPOM." },
+    { q: "Berapa lama waktu penyiapan obat racikan?", a: "Rata-rata 20-30 menit tergantung jumlah dan jenis racikan." },
+    { q: "Apakah bisa memesan tanpa resep dokter?", a: "Untuk obat bebas (OTC) bisa langsung, untuk obat keras wajib melampirkan resep dokter." },
+    { q: "Apakah ada layanan antar obat ke rumah?", a: "Saat ini layanan antar tersedia dalam radius 5 km dari apotek." },
+  ];
+
   const [simPurchaseValue, setSimPurchaseValue] = useState(150000);
   const [simPoints, setSimPoints] = useState(150);
   const [simTier, setSimTier] = useState("Bronze");
 
-  // CRM Fitur: Estimasi Waktu Penyiapan Obat
   const [estType, setEstType] = useState("Obat Bebas / Vitamin");
   const [estQty, setEstQty] = useState(1);
   const [estTime, setEstTime] = useState(10);
   const [estWarning, setEstWarning] = useState("");
 
-  // DOM Reference
   const nameInputRef = useRef(null);
 
-  // Cek Konektivitas Supabase Database pada awal load
   useEffect(() => {
     async function checkConnection() {
       try {
@@ -73,10 +78,9 @@ export default function GuestHome() {
           if (error.message.includes("does not exist")) {
             setDbStatus("connected");
             setDbErrorMsg(
-              "Tabel 'orders' belum dibuat di Supabase. Silakan jalankan query SQL dari PRD!",
+              "Tabel 'orders' belum dibuat di Supabase. Silakan jalankan query SQL dari PRD!"
             );
           } else {
-            // Abaikan RLS policy warning untuk testing koneksi select id
             if (error.message.includes("row-level security")) {
               setDbStatus("connected");
               setDbErrorMsg("");
@@ -97,13 +101,9 @@ export default function GuestHome() {
     checkConnection();
   }, []);
 
-  // Update simulator poin jika nilai pembelian berubah
   useEffect(() => {
-    // 1 Poin setiap Rp 1.000 pembelian
     const points = Math.floor(simPurchaseValue / 1000);
     setSimPoints(points);
-
-    // Hitung Tier
     if (points >= 500) {
       setSimTier("Platinum");
     } else if (points >= 250) {
@@ -115,9 +115,8 @@ export default function GuestHome() {
     }
   }, [simPurchaseValue]);
 
-  // Update estimasi waktu pengerjaan obat
   useEffect(() => {
-    let baseTime = 10; // menit
+    let baseTime = 10; 
     let warning = "";
 
     if (estType === "Tebus Resep Dokter") {
@@ -138,7 +137,6 @@ export default function GuestHome() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Submit Order dengan integrasi database Supabase
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -158,20 +156,16 @@ export default function GuestHome() {
     };
 
     try {
-      // PERBAIKAN UTAMA RLS: Hapus .select() agar tidak memicu RLS SELECT policy violation pada guest user
       const { error } = await supabase.from("orders").insert([newOrder]);
-
       if (error) throw error;
 
-      // Simpan lokal sebagai backup/logs agar demo lancar
       setOrderLogs((prev) => [newOrder, ...prev]);
       setIsOrdered(true);
     } catch (err) {
       console.warn(
         "Gagal menyimpan ke database Supabase, menggunakan fallback penyimpanan state lokal:",
-        err.message,
+        err.message
       );
-      // Fallback agar demo dosen tetap berhasil walaupun database belum disetup
       setOrderLogs((prev) => [newOrder, ...prev]);
       setIsOrdered(true);
     } finally {
@@ -194,9 +188,9 @@ export default function GuestHome() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f4f6f3] text-[#1a1f1a] antialiased flex flex-col font-sans">
+    <div className="min-h-screen bg-[#fafcfa] text-[#1a1f1a] antialiased flex flex-col font-sans selection:bg-emerald-200 selection:text-emerald-900">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap');
         
         .font-sans {
           font-family: 'Plus Jakarta Sans', sans-serif;
@@ -213,232 +207,295 @@ export default function GuestHome() {
           letter-spacing: -0.02em !important;
         }
 
-        /* Glassmorphic card styling */
-        .glass-card {
-          background: rgba(255, 255, 255, 0.85);
-          backdrop-filter: blur(12px);
-          border: 1px solid rgba(229, 231, 235, 0.7);
+        .glass-nav {
+          background: rgba(255, 255, 255, 0.75);
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
+          border-bottom: 1px solid rgba(229, 231, 235, 0.5);
         }
 
         .gradient-green {
-          background: linear-gradient(135deg, #1d9e75 0%, #0d7052 100%);
+          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
         }
       `}</style>
 
-      {/* ================= STATUS KONEKSI SUPABASE ================= */}
-      <div className="bg-[#f0f9ff] border-b border-[#bae6fd] py-2 px-6 flex justify-between items-center text-xs text-[#0369a1]">
-        <div className="flex items-center gap-2">
-          <Database className="w-4 h-4 text-[#0284c7]" />
-          <span>
-            <strong>SIApotek Database Status:</strong>{" "}
-            {dbStatus === "checking" && "Memeriksa koneksi database..."}
-            {dbStatus === "connected" && (
-              <span className="text-emerald-600 font-semibold">
-                Terhubung ke Supabase{" "}
-                {dbErrorMsg
-                  ? "(Tabel belum termigrasi)"
-                  : "(Tabel Orders Aktif)"}
-              </span>
-            )}
-            {dbStatus === "error" && (
-              <span className="text-rose-600 font-semibold">
-                Mode Offline (Menggunakan State Lokal sebagai fallback):{" "}
-                {dbErrorMsg}
-              </span>
-            )}
-          </span>
-        </div>
-        <div className="text-[10px] bg-white border border-[#bae6fd] px-2 py-0.5 rounded text-gray-500 font-mono">
-          {dbErrorMsg ? "Minta Setup SQL" : "Tersinkronisasi"}
-        </div>
-      </div>
-
       <div className="flex flex-col flex-grow">
-        {/* Header Premium (Glassmorphism & Gradient Accent) */}
-        <nav className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#e2e8f0] px-8 py-4 flex justify-between items-center transition-all duration-300 shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 gradient-green rounded-2xl flex items-center justify-center text-white shadow-md shadow-[#1d9e75]/20 relative overflow-hidden group">
-              <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-              <Pill className="w-5 h-5 text-white animate-pulse" />
+        
+        {/* ================= REVAMPED NAVBAR ================= */}
+        <nav className="sticky top-0 z-40 glass-nav px-6 lg:px-10 py-4 flex justify-between items-center transition-all duration-300">
+          <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/")}>
+            <div className="w-10 h-10 gradient-green rounded-xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/20 relative overflow-hidden group">
+              <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
+              <Pill className="w-5 h-5 text-white transform group-hover:scale-110 transition-transform" />
             </div>
-            <div>
-              <div className="text-base font-master-title text-slate-900 flex items-center gap-2">
+            <div className="flex flex-col">
+              <div className="text-lg font-master-title text-slate-900 flex items-center gap-2 leading-none">
                 <span>SIApotek</span>
-                <span className="text-[#1d9e75]">CRM</span>
-                <span className="text-[9px] bg-emerald-500 text-white font-extrabold px-1.5 py-0.5 rounded-full uppercase tracking-wider animate-pulse">
+                <span className="text-[8px] bg-emerald-100 text-emerald-700 border border-emerald-200 font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
                   Active
                 </span>
               </div>
-              <span className="text-[10px] text-slate-400 block font-semibold uppercase tracking-widest">
-                Integrated Apothecary Platform
+              <span className="text-[10px] text-slate-500 font-medium uppercase tracking-[0.15em] mt-1">
+                Integrated Platform
               </span>
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            <span className="hidden lg:inline-flex items-center gap-1.5 text-xs text-slate-500 font-medium">
-              <span className="w-2 h-2 bg-emerald-500 rounded-full animate-ping" />
-              Live Sync dengan Supabase
+          <div className="flex items-center gap-3 lg:gap-4">
+            <span className="hidden lg:flex items-center gap-2 text-xs text-slate-500 font-medium bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">
+              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+              Live Sync Active
             </span>
+            
+            {/* Tombol Sign In (Login) */}
             <button
               onClick={() => navigate("/login")}
-              className="flex items-center gap-2 text-xs font-bold text-white gradient-green px-5 py-2.5 rounded-xl hover:shadow-lg hover:shadow-[#1d9e75]/30 hover:scale-[1.02] transition-all cursor-pointer"
+              className="text-xs font-bold text-slate-700 bg-white border border-slate-200 px-4 py-2.5 rounded-xl hover:border-[#10b981] hover:text-[#10b981] transition-all cursor-pointer shadow-sm hover:shadow"
             >
-              <LogOut className="w-4 h-4" /> Sign In Portal
+              Sign In
+            </button>
+            
+            {/* Tombol Daftar Sekarang (Register) */}
+            <button
+              onClick={() => navigate("/register")}
+              className="text-xs font-bold text-white gradient-green px-4.5 py-2.5 rounded-xl hover:shadow-lg hover:shadow-emerald-500/20 hover:scale-[1.02] transition-all cursor-pointer"
+            >
+              Register Now
             </button>
           </div>
         </nav>
 
-        {/* Premium Hero Section */}
-        <div className="relative overflow-hidden bg-white border-b border-[#e2e8f0] py-16 px-8">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-[#e1f5ee] rounded-full blur-3xl opacity-60 -z-10 -translate-y-12 translate-x-12"></div>
-          <div className="absolute bottom-0 left-0 w-72 h-72 bg-[#f4f3ec] rounded-full blur-2xl opacity-40 -z-10 translate-y-12 -translate-x-12"></div>
-
-          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <div className="inline-flex items-center gap-2 bg-[#e1f5ee] border border-[#9fe1cb] text-[#0f6e56] text-[11px] font-extrabold px-3 py-1.5 rounded-full mb-6 uppercase tracking-wider">
-                <Sparkles className="w-3.5 h-3.5 animate-spin" />
-                SIApotek CRM - Manajemen Hubungan Pasien
+        {/* ================= REVAMPED HERO SECTION ================= */}
+        <div className="relative overflow-hidden bg-[#fafcfa] border-b border-slate-200/60 pt-24 pb-28 px-6 lg:px-10">
+          <div className="absolute top-[-15%] right-[-5%] w-[700px] h-[700px] rounded-full bg-gradient-to-br from-emerald-300/20 to-teal-200/20 blur-[120px] pointer-events-none -z-10 animate-pulse"></div>
+          <div className="absolute bottom-[-15%] left-[-10%] w-[600px] h-[600px] rounded-full bg-gradient-to-tr from-cyan-200/20 to-emerald-200/20 blur-[130px] pointer-events-none -z-10"></div>
+          
+          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+            
+            {/* Hero Text Content */}
+            <div className="lg:col-span-6 relative z-10">
+              <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-md border border-emerald-100 text-emerald-700 text-xs font-bold px-4 py-2 rounded-full mb-8 uppercase tracking-widest shadow-sm shadow-emerald-100/50 hover:shadow-md hover:-translate-y-0.5 transition-all cursor-default">
+                Sistem Manajemen Pasien
               </div>
 
-              <h1 className="text-4xl md:text-5xl font-master-bold text-[#0a140a] leading-tight mb-5">
-                Optimalkan Relasi Pasien dengan <br />
-                <span className="text-[#1d9e75] relative inline-block">
-                  CRM Apotek Cerdas
-                  <span className="absolute bottom-1 left-0 w-full h-2 bg-[#1d9e75]/10 -z-10"></span>
+              <h1 className="text-4xl md:text-5xl lg:text-[64px] font-master-bold text-slate-900 leading-[1.15] mb-6 tracking-tight">
+                Optimalkan Relasi <br className="hidden md:block" /> Pasien dengan <br />
+                <span className="relative inline-block mt-2 text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-teal-500 to-cyan-500 pb-2">
+                  Apotek Modern
+                  <svg className="absolute w-full h-3 -bottom-0 left-0 text-emerald-400/40" viewBox="0 0 100 10" preserveAspectRatio="none">
+                    <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="4" strokeLinecap="round" fill="transparent" />
+                  </svg>
                 </span>
               </h1>
 
-              <p className="text-sm text-slate-500 max-w-xl leading-relaxed mb-8">
-                SIApotek CRM menggabungkan portal reservasi obat publik dengan
-                dasbor manajemen internal apotek. Pantau poin keanggotaan,
-                kelola tier loyalitas member, dan proses antrean dispensing
-                secara langsung via Supabase.
+              <p className="text-base md:text-lg text-slate-500 max-w-xl leading-relaxed mb-8 font-medium">
+                SIApotek menggabungkan portal reservasi publik dengan
+                dasbor manajemen apotek cerdas. Pantau antrean, kelola loyalitas member, 
+                dan proses dispensing secara <span className="text-emerald-600 font-semibold">real-time.</span>
               </p>
 
-              {/* Live Stats dengan Refresh Animasi */}
-              <div className="flex flex-wrap gap-4">
-                <div className="bg-[#f8fafc] border border-slate-100 rounded-2xl px-5 py-4 min-w-[130px] shadow-sm flex flex-col justify-between hover:border-[#1d9e75]/30 transition-all">
-                  <span className="text-xs text-slate-400 font-semibold">
-                    Total Pasien
-                  </span>
-                  <span className="text-3xl font-master-bold text-slate-800 mt-2">
-                    {stats.totalCustomers}
-                  </span>
-                  <span className="text-[10px] text-emerald-600 mt-1 font-bold">
-                    ↑ 12% Bulan Ini
+              <div className="flex flex-col sm:flex-row gap-4 mb-12">
+                <button 
+                  onClick={() => {
+                    const formElement = document.getElementById("order-section");
+                    if (formElement) formElement.scrollIntoView({ behavior: "smooth" });
+                  }}
+                  className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-8 py-3.5 rounded-full font-semibold shadow-lg shadow-emerald-200/80 hover:shadow-emerald-300 transition-all flex items-center justify-center gap-2 group cursor-pointer"
+                >
+                  Mulai Sekarang
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </button>
+                <button 
+                  onClick={() => {
+                    const simulatorElement = document.getElementById("simulator-section");
+                    if (simulatorElement) simulatorElement.scrollIntoView({ behavior: "smooth" });
+                  }}
+                  className="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-8 py-3.5 rounded-full font-semibold shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <PlayCircle className="w-4 h-4 text-emerald-500" />
+                  Lihat Simulator
+                </button>
+              </div>
+
+              <div className="flex flex-wrap gap-4 pt-6 border-t border-slate-200/60">
+                <div className="bg-white/60 backdrop-blur-lg border border-slate-100 rounded-2xl px-5 py-4 flex-1 min-w-[140px] shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+                  <span className="text-xs text-slate-500 font-semibold mb-1 block">Total Pasien</span>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-black text-slate-800">{stats.totalCustomers}</span>
+                  </div>
+                  <span className="text-[10px] text-emerald-600 mt-2 font-bold bg-emerald-50 w-fit px-2 py-1 rounded-md flex items-center gap-1">
+                    <Activity className="w-3 h-3" /> +12% Bulan Ini
                   </span>
                 </div>
-                <div className="bg-[#f8fafc] border border-slate-100 rounded-2xl px-5 py-4 min-w-[130px] shadow-sm flex flex-col justify-between hover:border-[#1d9e75]/30 transition-all">
-                  <span className="text-xs text-slate-400 font-semibold">
-                    Total Transaksi
-                  </span>
-                  <span className="text-3xl font-master-bold text-slate-800 mt-2">
-                    {stats.totalTransactions}
-                  </span>
-                  <span className="text-[10px] text-emerald-600 mt-1 font-bold">
-                    ↑ 8% Real-time
+                
+                <div className="bg-white/60 backdrop-blur-lg border border-slate-100 rounded-2xl px-5 py-4 flex-1 min-w-[140px] shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+                  <span className="text-xs text-slate-500 font-semibold mb-1 block">Transaksi</span>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-black text-slate-800">{stats.totalTransactions}</span>
+                  </div>
+                  <span className="text-[10px] text-emerald-600 mt-2 font-bold bg-emerald-50 w-fit px-2 py-1 rounded-md flex items-center gap-1">
+                    <RefreshCw className="w-3 h-3 animate-spin-slow" /> +8% Real-time
                   </span>
                 </div>
-                <div className="bg-[#f8fafc] border border-slate-100 rounded-2xl px-5 py-4 min-w-[130px] shadow-sm flex flex-col justify-between hover:border-[#1d9e75]/30 transition-all">
-                  <span className="text-xs text-slate-400 font-semibold">
-                    Tier Teraktif
-                  </span>
-                  <span className="text-3xl font-master-bold text-[#b8860b] mt-2 flex items-center gap-1">
-                    <Award className="w-6 h-6 text-amber-500" /> Gold
-                  </span>
-                  <span className="text-[10px] text-slate-500 mt-1">
-                    45 Member Baru
+
+                <div className="bg-white/60 backdrop-blur-lg border border-slate-100 rounded-2xl px-5 py-4 flex-1 min-w-[140px] shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+                  <span className="text-xs text-slate-500 font-semibold mb-1 block">Tier Teraktif</span>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-black text-amber-500">Gold</span>
+                  </div>
+                  <span className="text-[10px] text-amber-700 mt-2 font-bold bg-amber-50 w-fit px-2 py-1 rounded-md flex items-center gap-1">
+                    <Award className="w-3 h-3" /> 45 Member Baru
                   </span>
                 </div>
               </div>
             </div>
 
             {/* INTERACTIVE CRM PREVIEW WIDGET */}
-            <div className="glass-card rounded-[32px] p-6 shadow-xl relative overflow-hidden border border-slate-200">
-              <div className="flex justify-between items-center border-b pb-4 mb-4">
-                <div className="flex items-center gap-2">
-                  <BarChart3 className="w-4 h-4 text-[#1d9e75]" />
-                  <span className="text-xs font-bold text-slate-800">
-                    Preview CRM Dashboard Internal
-                  </span>
-                </div>
-                <span className="text-[9px] bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-full font-mono uppercase tracking-wider">
-                  Demo Mode
-                </span>
-              </div>
-
-              {/* Mini Graph Mockup */}
-              <div className="mb-4">
-                <div className="text-[10px] text-slate-400 mb-1.5 font-bold uppercase tracking-wider">
-                  Aliran Log Transaksi Pengunjung Terbaru
-                </div>
-                <div className="bg-slate-900 text-slate-200 rounded-xl p-3 font-mono text-[10px] space-y-1.5 max-h-[110px] overflow-y-auto">
-                  {orderLogs.length === 0 ? (
-                    <div className="text-slate-500 italic py-2 text-center">
-                      Belum ada transaksi masuk dari form di bawah. Silakan
-                      kirim data obat untuk mensimulasikan!
-                    </div>
-                  ) : (
-                    orderLogs.map((log, idx) => (
-                      <div
-                        key={idx}
-                        className="flex justify-between items-center border-b border-slate-800 pb-1.5 last:border-0 last:pb-0"
-                      >
-                        <span className="text-emerald-400 truncate max-w-[120px]">
-                          ✓ {log.customer_name}
-                        </span>
-                        <span className="text-slate-400">
-                          {log.medicine_type}
-                        </span>
-                        <span className="text-yellow-400">
-                          +{log.points_earned} Poin
-                        </span>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-
-              {/* Active Member Distribution */}
-              <div className="grid grid-cols-2 gap-3 text-xs">
-                <div className="bg-white border border-slate-100 p-3 rounded-xl flex items-center gap-2.5">
-                  <Users className="w-4 h-4 text-[#1d9e75]" />
-                  <div>
-                    <span className="text-[10px] text-slate-400 block">
-                      Total Member
+            <div className="lg:col-span-6 relative perspective-1000 lg:translate-x-4 animate-[bounce_6s_ease-in-out_infinite]">
+              <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500 to-cyan-400 rounded-[2rem] transform rotate-3 scale-105 opacity-30 blur-xl -z-10"></div>
+              
+              <div className="bg-white/90 backdrop-blur-2xl rounded-[2rem] p-6 shadow-2xl shadow-slate-300/50 border border-white relative overflow-hidden">
+                <div className="flex items-center gap-2 mb-4 border-b border-slate-100 pb-4">
+                  <div className="flex gap-1.5 hover:opacity-80 transition-opacity">
+                    <div className="w-3 h-3 rounded-full bg-rose-400 shadow-sm"></div>
+                    <div className="w-3 h-3 rounded-full bg-amber-400 shadow-sm"></div>
+                    <div className="w-3 h-3 rounded-full bg-emerald-400 shadow-sm"></div>
+                  </div>
+                  <div className="ml-auto flex items-center gap-2">
+                    <BarChart3 className="w-4 h-4 text-slate-400" />
+                    <span className="text-xs font-bold text-slate-600 font-mono">CRM Terminal</span>
+                    <span className="text-[9px] bg-emerald-50 text-emerald-600 font-bold px-2 py-0.5 rounded-md uppercase tracking-wider ml-2 border border-emerald-100 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                      Live
                     </span>
-                    <span className="font-bold text-slate-800">84 Aktif</span>
                   </div>
                 </div>
-                <div className="bg-white border border-slate-100 p-3 rounded-xl flex items-center gap-2.5">
-                  <MessageSquare className="w-4 h-4 text-cyan-600" />
-                  <div>
-                    <span className="text-[10px] text-slate-400 block">
-                      Feedback CRM
-                    </span>
-                    <span className="font-bold text-slate-800">
-                      99.8% Kepuasan
-                    </span>
+
+                <div className="mb-5 relative">
+                  <div className="text-[10px] text-slate-500 mb-2 font-bold uppercase tracking-wider flex justify-between">
+                    <span>Log Transaksi Masuk</span>
+                    <span className="text-emerald-500 flex items-center gap-1"><RefreshCw className="w-3 h-3 animate-spin" /> Syncing</span>
+                  </div>
+                  <div className="bg-[#0f172a] rounded-xl p-4 font-mono text-xs space-y-2.5 h-[160px] overflow-y-auto shadow-inner border border-slate-800/80 custom-scrollbar relative text-left">
+                    {orderLogs.length === 0 ? (
+                      <div className="text-slate-500 italic h-full flex flex-col items-center justify-center text-center px-4 gap-2">
+                        <Activity className="w-5 h-5 text-slate-600 animate-pulse" />
+                        Menunggu transaksi masuk...
+                      </div>
+                    ) : (
+                      orderLogs.map((log, idx) => (
+                        <div
+                          key={idx}
+                          className="flex justify-between items-center bg-slate-800/40 hover:bg-slate-700/50 transition-colors px-3 py-2 rounded-lg border border-slate-700/50 group"
+                        >
+                          <span className="text-emerald-400 truncate max-w-[120px] font-medium flex items-center gap-1.5">
+                            <span className="text-emerald-600 text-[8px] group-hover:translate-x-0.5 transition-transform">▶</span> {log.customer_name}
+                          </span>
+                          <span className="text-slate-400 text-[10px] bg-slate-800 px-2 py-0.5 rounded-full">
+                            {log.medicine_type}
+                          </span>
+                          <span className="text-amber-400 font-bold bg-amber-400/10 px-2 py-1 rounded border border-amber-400/20 shadow-sm">
+                            +{log.points_earned} Pts
+                          </span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 text-xs">
+                  <div className="bg-slate-50 border border-slate-100 p-3.5 rounded-xl flex items-center gap-3 hover:bg-emerald-50 hover:border-emerald-100 transition-all cursor-pointer group">
+                    <div className="p-2.5 bg-white rounded-lg shadow-sm group-hover:scale-110 transition-transform">
+                      <Users className="w-4 h-4 text-emerald-600" />
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-500 block font-medium mb-0.5">Total Member</span>
+                      <span className="font-bold text-slate-800 text-sm">84 <span className="text-emerald-600 text-xs font-semibold">Aktif</span></span>
+                    </div>
+                  </div>
+                  <div className="bg-slate-50 border border-slate-100 p-3.5 rounded-xl flex items-center gap-3 hover:bg-cyan-50 hover:border-cyan-100 transition-all cursor-pointer group">
+                    <div className="p-2.5 bg-white rounded-lg shadow-sm group-hover:scale-110 transition-transform">
+                      <MessageSquare className="w-4 h-4 text-cyan-600" />
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-500 block font-medium mb-0.5">Kualitas Layanan</span>
+                      <span className="font-bold text-slate-800 text-sm">99.8% <span className="text-cyan-600 text-xs font-semibold">CSAT</span></span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
+
           </div>
         </div>
 
-        {/* CRM INTERACTIVE FEATURES (POINTS SIMULATOR & TIME ESTIMATOR) */}
-        <section className="bg-slate-50 py-16 px-8 border-b border-[#e2e8f0]">
+        {/* SECTION: KEUNGGULAN LAYANAN */}
+        <section className="bg-white py-16 px-8 border-b border-slate-200/60">
           <div className="max-w-7xl mx-auto">
             <div className="text-center max-w-xl mx-auto mb-12">
-              <span className="text-xs font-bold text-[#1d9e75] uppercase tracking-widest block mb-1">
+              <span className="text-xs font-bold text-[#10b981] uppercase tracking-widest block mb-1">
+                Core Capabilities
+              </span>
+              <h2 className="text-2xl font-master-title text-slate-900">
+                Keunggulan Layanan SIApotek
+              </h2>
+              <p className="text-xs text-slate-500 mt-2">
+                Kami berkomitmen menyediakan layanan farmasi yang aman, cepat, dan terpercaya untuk kesehatan Anda.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* Kartu 1 */}
+              <div className="bg-[#f8fafc] border border-slate-100 p-6 rounded-2xl shadow-sm hover:border-emerald-500/30 hover:shadow-md hover:-translate-y-1 transition-all text-center">
+                <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4 text-[#10b981]">
+                  <ShieldCheck className="w-6 h-6" />
+                </div>
+                <h3 className="text-xs font-extrabold text-slate-800 uppercase tracking-wide mb-2">Obat Asli & BPOM</h3>
+                <p className="text-[11px] text-slate-400 leading-relaxed">Semua produk obat kami telah mendapatkan sertifikasi resmi dari BPOM.</p>
+              </div>
+
+              {/* Kartu 2 */}
+              <div className="bg-[#f8fafc] border border-slate-100 p-6 rounded-2xl shadow-sm hover:border-emerald-500/30 hover:shadow-md hover:-translate-y-1 transition-all text-center">
+                <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4 text-[#10b981]">
+                  <Activity className="w-6 h-6" />
+                </div>
+                <h3 className="text-xs font-extrabold text-slate-800 uppercase tracking-wide mb-2">Apoteker Berlisensi</h3>
+                <p className="text-[11px] text-slate-400 leading-relaxed">Setiap resep diperiksa dan diverifikasi oleh apoteker berpengalaman.</p>
+              </div>
+
+              {/* Kartu 3 */}
+              <div className="bg-[#f8fafc] border border-slate-100 p-6 rounded-2xl shadow-sm hover:border-emerald-500/30 hover:shadow-md hover:-translate-y-1 transition-all text-center">
+                <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4 text-[#10b981]">
+                  <Clock className="w-6 h-6" />
+                </div>
+                <h3 className="text-xs font-extrabold text-slate-800 uppercase tracking-wide mb-2">Penyiapan Cepat</h3>
+                <p className="text-[11px] text-slate-400 leading-relaxed">Estimasi waktu penyiapan obat racikan kurang dari 30 menit saja.</p>
+              </div>
+
+              {/* Kartu 4 */}
+              <div className="bg-[#f8fafc] border border-slate-100 p-6 rounded-2xl shadow-sm hover:border-emerald-500/30 hover:shadow-md hover:-translate-y-1 transition-all text-center">
+                <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4 text-[#10b981]">
+                  <Truck className="w-6 h-6" />
+                </div>
+                <h3 className="text-xs font-extrabold text-slate-800 uppercase tracking-wide mb-2">Riwayat Alergi Pasien</h3>
+                <p className="text-[11px] text-slate-400 leading-relaxed">Sistem mencatat riwayat alergi untuk keamanan pemberian obat.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* CRM INTERACTIVE FEATURES (POINTS SIMULATOR & TIME ESTIMATOR) */}
+        <section id="simulator-section" className="bg-slate-50 py-16 px-8 border-b border-slate-200/60">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center max-w-xl mx-auto mb-12">
+              <span className="text-xs font-bold text-[#10b981] uppercase tracking-widest block mb-1">
                 CRM Core Features
               </span>
               <h2 className="text-2xl font-master-title text-slate-900">
                 Alat Simulasi Keanggotaan & Estimasi Pelayanan
               </h2>
               <p className="text-xs text-slate-500 mt-2">
-                Gunakan widget interaktif ini untuk menghitung estimasi
-                pengerjaan resep dan bonus poin loyalitas Anda.
+                Gunakan widget interaktif ini untuk menghitung estimasi pengerjaan resep dan bonus poin loyalitas Anda.
               </p>
             </div>
 
@@ -446,25 +503,20 @@ export default function GuestHome() {
               {/* WIDGET 1: SIMULATOR POIN & TIER */}
               <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between">
                 <div>
-                  <div className="flex items-center gap-2.5 mb-4 text-[#1d9e75]">
+                  <div className="flex items-center gap-2.5 mb-4 text-[#10b981]">
                     <Award className="w-5 h-5 text-amber-500" />
                     <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">
                       Simulator Poin & Kenaikan Tier
                     </h3>
                   </div>
                   <p className="text-xs text-slate-400 mb-6">
-                    Dapatkan bonus poin dari setiap transaksi tebus resep. Geser
-                    nilai transaksi untuk mengetahui tier level member yang Anda
-                    capai.
+                    Dapatkan bonus poin dari setiap transaksi tebus resep. Geser nilai transaksi untuk mengetahui tier level member yang Anda capai.
                   </p>
 
-                  {/* Slider Nilai Belanja */}
                   <div className="space-y-4 mb-6">
                     <div className="flex justify-between items-center">
-                      <span className="text-xs font-medium text-slate-500">
-                        Nilai Transaksi:
-                      </span>
-                      <span className="text-sm font-extrabold text-[#1d9e75]">
+                      <span className="text-xs font-medium text-slate-500">Nilai Transaksi:</span>
+                      <span className="text-sm font-extrabold text-[#10b981]">
                         Rp {simPurchaseValue.toLocaleString("id-ID")}
                       </span>
                     </div>
@@ -474,10 +526,8 @@ export default function GuestHome() {
                       max="600000"
                       step="1000"
                       value={simPurchaseValue}
-                      onChange={(e) =>
-                        setSimPurchaseValue(Number(e.target.value))
-                      }
-                      className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#1d9e75]"
+                      onChange={(e) => setSimPurchaseValue(Number(e.target.value))}
+                      className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-500"
                     />
                     <div className="flex justify-between text-[10px] text-slate-400">
                       <span>Rp 10rb</span>
@@ -487,30 +537,23 @@ export default function GuestHome() {
                   </div>
                 </div>
 
-                {/* Tampilan Hasil Simulator */}
                 <div className="bg-[#f0fdf4] border border-[#bbf7d0] rounded-2xl p-4 grid grid-cols-2 gap-4 text-center">
                   <div>
-                    <span className="text-[10px] text-slate-400 block font-semibold uppercase">
-                      Poin Didapat
-                    </span>
-                    <span className="text-2xl font-master-bold text-emerald-700">
-                      {simPoints} Poin
-                    </span>
+                    <span className="text-[10px] text-slate-400 block font-semibold uppercase">Poin Didapat</span>
+                    <span className="text-2xl font-master-bold text-emerald-700">{simPoints} Poin</span>
                   </div>
                   <div>
-                    <span className="text-[10px] text-slate-400 block font-semibold uppercase">
-                      Tier Member
-                    </span>
+                    <span className="text-[10px] text-slate-400 block font-semibold uppercase">Tier Member</span>
                     <span
-                      className={`text-2xl font-master-bold flex items-center justify-center gap-1 ${
+                      className={
                         simTier === "Platinum"
-                          ? "text-slate-800"
+                          ? "text-2xl font-master-bold text-slate-800"
                           : simTier === "Gold"
-                            ? "text-amber-600"
-                            : simTier === "Silver"
-                              ? "text-slate-500"
-                              : "text-[#1d9e75]"
-                      }`}
+                          ? "text-2xl font-master-bold text-amber-600"
+                          : simTier === "Silver"
+                          ? "text-2xl font-master-bold text-slate-500"
+                          : "text-2xl font-master-bold text-[#10b981]"
+                      }
                     >
                       {simTier}
                     </span>
@@ -521,64 +564,47 @@ export default function GuestHome() {
               {/* WIDGET 2: ESTIMATOR WAKTU OBAT */}
               <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between">
                 <div>
-                  <div className="flex items-center gap-2.5 mb-4 text-[#1d9e75]">
+                  <div className="flex items-center gap-2.5 mb-4 text-[#10b981]">
                     <Calculator className="w-5 h-5 text-emerald-600" />
                     <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">
                       Kalkulator Waktu Tunggu Apotek
                     </h3>
                   </div>
                   <p className="text-xs text-slate-400 mb-6">
-                    Sistem menghitung secara otomatis durasi waktu penyiapan
-                    resep di unit farmasi berdasarkan jenis obat dan kuantitas
-                    pesanan.
+                    Sistem menghitung secara otomatis durasi waktu penyiapan resep di unit farmasi berdasarkan jenis obat dan kuantitas pesanan.
                   </p>
 
                   <div className="grid grid-cols-2 gap-4 mb-6">
                     <div className="flex flex-col">
-                      <label className="text-[10px] font-semibold text-slate-500 mb-1.5">
-                        Tipe Obat
-                      </label>
+                      <label className="text-[10px] font-semibold text-slate-500 mb-1.5">Tipe Obat</label>
                       <select
                         value={estType}
                         onChange={(e) => setEstType(e.target.value)}
-                        className="text-xs px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1d9e75]"
+                        className="text-xs px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-[#10b981]"
                       >
-                        <option value="Obat Bebas / Vitamin">
-                          Obat Bebas / Vitamin
-                        </option>
-                        <option value="Tebus Resep Dokter">
-                          Tebus Resep Dokter
-                        </option>
-                        <option value="Alat Kesehatan Medis">
-                          Alat Kesehatan Medis
-                        </option>
+                        <option value="Obat Bebas / Vitamin">Obat Bebas / Vitamin</option>
+                        <option value="Tebus Resep Dokter">Tebus Resep Dokter</option>
+                        <option value="Alat Kesehatan Medis">Alat Kesehatan Medis</option>
                       </select>
                     </div>
                     <div className="flex flex-col">
-                      <label className="text-[10px] font-semibold text-slate-500 mb-1.5">
-                        Jumlah Item
-                      </label>
+                      <label className="text-[10px] font-semibold text-slate-500 mb-1.5">Jumlah Item</label>
                       <input
                         type="number"
                         min="1"
                         max="20"
                         value={estQty}
                         onChange={(e) => setEstQty(Number(e.target.value))}
-                        className="text-xs px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1d9e75]"
+                        className="text-xs px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-[#10b981]"
                       />
                     </div>
                   </div>
                 </div>
 
-                {/* Tampilan Hasil Kalkulasi */}
-                <div className="bg-[#fffbeb] border border-[#fef3c7] rounded-2xl p-4">
+                <div className="bg-[#fffbeb] border border-[#fef3c7] rounded-2xl p-4 text-left">
                   <div className="flex justify-between items-center mb-1">
-                    <span className="text-[10px] text-slate-500 font-semibold uppercase">
-                      Estimasi Penyiapan
-                    </span>
-                    <span className="text-lg font-master-bold text-amber-700">
-                      {estTime} Menit
-                    </span>
+                    <span className="text-[10px] text-slate-500 font-semibold uppercase">Estimasi Penyiapan</span>
+                    <span className="text-lg font-master-bold text-amber-700">{estTime} Menit</span>
                   </div>
                   {estWarning && (
                     <div className="text-[10px] text-amber-600 font-medium flex items-start gap-1.5 mt-2 border-t pt-2 border-[#fef3c7]">
@@ -592,30 +618,59 @@ export default function GuestHome() {
           </div>
         </section>
 
-        {/* Form Pemesanan Obat - Menghubungkan langsung ke tabel Supabase 'orders' */}
-        <section className="bg-white py-16 px-8">
+        {/* SECTION: WORKFLOW */}
+        <section className="bg-slate-50 py-16 px-8 border-b border-slate-200/60">
           <div className="max-w-7xl mx-auto">
-            <div className="max-w-xl mb-8">
-              <span className="text-xs font-bold text-[#1d9e75] uppercase tracking-widest block mb-1">
+            <div className="text-center max-w-xl mx-auto mb-12">
+              <span className="text-xs font-bold text-[#10b981] uppercase tracking-widest block mb-1">
+                Workflow
+              </span>
+              <h2 className="text-2xl font-master-title text-slate-900">
+                Cara Kerja Pelayanan SIApotek
+              </h2>
+              <p className="text-xs text-slate-500 mt-2">
+                Proses pelayanan resep obat digital yang mudah dan transparan dari awal hingga akhir.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap justify-center gap-6">
+              {[
+                { step: "01", title: "Input Data Pasien", desc: "Masukkan nama, nomor telepon, dan detail resep obat Anda di form reservasi." },
+                { step: "02", title: "Verifikasi Apoteker", desc: "Tim apoteker kami memeriksa ketersediaan dan ketepatan obat." },
+                { step: "03", title: "Penyiapan & Pengemasan", desc: "Obat diracik dan disiapkan secara higienis sesuai standar apotek." },
+                { step: "04", title: "Serah Terima Obat", desc: "Ambil obat langsung di gerai kami atau diantarkan ke lokasi Anda." }
+              ].map((item, idx) => (
+                <div key={idx} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex-1 min-w-[240px] max-w-[280px] hover:border-[#10b981]/30 hover:-translate-y-1 transition-all duration-300 text-left">
+                  <div className="text-3xl font-master-bold text-emerald-100 mb-2">{item.step}</div>
+                  <h3 className="text-xs font-extrabold text-slate-800 uppercase tracking-wide mb-2">{item.title}</h3>
+                  <p className="text-[11px] text-slate-400 leading-relaxed">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION: LIVE ORDER FORM */}
+        <section id="order-section" className="bg-white py-16 px-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="max-w-xl mb-8 text-left">
+              <span className="text-xs font-bold text-[#10b981] uppercase tracking-widest block mb-1">
                 Live Order Platform
               </span>
               <h2 className="text-2xl font-master-title text-slate-900">
                 Reservasi Obat & Integrasi CRM
               </h2>
               <p className="text-xs text-slate-500 mt-2">
-                Daftarkan kebutuhan medis Anda. Pesanan akan langsung tercatat
-                ke Supabase Database secara real-time.
+                Daftarkan kebutuhan medis Anda. Pesanan akan langsung tercatat ke Supabase Database secara real-time.
               </p>
             </div>
 
             <div className="bg-[#f8fafc] border border-slate-100 rounded-3xl p-8 shadow-sm">
               {!isOrdered ? (
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-6 text-left">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="flex flex-col">
-                      <label className="text-[11px] font-semibold text-slate-600 mb-2">
-                        Nama Lengkap Pasien
-                      </label>
+                      <label className="text-[11px] font-semibold text-slate-600 mb-2">Nama Lengkap Pasien</label>
                       <input
                         ref={nameInputRef}
                         type="text"
@@ -624,13 +679,11 @@ export default function GuestHome() {
                         placeholder="Sesuai KTP Pasien"
                         value={formData.customerName}
                         onChange={handleInputChange}
-                        className="w-full text-xs px-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#1d9e75] focus:ring-2 focus:ring-[#1d9e75]/5 text-slate-800"
+                        className="w-full text-xs px-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#10b981] focus:ring-2 focus:ring-[#10b981]/20 text-slate-800"
                       />
                     </div>
                     <div className="flex flex-col">
-                      <label className="text-[11px] font-semibold text-slate-600 mb-2">
-                        Nomor Telepon Aktif
-                      </label>
+                      <label className="text-[11px] font-semibold text-slate-600 mb-2">Nomor Telepon Aktif</label>
                       <input
                         type="tel"
                         name="phone"
@@ -638,38 +691,28 @@ export default function GuestHome() {
                         placeholder="+62 atau 08..."
                         value={formData.phone}
                         onChange={handleInputChange}
-                        className="w-full text-xs px-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#1d9e75] focus:ring-2 focus:ring-[#1d9e75]/5 text-slate-800"
+                        className="w-full text-xs px-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#10b981] focus:ring-2 focus:ring-[#10b981]/20 text-slate-800"
                       />
                     </div>
                     <div className="flex flex-col">
-                      <label className="text-[11px] font-semibold text-slate-600 mb-2">
-                        Kategori Obat
-                      </label>
+                      <label className="text-[11px] font-semibold text-slate-600 mb-2">Kategori Obat</label>
                       <select
                         name="medicineType"
                         required
                         value={formData.medicineType}
                         onChange={handleInputChange}
-                        className="w-full text-xs px-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#1d9e75] focus:ring-2 focus:ring-[#1d9e75]/5 text-slate-800 cursor-pointer"
+                        className="w-full text-xs px-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#10b981] focus:ring-2 focus:ring-[#10b981]/20 text-slate-800 cursor-pointer"
                       >
                         <option value="">Pilih Kategori</option>
-                        <option value="Obat Bebas / Vitamin">
-                          Obat Bebas / Vitamin (Tanpa Resep)
-                        </option>
-                        <option value="Tebus Resep Dokter">
-                          Tebus Resep Dokter (Wajib Bawa Resep)
-                        </option>
-                        <option value="Alat Kesehatan Medis">
-                          Alat Kesehatan Medis
-                        </option>
+                        <option value="Obat Bebas / Vitamin">Obat Bebas / Vitamin (Tanpa Resep)</option>
+                        <option value="Tebus Resep Dokter">Tebus Resep Dokter (Wajib Bawa Resep)</option>
+                        <option value="Alat Kesehatan Medis">Alat Kesehatan Medis</option>
                       </select>
                     </div>
                   </div>
 
                   <div className="flex flex-col">
-                    <label className="text-[11px] font-semibold text-slate-600 mb-2">
-                      Detail Nama Obat, Jumlah, & Dosis
-                    </label>
+                    <label className="text-[11px] font-semibold text-slate-600 mb-2">Detail Nama Obat, Jumlah, & Dosis</label>
                     <textarea
                       name="notes"
                       rows="3"
@@ -677,53 +720,47 @@ export default function GuestHome() {
                       placeholder="Contoh: Paracetamol 500mg (1 strip), Vitamin C 1000mg (1 Botol)..."
                       value={formData.notes}
                       onChange={handleInputChange}
-                      className="w-full text-xs px-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#1d9e75] focus:ring-2 focus:ring-[#1d9e75]/5 text-slate-800 resize-y min-h-[90px]"
+                      className="w-full text-xs px-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#10b981] focus:ring-2 focus:ring-[#10b981]/20 text-slate-800 resize-y min-h-[90px]"
                     />
                   </div>
 
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full bg-[#1d9e75] hover:bg-[#0f6e56] text-white text-xs font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer disabled:opacity-50"
+                    className="w-full bg-[#10b981] hover:bg-[#059669] text-white text-xs font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer disabled:opacity-50"
                   >
                     {loading ? (
                       <>
-                        <RefreshCw className="w-4 h-4 animate-spin" /> Menyimpan
-                        Order ke Database...
+                        <RefreshCw className="w-4 h-4 animate-spin" /> Menyimpan Order ke Database...
                       </>
                     ) : (
                       <>
-                        <ShoppingBag className="w-4 h-4" /> Kirim Pengajuan
-                        Reservasi Obat
+                        <ShoppingBag className="w-4 h-4" /> Kirim Pengajuan Reservasi Obat
                       </>
                     )}
                   </button>
                 </form>
               ) : (
                 <div className="text-center py-8">
-                  <div className="w-16 h-16 bg-[#e1f5ee] rounded-full flex items-center justify-center text-[#0f6e56] mx-auto mb-4">
+                  <div className="w-16 h-16 bg-[#e1f5ee] rounded-full flex items-center justify-center text-[#059669] mx-auto mb-4">
                     <CheckCircle2 className="w-8 h-8" />
                   </div>
                   <h3 className="text-lg font-master-title text-slate-800 mb-2">
                     Reservasi Obat Berhasil Dikirim!
                   </h3>
-                  <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed mb-6">
-                    Halo {formData.customerName}, data reservasi Anda telah
-                    berhasil direkam langsung ke SIApotek Database. Anda juga
-                    terdaftar dalam antrean CRM Apoteker.
+                  <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed mb-6 text-center">
+                    Halo {formData.customerName}, data reservasi Anda telah berhasil direkam langsung ke SIApotek Database. Anda juga terdaftar dalam antrean Apoteker.
                   </p>
                   <div className="inline-flex items-center gap-2 bg-[#f0fafc] border border-cyan-100 rounded-xl px-4 py-3 text-left max-w-sm mb-6 text-xs text-cyan-800">
                     <Clock className="w-4 h-4 shrink-0 text-cyan-600 animate-pulse" />
                     <span>
-                      Apoteker akan menghubungi Anda dalam waktu{" "}
-                      <strong>{estTime} menit</strong> di nomor {formData.phone}
-                      .
+                      Apoteker akan menghubungi Anda dalam waktu <strong>{estTime} menit</strong> di nomor {formData.phone}.
                     </span>
                   </div>
                   <div>
                     <button
                       onClick={handleResetForm}
-                      className="bg-white border border-slate-200 text-slate-700 text-xs font-bold px-6 py-2.5 rounded-xl hover:bg-slate-50 transition"
+                      className="bg-white border border-slate-200 text-slate-700 text-xs font-bold px-6 py-2.5 rounded-xl hover:bg-slate-50 transition cursor-pointer"
                     >
                       Kirim Pesanan Baru
                     </button>
@@ -734,8 +771,61 @@ export default function GuestHome() {
           </div>
         </section>
 
-        {/* Premium Footer CTA & Chat Box */}
-        <footer className="bg-slate-900 text-white pt-16 pb-8 px-8">
+        {/* SECTION: FAQ ACCORDION */}
+        <section className="bg-white py-16 px-8 border-b border-slate-200/60">
+          <div className="max-w-3xl mx-auto">
+            <div className="text-center mb-12">
+              <span className="text-xs font-bold text-[#10b981] uppercase tracking-widest block mb-1">
+                FAQ
+              </span>
+              <h2 className="text-2xl font-master-title text-slate-900">
+                Pertanyaan Umum Pasien
+              </h2>
+            </div>
+
+            <div className="space-y-4 text-left">
+              {faqs.map((faq, index) => (
+                <div key={index} className="bg-[#f8fafc] border border-slate-100 rounded-2xl overflow-hidden shadow-sm transition-all duration-200">
+                  <button
+                    onClick={() => toggleFaq(index)}
+                    className="w-full flex items-center justify-between px-6 py-4 text-left font-bold text-xs text-slate-800 hover:bg-slate-100/50 transition cursor-pointer"
+                  >
+                    <span>{faq.q}</span>
+                    <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${openFaq === index ? "rotate-180 text-[#10b981]" : "rotate-0"}`} />
+                  </button>
+                  {openFaq === index && (
+                    <div className="px-6 pb-4 pt-1 text-[11px] text-slate-400 leading-relaxed border-t border-slate-200/50">
+                      {faq.a}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION: EMERGENCY CONSULTATION CTA */}
+        <section className="gradient-green py-12 px-8 text-center text-white relative overflow-hidden">
+          <div className="absolute inset-0 bg-black/5"></div>
+          <div className="max-w-2xl mx-auto relative z-10">
+            <h2 className="text-xl font-master-bold mb-2">Butuh Konsultasi Resep Darurat?</h2>
+            <p className="text-xs text-emerald-100 opacity-90 mb-6">
+              Apoteker berlisensi kami siap membantu Anda 24 jam sehari untuk konsultasi obat-obatan gratis.
+            </p>
+            <a
+              href="https://wa.me/628111234567"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 bg-white text-[#059669] hover:bg-emerald-50 text-xs font-bold px-6 py-3 rounded-xl hover:shadow-lg transition cursor-pointer"
+            >
+              <Phone className="w-4 h-4 text-[#10b981]" />
+              Hubungi via WhatsApp
+            </a>
+          </div>
+        </section>
+
+        {/* ================= FOOTER ================= */}
+        <footer className="bg-slate-900 text-white pt-16 pb-8 px-8 text-left">
           <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 pb-12 border-b border-slate-800 mb-8">
             <div>
               <div className="flex items-center gap-3 mb-4">
@@ -747,36 +837,32 @@ export default function GuestHome() {
                 </span>
               </div>
               <p className="text-xs text-slate-400 leading-relaxed">
-                Platform digitalisasi pelayanan farmasi terintegrasi, aman, dan
-                berfokus pada loyalitas hubungan pasien (CRM).
+                Platform digitalisasi pelayanan farmasi terintegrasi, aman, dan berfokus pada loyalitas hubungan pasien (CRM).
               </p>
             </div>
             <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-[#9fe1cb] mb-4">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-4">
                 Jaringan Apotek
               </h4>
               <div className="text-xs text-slate-400 space-y-2">
                 <p className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-[#1d9e75]" /> Pekanbaru, Riau,
-                  Indonesia
+                  <MapPin className="w-4 h-4 text-[#10b981]" /> Pekanbaru, Riau, Indonesia
                 </p>
                 <p className="flex items-center gap-2">
-                  <Phone className="w-4 h-4 text-[#1d9e75]" /> +62 899 998 888
-                  (24 Jam)
+                  <Phone className="w-4 h-4 text-[#10b981]" /> +62 899 998 888 (24 Jam)
                 </p>
               </div>
             </div>
             <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-[#9fe1cb] mb-4">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-4">
                 Poin & Keanggotaan
               </h4>
               <p className="text-xs text-slate-400 leading-relaxed mb-3">
-                Gabung sebagai Member dan nikmati pemotongan harga obat keras
-                hingga 15% serta pengumpulan poin loyalitas di setiap transaksi.
+                Gabung sebagai Member dan nikmati pemotongan harga obat keras hingga 15% serta pengumpulan poin loyalitas di setiap transaksi.
               </p>
               <button
                 onClick={() => navigate("/register")}
-                className="text-xs font-bold text-white bg-slate-800 border border-slate-700 px-4 py-2 rounded-xl hover:bg-slate-700 transition"
+                className="text-xs font-bold text-white bg-slate-800 border border-slate-700 px-4 py-2 rounded-xl hover:bg-slate-700 transition cursor-pointer"
               >
                 Daftar Member Sekarang
               </button>
@@ -784,16 +870,11 @@ export default function GuestHome() {
           </div>
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-slate-500">
             <p>
-              &copy; {new Date().getFullYear()} SIApotek CRM. Dikembangkan oleh
-              Tim Pengembang Proyek Rumah.
+              &copy; {new Date().getFullYear()} SIApotek CRM. Dikembangkan oleh Tim Pengembang Proyek Rumah.
             </p>
             <div className="flex gap-4">
-              <span className="hover:text-white cursor-pointer transition">
-                Kebijakan Privasi
-              </span>
-              <span className="hover:text-white cursor-pointer transition">
-                Ketentuan Pengguna
-              </span>
+              <span className="hover:text-white cursor-pointer transition">Kebijakan Privasi</span>
+              <span className="hover:text-white cursor-pointer transition">Ketentuan Pengguna</span>
             </div>
           </div>
         </footer>

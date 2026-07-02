@@ -39,9 +39,10 @@ export default function Register() {
     setAlert({ type: "", text: "" });
 
     try {
+      // Mengirim data ke tabel kustom 'user' di database Supabase Anda (Email dipotong spasi & diubah ke huruf kecil)
       await userService.createUser({
         name: formData.fullName,
-        email: formData.email,
+        email: formData.email.trim().toLowerCase(),
         password: formData.password,
         role: formData.role,
       });
@@ -52,6 +53,7 @@ export default function Register() {
       });
       setFormData({ fullName: "", email: "", password: "", role: "" });
 
+      // Tunggu 2 detik kemudian alihkan ke halaman Login
       setTimeout(() => {
         navigate("/login");
       }, 2000);

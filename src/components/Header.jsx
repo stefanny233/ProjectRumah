@@ -9,15 +9,19 @@ import {
   MdMoreVert
 } from "react-icons/md"; 
 
-// 1. IMPORT FOTO PROFIL KAMU DARI FOLDER ASSETS MASE
+// IMPORT FOTO PROFIL KAMU DARI FOLDER ASSETS MASE
 import fotoStefanny from "../assets/profile.jpg";
 
 export default function Header() {
-  // Data profil Stefanny
+  // MEMBACA NAMA DAN PERAN SECARA DINAMIS DARI LOCALSTORAGE
+  const storedName = localStorage.getItem("userName") || "STEFANNY";
+  const storedRole = localStorage.getItem("userRole") || "System Administrator";
+
+  // Data profil dinamis sesuai siapa yang login
   const user = {
-    name: "STEFANNY",
-    role: "System Administrator",
-    // 2. MASUKKAN VARIABEL FOTO YANG SUDAH DI-IMPORT TADI DI SINI
+    name: storedName.toUpperCase(),
+    // Format nama peran agar rapi di header
+    role: storedRole.toLowerCase() === "admin" ? "System Administrator" : storedRole.toUpperCase(),
     avatarUrl: fotoStefanny 
   };
 
@@ -64,7 +68,7 @@ export default function Header() {
         </button>
       </nav>
 
-      {/* KANAN: Card Avatar Stefanny & Tombol Help */}
+      {/* KANAN: Card Avatar User & Tombol Help */}
       <div className="flex items-center gap-5">
         
         <button className="p-1 text-slate-500 hover:text-[#5065f6] transition-colors">
@@ -81,7 +85,7 @@ export default function Header() {
                 src={user.avatarUrl} 
                 alt={user.name} 
                 className="w-full h-full object-cover rounded-xl"
-                // Jika gambar gagal di-load (salah path/format), otomatis fallback ke text inisial mase
+                // Jika gambar gagal di-load, otomatis fallback ke text inisial
                 onError={(e) => { e.target.style.display = 'none'; }}
               />
             ) : (
@@ -89,7 +93,7 @@ export default function Header() {
             )}
           </div>
 
-          {/* Info Nama & Jabatan Stefanny */}
+          {/* Info Nama & Jabatan Dinamis */}
           <div className="flex flex-col text-left pr-2">
             <span className="text-[11px] font-extrabold uppercase tracking-widest text-white leading-tight">
               {user.name}
