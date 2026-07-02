@@ -24,6 +24,7 @@ const Forgot = lazy(() => import("./pages/auth/Forgot"));
 
 // Error Component
 const ErrorPage = lazy(() => import("./components/ErrorPage"));
+const Settings = lazy(() => import("./pages/Settings"));
 
 function App() {
   return (
@@ -61,6 +62,7 @@ function App() {
           <Route path="product/list" element={<Product />} />
           <Route path="product/package" element={<Product />} />
           <Route path="product/damage" element={<Product />} />
+          <Route path="settings" element={<Settings />} />
 
           {/* 🔥 KITA TAMBAHKAN PROPS redirectTo="/dashboard" DI SINI MASE */}
           <Route
