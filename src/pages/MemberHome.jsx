@@ -59,16 +59,73 @@ export default function MemberHome() {
 
   const handleReset = () => {
     setPatientData({ patientName: "", prescriptionId: "", serviceChoice: "", notes: "" });
-    setIsOrdered(false);
     setIsRegistered(false);
   };
 
   return (
-    <div className="min-h-screen bg-[#090e17] font-sans antialiased text-[#e2e8f0] flex flex-col relative overflow-hidden selection:bg-emerald-500/30 selection:text-emerald-200">
+    <div className="min-h-screen bg-[#faf8f5] font-sans antialiased text-slate-800 flex flex-col relative overflow-hidden selection:bg-amber-100 selection:text-amber-900">
       
+      {/* FORCE GOLDEN-TEAL STYLE OVERRIDES FOR IMPORTED COMPONENTS */}
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@650;700;800&display=swap');
+        
+        .font-sans { font-family: 'Plus Jakarta Sans', sans-serif; }
+        
+        /* 1. Recolor Green Badges & Buttons to Luxury Teal */
+        .bg-emerald-600 {
+          background-color: #0f766e !important; /* Teal 700 */
+        }
+        .hover\:bg-emerald-700:hover {
+          background-color: #115e59 !important; /* Teal 800 */
+        }
+        .bg-emerald-50 {
+          background-color: #f0fdfa !important; /* Teal 50 */
+        }
+        .bg-emerald-100 {
+          background-color: #ccfbf1 !important; /* Teal 100 */
+        }
+        .text-emerald-600 {
+          color: #0d9488 !important; /* Teal 600 */
+        }
+        .text-emerald-700 {
+          color: #0f766e !important; /* Teal 700 */
+        }
+        .text-emerald-800 {
+          color: #115e59 !important; /* Teal 800 */
+        }
+        
+        /* 2. Recolor Borders to Warm Gold/Mint */
+        .border-emerald-100 {
+          border-color: rgba(13, 148, 136, 0.2) !important;
+        }
+        .border-emerald-200 {
+          border-color: rgba(13, 148, 136, 0.3) !important;
+        }
+        .gradient-green {
+          background: linear-gradient(135deg, #0f766e 0%, #115e59 100%) !important;
+        }
+        .shadow-emerald-500\/20 {
+          box-shadow: 0 10px 15px -3px rgba(13, 148, 136, 0.1), 0 4px 6px -4px rgba(13, 148, 136, 0.1) !important;
+        }
+
+        /* 3. Base Card Overrides */
+        .bg-white, .bg-white\/80 {
+          background-color: #fafcfb !important;
+          border-color: rgba(196, 181, 153, 0.25) !important;
+        }
+
+        /* 4. Text Title & Subtitle Override */
+        .text-slate-900, .text-slate-800 {
+          color: #042f2e !important; /* Teal 950 */
+        }
+        .text-slate-500, .text-slate-400 {
+          color: #475569 !important;
+        }
+      `}</style>
+
       {/* Ambient background glows */}
-      <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] rounded-full bg-emerald-500/10 blur-[120px] pointer-events-none -z-10 animate-pulse" />
-      <div className="absolute bottom-[-10%] left-[-5%] w-[500px] h-[500px] rounded-full bg-teal-550/5 bg-teal-500/5 blur-[140px] pointer-events-none -z-10" />
+      <div className="absolute top-[-10%] right-[-5%] w-[800px] h-[800px] rounded-full bg-gradient-to-br from-amber-500/5 via-teal-500/5 to-transparent blur-[130px] pointer-events-none -z-10 animate-pulse" />
+      <div className="absolute bottom-[-10%] left-[-5%] w-[500px] h-[500px] rounded-full bg-gradient-to-tr from-teal-500/5 to-transparent blur-[120px] pointer-events-none -z-10" />
 
       {/* HEADER NAVBAR */}
       <MemberNavbar
@@ -146,22 +203,22 @@ export default function MemberHome() {
 
         {activeTab === "riwayat" && (
           <div className="max-w-4xl mx-auto">
-            <div className="bg-[#111827]/80 backdrop-blur-md border border-slate-800 rounded-3xl p-6 shadow-2xl">
-              <h2 className="text-lg font-bold text-white mb-4 text-left">Riwayat Aktivitas & Layanan</h2>
+            <div className="bg-white border border-[#c4b599]/20 rounded-3xl p-6 shadow-md shadow-slate-100">
+              <h2 className="text-lg font-bold text-teal-950 mb-4 text-left">Riwayat Aktivitas & Layanan</h2>
               <div className="space-y-4">
                 {[
-                  { title: "Penebusan Resep #RSP-2026-0041", desc: "Obat rutin asma tebus vip jalur cepat.", date: "2 jam lalu", points: "+150 Poin", status: "Selesai", statusColor: "bg-emerald-950/50 text-emerald-400 border-emerald-900/30" },
-                  { title: "Tukar Voucher — Vitamin C Strip", desc: "Penukaran 300 Poin reward di gerai Pekanbaru.", date: "Kemarin", points: "-300 Poin", status: "Diproses", statusColor: "bg-[#251e13] text-amber-500 border-amber-900/30" },
-                  { title: "Konsultasi Apoteker Online", desc: "Tanya aturan minum antibiotik anak via chat.", date: "3 hari lalu", points: "Free", status: "Selesai", statusColor: "bg-emerald-950/50 text-emerald-400 border-emerald-900/30" },
+                  { title: "Penebusan Resep #RSP-2026-0041", desc: "Obat rutin asma tebus vip jalur cepat.", date: "2 jam lalu", points: "+150 Poin", status: "Selesai", statusColor: "bg-teal-50 text-teal-700 border-teal-100" },
+                  { title: "Tukar Voucher — Vitamin C Strip", desc: "Penukaran 300 Poin reward di gerai Pekanbaru.", date: "Kemarin", points: "-300 Poin", status: "Diproses", statusColor: "bg-amber-50 text-amber-700 border-amber-100" },
+                  { title: "Konsultasi Apoteker Online", desc: "Tanya aturan minum antibiotik anak via chat.", date: "3 hari lalu", points: "Free", status: "Selesai", statusColor: "bg-teal-50 text-teal-700 border-teal-100" },
                 ].map((act, i) => (
-                  <div key={i} className="flex justify-between items-center p-4 border border-slate-800 hover:border-emerald-500/20 hover:bg-slate-900/40 rounded-2xl transition">
+                  <div key={i} className="flex justify-between items-center p-4 border border-slate-100 hover:border-teal-800/20 hover:bg-[#faf8f5] rounded-2xl transition">
                     <div className="text-left">
-                      <h3 className="text-sm font-bold text-white">{act.title}</h3>
-                      <p className="text-xs text-slate-400 mt-1">{act.desc}</p>
-                      <span className="text-[10px] text-slate-500 block mt-2">{act.date}</span>
+                      <h3 className="text-sm font-bold text-slate-800">{act.title}</h3>
+                      <p className="text-xs text-slate-500 mt-1">{act.desc}</p>
+                      <span className="text-[10px] text-slate-400 block mt-2">{act.date}</span>
                     </div>
                     <div className="flex items-center gap-4">
-                      <span className="text-xs font-semibold text-emerald-400 bg-emerald-950/40 border border-emerald-900/30 px-2 py-1 rounded-md">{act.points}</span>
+                      <span className="text-xs font-semibold text-teal-850 bg-[#e6f4f1] border border-teal-100 px-2 py-1 rounded-md">{act.points}</span>
                       <span className={`text-[10px] font-bold px-2 py-1 rounded-full border ${act.statusColor}`}>{act.status}</span>
                     </div>
                   </div>
@@ -172,11 +229,11 @@ export default function MemberHome() {
         )}
 
         {/* EMERGENCY CONSULTATION BANNER */}
-        <div className="mt-12 bg-[#111827]/90 backdrop-blur-md text-white rounded-3xl p-8 flex flex-col md:flex-row justify-between items-center gap-6 relative overflow-hidden shadow-lg border border-slate-800">
-          <div className="absolute -right-8 -top-8 w-44 h-44 bg-emerald-550/10 rounded-full blur-2xl pointer-events-none" />
+        <div className="mt-12 bg-teal-950 text-white rounded-3xl p-8 flex flex-col md:flex-row justify-between items-center gap-6 relative overflow-hidden shadow-lg border border-teal-900/10">
+          <div className="absolute -right-8 -top-8 w-44 h-44 bg-amber-500/15 rounded-full blur-2xl pointer-events-none" />
           <div className="relative z-10 max-w-xl text-center md:text-left">
             <h2 className="text-lg font-bold text-white mb-2">Butuh Konsultasi Obat Darurat?</h2>
-            <p className="text-xs text-slate-350 leading-relaxed">
+            <p className="text-xs text-teal-200/80 leading-relaxed">
               Apoteker priority kami siaga 24 jam untuk menjawab pertanyaan seputar efek samping obat keras, aturan pakai sirup anak, dan interaksi obat.
             </p>
           </div>
@@ -185,12 +242,12 @@ export default function MemberHome() {
               href="https://wa.me/62899998888" 
               target="_blank" 
               rel="noopener noreferrer" 
-              className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold px-6 py-3.5 rounded-xl transition shadow-md no-underline cursor-pointer active:scale-95"
+              className="flex items-center gap-2 bg-amber-400 hover:bg-amber-300 text-teal-950 text-xs font-bold px-6 py-3.5 rounded-xl transition shadow-md no-underline cursor-pointer active:scale-95 animate-bounce"
             >
-              <Phone className="w-4 h-4 text-slate-950" /> Call Center 24 Jam
+              <Phone className="w-4 h-4 text-teal-950" /> Call Center 24 Jam
             </a>
-            <div className="flex items-center gap-2 bg-slate-900 text-emerald-400 border border-slate-800 text-xs font-bold px-6 py-3.5 rounded-xl">
-              <MapPin className="w-4 h-4 text-emerald-400" /> Pekanbaru, Riau
+            <div className="flex items-center gap-2 bg-[#092921] text-amber-400 border border-teal-900/30 text-xs font-bold px-6 py-3.5 rounded-xl">
+              <MapPin className="w-4 h-4 text-amber-400" /> Pekanbaru, Riau
             </div>
           </div>
         </div>
