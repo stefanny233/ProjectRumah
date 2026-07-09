@@ -1,27 +1,14 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "../supabaseClient";
 import {
   Pill,
-  ShoppingBag,
-  CheckCircle2,
   Clock,
   ShieldCheck,
-  Activity,
   Truck,
   ChevronDown,
-  Phone,
   MapPin,
   Award,
-  Sparkles,
   Calculator,
-  Database,
-  BarChart3,
-  Users,
-  MessageSquare,
-  AlertTriangle,
-  RefreshCw,
-  ArrowRight,
   PlayCircle,
 } from "lucide-react";
 
@@ -29,22 +16,11 @@ export default function GuestHome() {
   const navigate = useNavigate();
 
   // STATE MANAGEMENT
-  const [isOrdered, setIsOrdered] = useState(false);
-  const [formData, setFormData] = useState({
-    customerName: "",
-    phone: "",
-    medicineType: "",
-    notes: "",
-  });
   const [openFaq, setOpenFaq] = useState(null);
   const [stats, setStats] = useState({
     totalCustomers: 120,
     totalTransactions: 234,
   });
-  const [loading, setLoading] = useState(false);
-  const [orderLogs, setOrderLogs] = useState([]); 
-  const [dbStatus, setDbStatus] = useState("checking"); 
-  const [dbErrorMsg, setDbErrorMsg] = useState("");
 
   const faqs = [
     { q: "Apakah obat yang dijual sudah terdaftar BPOM?", a: "Ya, 100% produk kami telah mendapatkan izin edar resmi dari BPOM." },
@@ -61,40 +37,6 @@ export default function GuestHome() {
   const [estQty, setEstQty] = useState(1);
   const [estTime, setEstTime] = useState(10);
   const [estWarning, setEstWarning] = useState("");
-
-  const nameInputRef = useRef(null);
-
-  useEffect(() => {
-    async function checkConnection() {
-      try {
-        const { data, error } = await supabase
-          .from("orders")
-          .select("id")
-          .limit(1);
-        if (error && error.code !== "PGRST116") {
-          if (error.message.includes("does not exist")) {
-            setDbStatus("connected");
-            setDbErrorMsg("Tabel 'orders' belum dibuat.");
-          } else {
-            if (error.message.includes("row-level security")) {
-              setDbStatus("connected");
-              setDbErrorMsg("");
-            } else {
-              setDbStatus("error");
-              setDbErrorMsg(error.message);
-            }
-          }
-        } else {
-          setDbStatus("connected");
-          setDbErrorMsg("");
-        }
-      } catch (err) {
-        setDbStatus("error");
-        setDbErrorMsg("Tidak terhubung ke Supabase.");
-      }
-    }
-    checkConnection();
-  }, []);
 
   useEffect(() => {
     const points = Math.floor(simPurchaseValue / 1000);
@@ -126,47 +68,6 @@ export default function GuestHome() {
     setEstWarning(warning);
   }, [estType, estQty]);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-
-    const priceSimulated = estType === "Tebus Resep Dokter" ? 185000 : 75000;
-    const pointsEarned = Math.floor(priceSimulated / 1000);
-
-    const newOrder = {
-      customer_name: formData.customerName,
-      phone: formData.phone,
-      medicine_type: formData.medicineType || "Obat Bebas / Vitamin",
-      notes: formData.notes,
-      price: priceSimulated,
-      points_earned: pointsEarned,
-      status: "pending",
-      created_at: new Date().toISOString(),
-    };
-
-    try {
-      const { error } = await supabase.from("orders").insert([newOrder]);
-      if (error) throw error;
-      setOrderLogs((prev) => [newOrder, ...prev]);
-      setIsOrdered(true);
-    } catch (err) {
-      setOrderLogs((prev) => [newOrder, ...prev]);
-      setIsOrdered(true);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleResetForm = () => {
-    setFormData({ customerName: "", phone: "", medicineType: "", notes: "" });
-    setIsOrdered(false);
-  };
-
   const toggleFaq = (index) => {
     setOpenFaq(openFaq === index ? null : index);
   };
@@ -187,7 +88,6 @@ export default function GuestHome() {
           border-bottom: 1px solid rgba(217, 119, 6, 0.15);
         }
 
-        /* 3D Floating Animation for Queue Tracker Card */
         @keyframes floatCard {
           0% { transform: translateY(0px); }
           50% { transform: translateY(-8px); }
@@ -201,10 +101,6 @@ export default function GuestHome() {
           border: 1px solid rgba(217, 119, 6, 0.25);
           box-shadow: 0 10px 30px -10px rgba(217, 119, 6, 0.15);
         }
-
-        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #faf8f5; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #dcd7cc; border-radius: 10px; }
       `}</style>
 
       {/* NAVBAR */}
@@ -219,10 +115,10 @@ export default function GuestHome() {
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <button onClick={() => navigate("/login")} className="text-xs font-bold text-teal-900 hover:text-amber-700 transition">
+          <button onClick={() => navigate("/login")} className="text-xs font-bold text-teal-900 hover:text-amber-700 transition cursor-pointer">
             Sign In
           </button>
-          <button onClick={() => navigate("/register")} className="text-xs font-bold text-teal-950 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-650 px-5 py-2.5 rounded-xl shadow-md hover:shadow-lg transition">
+          <button onClick={() => navigate("/register")} className="text-xs font-bold text-teal-950 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-650 px-5 py-2.5 rounded-xl shadow-md hover:shadow-lg transition cursor-pointer">
             Daftar Sekarang
           </button>
         </div>
@@ -252,10 +148,10 @@ export default function GuestHome() {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 mb-10">
-              <button onClick={() => document.getElementById("order-section").scrollIntoView({ behavior: "smooth" })} className="bg-teal-950 hover:bg-teal-900 text-white px-8 py-3.5 rounded-full font-bold shadow-md transition active:scale-95">
+              <button onClick={() => navigate("/register")} className="bg-teal-950 hover:bg-teal-900 text-white px-8 py-3.5 rounded-full font-bold shadow-md transition active:scale-95 cursor-pointer">
                 Mulai Sekarang
               </button>
-              <button onClick={() => document.getElementById("simulator-section").scrollIntoView({ behavior: "smooth" })} className="bg-white border border-amber-500/20 text-teal-950 px-8 py-3.5 rounded-full font-bold hover:bg-[#faf5eb] transition active:scale-95 flex items-center justify-center gap-2">
+              <button onClick={() => document.getElementById("simulator-section").scrollIntoView({ behavior: "smooth" })} className="bg-white border border-amber-500/20 text-teal-950 px-8 py-3.5 rounded-full font-bold hover:bg-[#faf5eb] transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer">
                 <PlayCircle className="w-4 h-4 text-amber-600" /> Lihat Simulator
               </button>
             </div>
@@ -276,29 +172,48 @@ export default function GuestHome() {
             </div>
           </div>
 
-          {/* Right Widget */}
-          <div className="lg:col-span-6 relative">
-            <div className="bg-white rounded-[2rem] p-6 shadow-2xl animate-float-card gold-border-glow text-left">
-              <div className="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
-                <span className="text-xs font-black text-teal-950 uppercase tracking-widest">CRM Terminal</span>
-                <span className="text-[10px] bg-amber-500/10 text-amber-700 px-2 py-0.5 rounded-md font-bold">ONLINE</span>
+          {/* Right Column - Premium Pharmacy Photo & Stats Overlay */}
+          <div className="lg:col-span-6 relative flex justify-center items-center">
+            {/* Background glowing rings */}
+            <div className="absolute w-72 h-72 bg-teal-500/10 rounded-full blur-3xl -z-10 animate-pulse"></div>
+            
+            {/* Main Picture Card */}
+            <div className="relative bg-white p-4 rounded-[2.5rem] border border-amber-500/15 shadow-2xl overflow-hidden max-w-lg w-full group transition-all duration-500 hover:shadow-amber-500/10">
+              <div className="relative h-[320px] rounded-[1.8rem] overflow-hidden">
+                <img 
+                  src="/hero_pharmacy.jpg" 
+                  alt="Modern Pharmacy Interior" 
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-teal-950/70 via-transparent to-transparent"></div>
+                
+                {/* Bottom text overlay */}
+                <div className="absolute bottom-6 left-6 right-6 text-left">
+                  <span className="text-[9px] bg-amber-400 text-teal-950 font-black px-2.5 py-1 rounded-md tracking-wider uppercase block w-fit mb-2">Priority Service</span>
+                  <h3 className="text-white text-sm font-master-title font-bold leading-snug">Jaminan Pelayanan Resep Cepat & Terintegrasi</h3>
+                </div>
               </div>
-              
-              <div className="bg-[#faf8f5] rounded-xl p-4 font-mono text-xs space-y-2.5 h-[160px] overflow-y-auto border border-[#c4b599]/20 custom-scrollbar shadow-inner">
-                {orderLogs.length === 0 ? (
-                  <div className="text-slate-400 italic h-full flex flex-col items-center justify-center text-center gap-2">
-                    <Activity className="w-5 h-5 text-teal-700 animate-pulse" />
-                    Menunggu transaksi masuk...
-                  </div>
-                ) : (
-                  orderLogs.map((log, idx) => (
-                    <div key={idx} className="flex justify-between items-center bg-white p-2.5 rounded-lg border border-slate-100 shadow-sm hover:border-amber-400 transition-colors">
-                      <span className="text-teal-950 font-bold">✓ {log.customer_name}</span>
-                      <span className="text-slate-400 text-[10px]">{log.medicine_type}</span>
-                      <span className="text-amber-800 font-extrabold bg-amber-100/65 px-2 py-0.5 rounded border border-amber-200">+{log.points_earned} Pts</span>
-                    </div>
-                  ))
-                )}
+
+              {/* Floating Badge 1 - Apoteker Siaga */}
+              <div className="absolute top-8 left-8 bg-white/95 backdrop-blur-sm border border-amber-500/10 rounded-2xl px-4 py-3 shadow-md flex items-center gap-3 transition-transform duration-300 group-hover:-translate-y-1">
+                <div className="w-8 h-8 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center border border-teal-100">
+                  <ShieldCheck className="w-4 h-4 text-teal-700" />
+                </div>
+                <div className="text-left">
+                  <p className="text-[9px] text-gray-400 font-extrabold uppercase leading-none mb-1">Apoteker</p>
+                  <p className="text-xs font-bold text-teal-950">Siaga 24 Jam</p>
+                </div>
+              </div>
+
+              {/* Floating Badge 2 - Live Queue Stat */}
+              <div className="absolute bottom-24 right-8 bg-white/95 backdrop-blur-sm border border-amber-500/10 rounded-2xl px-4 py-3 shadow-md flex items-center gap-3 transition-transform duration-300 group-hover:translate-y-1">
+                <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center border border-amber-100">
+                  <Clock className="w-4 h-4 text-amber-600 animate-pulse" />
+                </div>
+                <div className="text-left">
+                  <p className="text-[9px] text-gray-400 font-extrabold uppercase leading-none mb-1">Waktu Tunggu</p>
+                  <p className="text-xs font-bold text-teal-950">&lt; 15 Menit</p>
+                </div>
               </div>
             </div>
           </div>
@@ -382,59 +297,6 @@ export default function GuestHome() {
         </div>
       </section>
 
-      {/* FORM RESERVASI */}
-      <section id="order-section" className="bg-white py-16 px-6 text-left">
-        <div className="max-w-7xl mx-auto">
-          <div className="max-w-xl mb-8">
-            <span className="text-xs font-bold text-amber-700 uppercase tracking-widest block mb-1">Direct Submission</span>
-            <h2 className="text-2xl font-master-title text-teal-950">Form Penebusan Resep Online</h2>
-          </div>
-          <div className="bg-[#faf8f3] border border-amber-500/15 rounded-3xl p-8 shadow-sm">
-            {!isOrdered ? (
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="flex flex-col">
-                    <label className="text-[11px] font-semibold text-slate-600 mb-2">Nama Pasien</label>
-                    <input ref={nameInputRef} type="text" name="customerName" required placeholder="Sesuai KTP" value={formData.customerName} onChange={handleInputChange} className="w-full text-xs px-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-amber-500 text-slate-800" />
-                  </div>
-                  <div className="flex flex-col">
-                    <label className="text-[11px] font-semibold text-slate-600 mb-2">Nomor Telepon</label>
-                    <input type="tel" name="phone" required placeholder="08..." value={formData.phone} onChange={handleInputChange} className="w-full text-xs px-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-amber-500 text-slate-800" />
-                  </div>
-                  <div className="flex flex-col">
-                    <label className="text-[11px] font-semibold text-slate-600 mb-2">Pilihan Layanan</label>
-                    <select name="medicineType" required value={formData.medicineType} onChange={handleInputChange} className="w-full text-xs px-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-amber-500 text-slate-800 cursor-pointer">
-                      <option value="">Pilih Layanan</option>
-                      <option value="Obat Bebas / Vitamin">Penebusan Obat Bebas</option>
-                      <option value="Tebus Resep Dokter">Penebusan Resep Dokter</option>
-                      <option value="Alat Kesehatan Medis">Alat Kesehatan Medis</option>
-                    </select>
-                  </div>
-                </div>
-                <div className="flex flex-col">
-                  <label className="text-[11px] font-semibold text-slate-600 mb-2">Detail Catatan Resep</label>
-                  <textarea name="notes" rows="3" required placeholder="Tuliskan nama obat, merk, atau dosis..." value={formData.notes} onChange={handleInputChange} className="w-full text-xs px-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-amber-500 text-slate-800 resize-y" />
-                </div>
-                <button type="submit" disabled={loading} className="w-full bg-teal-950 hover:bg-teal-900 text-white text-xs font-bold py-3.5 rounded-xl transition shadow-md">
-                  {loading ? "Menyimpan Data..." : "Kirim Pengajuan Resep"}
-                </button>
-              </form>
-            ) : (
-              <div className="text-center py-8">
-                <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-600 mx-auto mb-4">
-                  <CheckCircle2 className="w-8 h-8" />
-                </div>
-                <h3 className="text-lg font-master-title text-slate-900 mb-2">Resep Berhasil Diajukan</h3>
-                <p className="text-xs text-slate-500 mb-6">Apoteker kami akan segera memproses antrean Anda.</p>
-                <button onClick={handleResetForm} className="bg-white border border-slate-200 text-xs font-bold px-6 py-2.5 rounded-xl hover:bg-slate-50 transition">
-                  Kirim Pengajuan Baru
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-
       {/* FAQ */}
       <section className="bg-[#faf8f3] py-16 px-6 border-t border-[#c4b599]/15">
         <div className="max-w-3xl mx-auto text-left">
@@ -444,7 +306,7 @@ export default function GuestHome() {
               <div key={index} className="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm hover:border-amber-500/20 transition-all duration-300">
                 <button onClick={() => toggleFaq(index)} className="w-full flex items-center justify-between px-6 py-4 font-bold text-xs text-teal-950 hover:bg-slate-50 transition cursor-pointer">
                   <span>{faq.q}</span>
-                  <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${openFaq === index ? "rotate-180 text-amber-600" : ""}`} />
+                  <span className={`transition-transform ${openFaq === index ? "rotate-180 text-amber-600" : ""}`}>▼</span>
                 </button>
                 {openFaq === index && (
                   <div className="px-6 pb-4 pt-1 text-[11px] text-slate-500 leading-relaxed border-t border-slate-100">
@@ -472,7 +334,7 @@ export default function GuestHome() {
           </div>
           <div>
             <h4 className="text-xs font-bold uppercase tracking-wider text-amber-400 mb-4">Program Reward</h4>
-            <button onClick={() => navigate("/register")} className="text-xs font-bold text-teal-950 bg-amber-400 hover:bg-amber-300 px-4 py-2 rounded-xl transition shadow-md shadow-amber-500/10">
+            <button onClick={() => navigate("/register")} className="text-xs font-bold text-teal-950 bg-amber-400 hover:bg-amber-300 px-4 py-2 rounded-xl transition shadow-md shadow-amber-500/10 cursor-pointer">
               Daftar Member Sekarang
             </button>
           </div>

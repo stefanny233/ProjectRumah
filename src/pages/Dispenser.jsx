@@ -37,6 +37,10 @@ export default function Dispenser() {
     return all.map(p => ({ ...p, priceNumeric: parsePrice(p.price) }));
   };
 
+  // State Manajemen Data Staf yang Sedang Login
+  const [loggedInUser, setLoggedInUser] = useState("Admin Apotek");
+  const [loggedInRole, setLoggedInRole] = useState("Admin");
+
   const [products, setProducts] = useState(loadLocalProducts);
   const [activeTab, setActiveTab] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
@@ -47,6 +51,14 @@ export default function Dispenser() {
   const [paymentType, setPaymentType] = useState("Cash");
   const [showReceipt, setShowReceipt] = useState(false);
   const [receiptData, setReceiptData] = useState(null);
+
+  // Ambil sesi login dari localStorage saat halaman dibuka
+  useEffect(() => {
+    const storedName = localStorage.getItem("userName");
+    const storedRole = localStorage.getItem("userRole");
+    if (storedName) setLoggedInUser(storedName);
+    if (storedRole) setLoggedInRole(storedRole);
+  }, []);
 
   // Sync Supabase di background dan gabungkan dengan JSON
   useEffect(() => {
@@ -146,10 +158,12 @@ export default function Dispenser() {
   return (
     <div className="w-full min-h-screen bg-[#F8F9FB] text-gray-600 p-2 select-none">
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        
+        {/* TOP BAR / HEADER */}
         <div className="flex items-center justify-between border-b border-gray-100 pb-4 mb-6">
           <div className="flex items-center gap-4">
             <button className="text-gray-400 hover:text-gray-600"><MdMenu size={22} /></button>
-            <button onClick={resetCart} className="bg-[#28B95E] hover:bg-[#209f4e] text-white text-xs font-bold px-4 py-2 rounded-lg">New Sale</button>
+            <button onClick={resetCart} className="bg-[#28B95E] hover:bg-[#209f4e] text-white text-xs font-bold px-4 py-2 rounded-lg cursor-pointer">New Sale</button>
           </div>
           <div className="flex items-center gap-5">
             <button className="text-gray-400 hover:text-gray-600"><MdOutlineQrCodeScanner size={22} /></button>
@@ -157,13 +171,18 @@ export default function Dispenser() {
               <button className="text-gray-400 hover:text-gray-600"><MdNotificationsNone size={22} /></button>
               <span className="absolute top-0.5 right-0.5 w-2 h-2 bg-rose-500 rounded-full animate-pulse"></span>
             </div>
-            <div className="flex items-center gap-2 border-l border-gray-100 pl-4">
-              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" alt="avatar" className="w-8 h-8 rounded-full object-cover" />
+            
+            {/* DYNAMIC PROFILE SECTION */}
+            <div className="flex items-center gap-2.5 border-l border-gray-100 pl-4">
+              <div className="w-8 h-8 rounded-full bg-teal-900 text-amber-400 flex items-center justify-center font-bold text-xs shadow-sm">
+                {loggedInUser.charAt(0).toUpperCase()}
+              </div>
               <div className="text-left">
-                <p className="text-xs font-bold text-gray-800">Thomas F</p>
-                <p className="text-[10px] text-gray-400 font-bold">Admin ▾</p>
+                <p className="text-xs font-bold text-gray-800 leading-tight">{loggedInUser}</p>
+                <p className="text-[9px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">{loggedInRole} ▾</p>
               </div>
             </div>
+
           </div>
         </div>
 
@@ -178,7 +197,7 @@ export default function Dispenser() {
           <div className="xl:col-span-2 flex flex-col gap-4">
             <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
               {categories.map((cat) => (
-                <button key={cat} onClick={() => setActiveTab(cat)} className={`px-4 py-1.5 text-xs font-bold rounded-md whitespace-nowrap ${activeTab === cat ? "bg-[#3b52f6] text-white" : "bg-gray-100 text-gray-400 hover:bg-gray-250"}`}>{cat}</button>
+                <button key={cat} onClick={() => setActiveTab(cat)} className={`px-4 py-1.5 text-xs font-bold rounded-md whitespace-nowrap cursor-pointer ${activeTab === cat ? "bg-[#3b52f6] text-white" : "bg-gray-100 text-gray-400 hover:bg-gray-250"}`}>{cat}</button>
               ))}
             </div>
 
@@ -189,7 +208,7 @@ export default function Dispenser() {
               </div>
               <div className="relative flex items-center">
                 <input type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} className="w-full bg-gray-50 border border-gray-100 rounded-lg pl-4 pr-10 py-2 text-xs font-bold text-gray-400 focus:outline-none" />
-                <button className="absolute right-1.5 p-1.5 bg-[#3b52f6] text-white rounded-md"><MdPersonAddAlt1 size={14} /></button>
+                <button className="absolute right-1.5 p-1.5 bg-[#3b52f6] text-white rounded-md cursor-pointer"><MdPersonAddAlt1 size={14} /></button>
               </div>
             </div>
 
@@ -198,7 +217,7 @@ export default function Dispenser() {
                 <div key={p.id} className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col relative group">
                   <div className="h-24 bg-gray-100 relative flex items-center justify-center">
                     <img src={getProductImage(p.name, p.type || p.category)} alt={p.name} className="w-full h-full object-cover" />
-                    <button onClick={() => addToCart(p)} className="absolute bottom-2 right-2 w-5 h-5 bg-white text-gray-400 rounded flex items-center justify-center shadow-xs hover:text-green-500"><MdAdd size={14} /></button>
+                    <button onClick={() => addToCart(p)} className="absolute bottom-2 right-2 w-5 h-5 bg-white text-gray-400 rounded flex items-center justify-center shadow-xs hover:text-green-500 cursor-pointer"><MdAdd size={14} /></button>
                   </div>
                   <div className="p-2 text-left bg-white">
                     <p className="text-[11px] font-bold text-gray-700 truncate">{p.name}</p>
@@ -231,13 +250,13 @@ export default function Dispenser() {
                         <p className="text-[9px] text-gray-400">{formatRupiah(item.product.priceNumeric)}</p>
                       </div>
                       <div className="flex items-center justify-center gap-1.5 bg-gray-50 border border-gray-100 rounded py-0.5 px-1 w-max mx-auto">
-                        <button onClick={() => removeFromCart(item.product.id)} className="text-gray-300 hover:text-gray-600"><MdRemove size={10} /></button>
+                        <button onClick={() => removeFromCart(item.product.id)} className="text-gray-300 hover:text-gray-600 cursor-pointer"><MdRemove size={10} /></button>
                         <span className="text-[10px] font-bold text-gray-700">{item.quantity}</span>
-                        <button onClick={() => addToCart(item.product)} className="text-gray-300 hover:text-gray-600"><MdAdd size={10} /></button>
+                        <button onClick={() => addToCart(item.product)} className="text-gray-300 hover:text-gray-600 cursor-pointer"><MdAdd size={10} /></button>
                       </div>
                       <div className="text-right font-bold text-gray-700 flex items-center justify-end gap-1.5">
                         <span>{formatRupiah(item.product.priceNumeric * item.quantity)}</span>
-                        <button onClick={() => deleteFromCart(item.product.id)} className="text-gray-300 hover:text-rose-500 font-bold">✕</button>
+                        <button onClick={() => deleteFromCart(item.product.id)} className="text-gray-300 hover:text-rose-500 font-bold cursor-pointer">✕</button>
                       </div>
                     </div>
                   ))
@@ -270,8 +289,8 @@ export default function Dispenser() {
               </div>
 
               <div className="grid grid-cols-3 gap-3 pt-2">
-                <button onClick={resetCart} className="bg-gray-50 text-gray-400 hover:bg-gray-100 font-bold py-2 rounded-xl text-xs">Reset</button>
-                <button onClick={handleSaveTransaction} className="col-span-2 bg-[#28B95E] text-white hover:bg-green-600 font-bold py-2 rounded-xl text-xs shadow-xs transition-colors">Simpan Transaksi</button>
+                <button onClick={resetCart} className="bg-gray-50 text-gray-400 hover:bg-gray-100 font-bold py-2 rounded-xl text-xs cursor-pointer">Reset</button>
+                <button onClick={handleSaveTransaction} className="col-span-2 bg-[#28B95E] text-white hover:bg-green-600 font-bold py-2 rounded-xl text-xs shadow-xs transition-colors cursor-pointer">Simpan Transaksi</button>
               </div>
             </div>
           </div>
@@ -280,7 +299,7 @@ export default function Dispenser() {
 
       {showReceipt && receiptData && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-sm w-full p-5 shadow-xl relative animate-scaleUp">
+          <div className="bg-white rounded-2xl max-w-sm w-full p-5 shadow-xl relative animate-scaleUp text-left">
             <div className="flex flex-col items-center text-center pb-3 border-b border-gray-100">
               <span className="text-emerald-500 mb-1"><MdCheckCircle size={36} /></span>
               <h3 className="text-sm font-bold text-gray-800">Transaksi Berhasil</h3>
@@ -314,8 +333,8 @@ export default function Dispenser() {
               </div>
             </div>
             <div className="grid grid-cols-2 gap-2 mt-5">
-              <button onClick={() => window.print()} className="flex items-center justify-center gap-1 bg-blue-50 text-blue-600 hover:bg-blue-100 font-bold py-2 rounded-xl text-xs"><MdPrint size={14} /> Print</button>
-              <button onClick={() => { setShowReceipt(false); resetCart(); }} className="bg-blue-600 text-white hover:bg-blue-700 font-bold py-2 rounded-xl text-xs">Tutup</button>
+              <button onClick={() => window.print()} className="flex items-center justify-center gap-1 bg-blue-50 text-blue-600 hover:bg-blue-100 font-bold py-2 rounded-xl text-xs cursor-pointer"><MdPrint size={14} /> Print</button>
+              <button onClick={() => { setShowReceipt(false); resetCart(); }} className="bg-blue-600 text-white hover:bg-blue-700 font-bold py-2 rounded-xl text-xs cursor-pointer">Tutup</button>
             </div>
           </div>
         </div>

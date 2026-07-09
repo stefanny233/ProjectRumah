@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Phone, MapPin } from "lucide-react";
+import { supabase } from "../supabaseClient";
 
 import MemberNavbar    from "../components/member/MemberNavbar";
 import MemberTabs      from "../components/member/MemberTabs";
@@ -18,11 +19,18 @@ const memberTier     = "Gold Care Member";
 
 export default function MemberHome() {
   const [activeTab,    setActiveTab]    = useState("beranda");
-  const [isRegistered, setIsRegistered] = useState(false);
-  const [patientData,  setPatientData]  = useState({ patientName: "", prescriptionId: "", serviceChoice: "", notes: "" });
+  const [isOrdered,    setIsOrdered]    = useState(false);
+  const [loading,      setLoading]      = useState(false);
   const [openFaq,      setOpenFaq]      = useState(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [activeVoucher, setActiveVoucher] = useState(null);
+
+  const [formData, setFormData] = useState({
+    customerName: "",
+    phone: "",
+    medicineType: "",
+    notes: "",
+  });
 
   const [userData, setUserData] = useState({
     name: "VIP Member",
@@ -42,6 +50,10 @@ export default function MemberHome() {
         name: storedName || prev.name,
         email: storedEmail || prev.email,
       }));
+      setFormData(prev => ({
+        ...prev,
+        customerName: storedName || prev.customerName,
+      }));
     }
   }, []);
 
@@ -49,17 +61,47 @@ export default function MemberHome() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setPatientData(p => ({ ...p, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => { 
-    e.preventDefault(); 
-    setIsRegistered(true); 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const priceSimulated = formData.medicineType === "Tebus Resep Dokter" ? 185000 : 75000;
+    const pointsEarned = Math.floor(priceSimulated / 1000);
+
+    const newOrder = {
+      customer_name: formData.customerName,
+      phone: formData.phone || userData.phone,
+      medicine_type: formData.medicineType || "Obat Bebas / Vitamin",
+      notes: formData.notes,
+      price: priceSimulated,
+      points_earned: pointsEarned,
+      status: "pending",
+      created_at: new Date().toISOString(),
+    };
+
+    try {
+      const { error } = await supabase.from("orders").insert([newOrder]);
+      if (error) throw error;
+      setIsOrdered(true);
+    } catch (err) {
+      console.warn("Offline, simulasi pengiriman lokal:", err.message);
+      setIsOrdered(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleReset = () => {
-    setPatientData({ patientName: "", prescriptionId: "", serviceChoice: "", notes: "" });
-    setIsRegistered(false);
+  const handleResetForm = () => {
+    setFormData({ 
+      customerName: localStorage.getItem("userName") || "", 
+      phone: "", 
+      medicineType: "", 
+      notes: "" 
+    });
+    setIsOrdered(false);
   };
 
   return (
@@ -71,30 +113,28 @@ export default function MemberHome() {
         
         .font-sans { font-family: 'Plus Jakarta Sans', sans-serif; }
         
-        /* 1. Recolor Green Badges & Buttons to Luxury Teal */
-        .bg-emerald-600 {
-          background-color: #0f766e !important; /* Teal 700 */
+        .bg-emerald-650 {
+          background-color: #0f766e !important;
         }
         .hover\:bg-emerald-700:hover {
-          background-color: #115e59 !important; /* Teal 800 */
+          background-color: #115e59 !important;
         }
         .bg-emerald-50 {
-          background-color: #f0fdfa !important; /* Teal 50 */
+          background-color: #f0fdfa !important;
         }
         .bg-emerald-100 {
-          background-color: #ccfbf1 !important; /* Teal 100 */
+          background-color: #ccfbf1 !important;
         }
         .text-emerald-600 {
-          color: #0d9488 !important; /* Teal 600 */
+          color: #0d9488 !important;
         }
         .text-emerald-700 {
-          color: #0f766e !important; /* Teal 700 */
+          color: #0f766e !important;
         }
         .text-emerald-800 {
-          color: #115e59 !important; /* Teal 800 */
+          color: #115e59 !important;
         }
         
-        /* 2. Recolor Borders to Warm Gold/Mint */
         .border-emerald-100 {
           border-color: rgba(13, 148, 136, 0.2) !important;
         }
@@ -108,15 +148,13 @@ export default function MemberHome() {
           box-shadow: 0 10px 15px -3px rgba(13, 148, 136, 0.1), 0 4px 6px -4px rgba(13, 148, 136, 0.1) !important;
         }
 
-        /* 3. Base Card Overrides */
         .bg-white, .bg-white\/80 {
           background-color: #fafcfb !important;
           border-color: rgba(196, 181, 153, 0.25) !important;
         }
 
-        /* 4. Text Title & Subtitle Override */
         .text-slate-900, .text-slate-800 {
-          color: #042f2e !important; /* Teal 950 */
+          color: #042f2e !important;
         }
         .text-slate-500, .text-slate-400 {
           color: #475569 !important;
@@ -142,7 +180,7 @@ export default function MemberHome() {
         
         {activeTab === "beranda" && (
           <>
-            {/* STUNNING PORTAL HERO LANDING SECTION */}
+            {/* HERO PANEL */}
             <MemberHero
               userData={userData}
               memberPoints={memberPoints}
@@ -160,11 +198,12 @@ export default function MemberHome() {
               <div className="lg:col-span-2 space-y-8">
                 <VoucherSection onVoucherClick={setActiveVoucher} />
                 <ResepForm
-                  isRegistered={isRegistered}
-                  patientData={patientData}
+                  isOrdered={isOrdered}
+                  formData={formData}
                   onChange={handleInputChange}
                   onSubmit={handleSubmit}
-                  onReset={handleReset}
+                  onReset={handleResetForm}
+                  loading={loading}
                 />
                 <TierSection />
               </div>
@@ -185,11 +224,12 @@ export default function MemberHome() {
         {activeTab === "resep" && (
           <div className="max-w-3xl mx-auto py-4">
             <ResepForm
-              isRegistered={isRegistered}
-              patientData={patientData}
+              isOrdered={isOrdered}
+              formData={formData}
               onChange={handleInputChange}
               onSubmit={handleSubmit}
-              onReset={handleReset}
+              onReset={handleResetForm}
+              loading={loading}
             />
           </div>
         )}

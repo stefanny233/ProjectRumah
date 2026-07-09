@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom"; // <-- Ini dia yang tadi terlewat mase!
 import {
   MdChevronLeft, MdExpandMore, MdAdd, MdOutlineSearch, MdPhone, MdOutlineMail, 
   MdOutlineWaterDrop, MdRefresh, MdPeopleOutline, MdWorkOutline, MdCreditCard
@@ -12,8 +13,12 @@ import EmptyState from "../components/EmptyState";
 import LoadingSpinner from "../components/LoadingSpinner";
 
 export default function EmployeePage() {
+  const location = useLocation();
+  const isAttendanceView = location.pathname.includes("attendance");
+
   const [view, setView] = useState("list");
   
+  // Memuat data lokal gabungan secara aman dengan fallback nama/ID jika email kosong
   const loadLocalEmployees = () => {
     const localSaved = JSON.parse(localStorage.getItem("local_employees") || "[]");
     const jsonEmployees = dataApotek.employees || [];
@@ -22,8 +27,11 @@ export default function EmployeePage() {
     const unique = [];
     const seen = new Set();
     for (const item of combined) {
-      if (item.email && !seen.has(item.email)) {
-        seen.add(item.email);
+      const key = (item.email || item.id || item.name || "").toLowerCase().trim();
+      if (key && !seen.has(key)) {
+        seen.add(key);
+        unique.push(item);
+      } else if (!key) {
         unique.push(item);
       }
     }
@@ -37,9 +45,30 @@ export default function EmployeePage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPosition, setSelectedPosition] = useState("All Positions");
 
-  const [dataForm, setDataForm] = useState({
-    name: "", email: "", password: "", phone: "", bloodGroup: "", salary: "", role: "Director",
-  });
+  // State Kehadiran (Attendance)
+  const loadLocalAttendance = () => {
+    const local = localStorage.getItem("local_attendance");
+    if (local) return JSON.parse(local);
+    const seed = [
+      { id: 1, name: "Dr. Luna Amanda", date: new Date().toLocaleDateString("id-ID"), clockIn: "08:00", clockOut: "17:00", status: "Hadir", hours: "9 Jam" },
+      { id: 2, name: "Budi Setiawan", date: new Date().toLocaleDateString("id-ID"), clockIn: "08:15", clockOut: "17:00", status: "Hadir", hours: "8.75 Jam" },
+      { id: 3, name: "Budi Sudarsono", date: new Date().toLocaleDateString("id-ID"), clockIn: "-", clockOut: "-", status: "Sakit", hours: "-" },
+    ];
+    localStorage.setItem("local_attendance", JSON.stringify(seed));
+    return seed;
+  };
+
+  const [attendanceList, setAttendanceList] = useState(loadLocalAttendance);
+  const [clockInEmp, setClockInEmp] = useState("");
+  const [clockInStatus, setClockInStatus] = useState("Hadir");
+  const [liveTime, setLiveTime] = useState(new Date().toLocaleTimeString("id-ID"));
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setLiveTime(new Date().toLocaleTimeString("id-ID"));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const loadUsers = async () => {
     try {
@@ -52,14 +81,20 @@ export default function EmployeePage() {
       const unique = [];
       const seen = new Set();
       for (const item of merged) {
-        if (item.email && !seen.has(item.email)) {
-          seen.add(item.email);
+        const key = (item.email || item.id || item.name || "").toLowerCase().trim();
+        if (key && !seen.has(key)) {
+          seen.add(key);
+          unique.push(item);
+        } else if (!key) {
           unique.push(item);
         }
       }
       setUsers(unique);
+      if (unique.length > 0) setClockInEmp(unique[0].name);
     } catch (err) {
-      setUsers(loadLocalEmployees());
+      const fallbackList = loadLocalEmployees();
+      setUsers(fallbackList);
+      if (fallbackList.length > 0) setClockInEmp(fallbackList[0].name);
     } finally {
       setLoading(false);
     }
@@ -143,313 +178,456 @@ export default function EmployeePage() {
     }
   };
 
-  // Modern SaaS Colors based on Role
-  const getRoleBadgeStyle = (role) => {
-    const r = (role || "").toLowerCase();
-    if (r.includes("director")) return "bg-emerald-100 text-emerald-800 border-emerald-200";
-    if (r.includes("manager")) return "bg-teal-100 text-teal-800 border-teal-200";
-    if (r.includes("assistant")) return "bg-blue-100 text-blue-800 border-blue-200";
-    return "bg-slate-100 text-slate-700 border-slate-200";
+  // Logika Presensi (Attendance)
+  const handleClockIn = () => {
+    if (!clockInEmp) return alert("Pilih staf terlebih dahulu!");
+    const tgl = new Date().toLocaleDateString("id-ID");
+    const jam = new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+    
+    const exist = attendanceList.find(a => a.name === clockInEmp && a.date === tgl);
+    if (exist) return alert(`⚠️ ${clockInEmp} sudah melakukan presensi masuk hari ini!`);
+
+    const newRecord = {
+      id: Date.now(),
+      name: clockInEmp,
+      date: tgl,
+      clockIn: clockInStatus === "Hadir" ? jam : "-",
+      clockOut: "-",
+      status: clockInStatus,
+      hours: "-"
+    };
+
+    const updated = [newRecord, ...attendanceList];
+    setAttendanceList(updated);
+    localStorage.setItem("local_attendance", JSON.stringify(updated));
+    alert(`✅ ${clockInEmp} berhasil masuk (Clock In) pukul ${jam}!`);
   };
 
-  const getRoleTopBorder = (role) => {
-    const r = (role || "").toLowerCase();
-    if (r.includes("director")) return "bg-emerald-500";
-    if (r.includes("manager")) return "bg-teal-500";
-    if (r.includes("assistant")) return "bg-blue-500";
-    return "bg-slate-400";
+  const handleClockOut = () => {
+    if (!clockInEmp) return alert("Pilih staf terlebih dahulu!");
+    const tgl = new Date().toLocaleDateString("id-ID");
+    const jam = new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+
+    const idx = attendanceList.findIndex(a => a.name === clockInEmp && a.date === tgl && a.clockOut === "-");
+    if (idx === -1) return alert(`⚠️ ${clockInEmp} tidak memiliki rekaman Clock In aktif hari ini!`);
+
+    const updated = [...attendanceList];
+    updated[idx].clockOut = jam;
+    updated[idx].hours = "9 Jam (Est)";
+    
+    setAttendanceList(updated);
+    localStorage.setItem("local_attendance", JSON.stringify(updated));
+    alert(`🚀 ${clockInEmp} berhasil pulang (Clock Out) pukul ${jam}!`);
   };
 
-  // Solid, clean avatars
+  const getRoleTheme = (role) => {
+    const r = (role || "").toLowerCase();
+    if (r.includes("director")) return "from-teal-950 via-emerald-800 to-emerald-950 text-teal-900 bg-emerald-50";
+    if (r.includes("assistant")) return "from-amber-400 via-amber-500 to-amber-600 text-amber-800 bg-amber-50";
+    if (r.includes("manager")) return "from-teal-900 via-teal-800 to-emerald-850 text-teal-950 bg-teal-50";
+    return "from-amber-300 via-yellow-400 to-emerald-600 text-teal-900 bg-yellow-50/60"; 
+  };
+
   const getAvatarBg = (name) => {
     const char = name ? name.charAt(0).toUpperCase() : "E";
     const styles = {
-      A: "bg-emerald-600", B: "bg-teal-600", C: "bg-cyan-600", 
-      D: "bg-blue-600", E: "bg-indigo-600", F: "bg-violet-600", 
-      G: "bg-purple-600", H: "bg-fuchsia-600", I: "bg-rose-600", 
-      J: "bg-orange-600", M: "bg-emerald-700", N: "bg-teal-700", 
-      S: "bg-blue-700", T: "bg-indigo-700"
+      A: "bg-teal-50 text-teal-600 border-teal-200", B: "bg-teal-50 text-teal-600 border-teal-200",
+      C: "bg-emerald-50 text-emerald-850 border-emerald-200", D: "bg-emerald-50 text-emerald-850 border-emerald-200",
+      E: "bg-amber-50 text-amber-850 border-amber-200", F: "bg-amber-50 text-amber-850 border-amber-200",
+      G: "bg-amber-100/60 text-amber-900 border-amber-300/45", H: "bg-amber-100/60 text-amber-900 border-amber-300/45",
+      I: "bg-teal-50 text-teal-800 border-teal-200", J: "bg-teal-50 text-teal-800 border-teal-200",
+      M: "bg-amber-50 text-amber-850 border-amber-200", N: "bg-amber-50 text-amber-850 border-amber-200",
+      S: "bg-emerald-50 text-emerald-850 border-emerald-200", T: "bg-emerald-50 text-emerald-850 border-emerald-200"
     };
-    return styles[char] || "bg-slate-700";
+    return styles[char] || "bg-[#faf8f5] text-teal-950 border-amber-200";
   };
 
+  const getRoleBadgeStyle = (role) => {
+    const r = (role || "").toLowerCase();
+    if (r.includes("director")) return "bg-teal-50 text-teal-950 border border-teal-200/50";
+    if (r.includes("assistant")) return "bg-amber-50 text-amber-800 border border-amber-200/50";
+    if (r.includes("manager")) return "bg-emerald-50 text-emerald-950 border border-emerald-200/50";
+    return "bg-[#faf8f5] text-teal-950 border border-amber-200/50";
+  };
+
+  // Filter pencarian staf dengan pengaman null-safety
   const filteredUsers = users.filter((emp) => {
     const matchesSearch = 
+      !searchTerm ||
       (emp.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
       (emp.email || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
       (emp.phone || "").toLowerCase().includes(searchTerm.toLowerCase());
       
     const matchesPosition = 
+      !selectedPosition ||
       selectedPosition === "All Positions" || 
-      (emp.role || "").toLowerCase() === selectedPosition.toLowerCase();
+      (emp.role || "").toLowerCase().trim() === selectedPosition.toLowerCase().trim();
 
     return matchesSearch && matchesPosition;
   });
 
-  return (
-    <div className="p-6 lg:p-10 bg-[#F8FAFC] min-h-screen font-sans text-left text-slate-800 antialiased selection:bg-emerald-200 selection:text-emerald-900">
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        .font-sans { font-family: 'Plus Jakarta Sans', sans-serif; }
-      `}</style>
-      
-      {view === "list" ? (
-        <div className="max-w-7xl mx-auto animate-in fade-in duration-500">
-          {/* HEADER SECTION */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+  // --- RENDER 1: HALAMAN ATTENDANCE (PRESENSI) ---
+  if (isAttendanceView) {
+    return (
+      <div className="p-8 bg-[#faf8f5] min-h-screen font-sans text-left select-none antialiased relative">
+        <style>{`
+          @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@650;700;800&display=swap');
+          .font-sans { font-family: 'Plus Jakarta Sans', sans-serif; }
+          .font-master-title { font-family: 'Poppins', sans-serif !important; font-weight: 700 !important; }
+        `}</style>
+
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-master-title text-teal-950 tracking-tight">Presensi Kehadiran</h1>
+            <p className="text-xs text-gray-400 font-semibold mt-1">Pencatatan waktu kerja staf secara real-time</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+          {/* Card Jam Digital */}
+          <div className="bg-white p-6 rounded-[28px] border border-amber-200/40 shadow-xs flex flex-col justify-between h-[200px]">
             <div>
-              <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-                Employee Directory
-              </h1>
-              <p className="text-sm text-slate-500 font-medium mt-1">
-                Kelola data karyawan apotek & otorisasi sistem.
-              </p>
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none mb-2">Waktu Sekarang</p>
+              <h2 className="text-[36px] font-black text-teal-950 font-mono tracking-wider">{liveTime}</h2>
             </div>
-            
-            <button
-              onClick={() => setView("add")}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl flex items-center gap-2 text-sm font-bold shadow-md shadow-emerald-600/20 hover:shadow-lg transition-all active:scale-95 cursor-pointer"
-            >
-              <MdAdd size={20} />
-              Add New Employee
-            </button>
-          </div>
-
-          {error && <AlertBox type="error">{error}</AlertBox>}
-          {success && <AlertBox type="success">{success}</AlertBox>}
-
-          {/* STATS OVERVIEW PANEL (Clean & Modern) */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-5 hover:shadow-md transition-shadow">
-              <span className="p-4 bg-emerald-50 text-emerald-600 rounded-xl"><MdPeopleOutline size={26} /></span>
-              <div>
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Total Karyawan</p>
-                <p className="text-2xl font-extrabold text-slate-900">{filteredUsers.length}</p>
-              </div>
-            </div>
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-5 hover:shadow-md transition-shadow">
-              <span className="p-4 bg-blue-50 text-blue-600 rounded-xl"><MdWorkOutline size={26} /></span>
-              <div>
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Jabatan Aktif</p>
-                <p className="text-2xl font-extrabold text-slate-900">4 Posisi</p>
-              </div>
-            </div>
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-5 hover:shadow-md transition-shadow">
-              <span className="p-4 bg-teal-50 text-teal-600 rounded-xl"><MdCreditCard size={26} /></span>
-              <div>
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Status Sistem</p>
-                <p className="text-2xl font-extrabold text-slate-900">100% Aktif</p>
-              </div>
+            <div className="text-xs text-slate-500 font-semibold bg-[#faf8f5] px-4 py-2.5 rounded-xl border border-amber-500/10">
+              📆 {new Date().toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
             </div>
           </div>
 
-          {/* SEARCH & FILTERS BAR */}
-          <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col lg:flex-row gap-4 justify-between items-center mb-8">
-            <div className="flex flex-col sm:flex-row gap-4 w-full lg:max-w-2xl">
-              <div className="relative flex items-center flex-1">
-                <span className="absolute left-4 text-slate-400"><MdOutlineSearch size={22} /></span>
-                <input
-                  type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Cari nama, email, atau telp..."
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 pl-12 pr-4 text-sm font-medium text-slate-700 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all"
-                />
-              </div>
-              <div className="relative w-full sm:w-56">
+          {/* Form Input Clock-In/Out */}
+          <div className="bg-white p-6 rounded-[28px] border border-amber-200/40 shadow-xs lg:col-span-2 flex flex-col justify-between">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex flex-col">
+                <label className="text-[10px] font-bold text-gray-400 uppercase mb-2 ml-1">Pilih Staf Apotek</label>
                 <select 
-                  value={selectedPosition} onChange={(e) => setSelectedPosition(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 px-4 text-sm font-semibold text-slate-700 outline-none cursor-pointer focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors appearance-none"
+                  value={clockInEmp} 
+                  onChange={(e) => setClockInEmp(e.target.value)} 
+                  className="w-full bg-[#faf8f5] border border-gray-200 rounded-xl p-3 text-xs font-semibold text-teal-950 outline-none cursor-pointer"
                 >
-                  <option value="All Positions">All Positions</option>
-                  <option value="Director">Director</option>
-                  <option value="Manager">Manager</option>
-                  <option value="Assistant Manager">Assistant Manager</option>
-                  <option value="Team Leader">Team Leader</option>
+                  {users.map((u, i) => (
+                    <option key={i} value={u.name}>{u.name} ({u.role})</option>
+                  ))}
                 </select>
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"><MdExpandMore size={20} /></span>
+              </div>
+              <div className="flex flex-col">
+                <label className="text-[10px] font-bold text-gray-400 uppercase mb-2 ml-1">Status Kehadiran</label>
+                <select 
+                  value={clockInStatus} 
+                  onChange={(e) => setClockInStatus(e.target.value)} 
+                  className="w-full bg-[#faf8f5] border border-gray-200 rounded-xl p-3 text-xs font-semibold text-teal-950 outline-none cursor-pointer"
+                >
+                  <option value="Hadir">Hadir Tepat Waktu</option>
+                  <option value="Izin">Izin / Cuti Staf</option>
+                  <option value="Sakit">Sakit / Istirahat Medis</option>
+                </select>
               </div>
             </div>
-            <button onClick={loadUsers} className="w-full lg:w-auto px-5 py-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl transition text-slate-700 flex justify-center items-center gap-2 text-sm font-bold cursor-pointer">
-              <MdRefresh size={18} className="text-slate-500" /> Sync
-            </button>
+
+            <div className="flex gap-4 mt-6 pt-4 border-t border-gray-50">
+              <button 
+                onClick={handleClockIn} 
+                className="flex-1 bg-[#28B95E] hover:bg-green-600 text-white font-bold py-3 rounded-xl text-xs transition shadow-md shadow-green-100 cursor-pointer"
+              >
+                📥 CLOCK IN (MASUK)
+              </button>
+              <button 
+                onClick={handleClockOut} 
+                className="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 rounded-xl text-xs transition shadow-md shadow-rose-100 cursor-pointer"
+              >
+                📤 CLOCK OUT (PULANG)
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Tabel */}
+        <div className="bg-white rounded-[28px] border border-amber-200/40 shadow-xs overflow-hidden">
+          <div className="px-8 py-5 border-b border-gray-50 bg-[#faf8f5]/40 flex justify-between items-center">
+            <h3 className="text-sm font-bold text-teal-950">Riwayat Presensi Mingguan</h3>
+            <span className="text-[10px] bg-teal-50 text-teal-900 border border-teal-100 px-3 py-1 rounded-full font-bold">Auto Synchronized</span>
           </div>
 
-          {loading && <LoadingSpinner text="Sinkronisasi data karyawan..." />}
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-[#F9FAFB]/50 border-b border-gray-50 text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+                  <th className="pl-6 pr-4 py-4">Nama Staf</th>
+                  <th className="px-4 py-4">Tanggal</th>
+                  <th className="px-4 py-4 text-center">Clock In</th>
+                  <th className="px-4 py-4 text-center">Clock Out</th>
+                  <th className="px-4 py-4 text-center">Total Jam</th>
+                  <th className="pl-4 pr-6 py-4 text-right">Status</th>
+                </tr>
+              </thead>
+              <tbody className="text-xs divide-y divide-gray-50">
+                {attendanceList.map((item, idx) => (
+                  <tr key={item.id || idx} className="hover:bg-[#F9FAFB]/60 transition-colors">
+                    <td className="pl-6 pr-4 py-4 font-bold text-teal-950">{item.name}</td>
+                    <td className="px-4 py-4 text-slate-500 font-medium font-mono">{item.date}</td>
+                    <td className="px-4 py-4 text-center font-bold text-emerald-600 font-mono">{item.clockIn}</td>
+                    <td className="px-4 py-4 text-center font-bold text-rose-600 font-mono">{item.clockOut}</td>
+                    <td className="px-4 py-4 text-center text-slate-500 font-medium">{item.hours}</td>
+                    <td className="pl-4 pr-6 py-4 text-right">
+                      <span className={`px-3 py-1 rounded-full font-bold text-[9px] border ${
+                        item.status === "Hadir" 
+                          ? "bg-emerald-50 text-emerald-800 border-emerald-100" 
+                          : item.status === "Izin" 
+                            ? "bg-amber-50 text-amber-800 border-amber-100" 
+                            : "bg-rose-50 text-rose-800 border-rose-100"
+                      }`}>
+                        {item.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-          {!loading && filteredUsers.length === 0 && (
-            <EmptyState text="Karyawan tidak ditemukan. Coba filter dengan kata kunci lain!" />
-          )}
+  // --- RENDER 2: HALAMAN LIST EMPLOYEE ---
+  if (view === "list") {
+    return (
+      <div className="p-8 bg-[#faf8f5] min-h-screen font-sans text-left select-none antialiased">
+        <style>{`
+          @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@650;700;800&display=swap');
+          .font-sans { font-family: 'Plus Jakarta Sans', sans-serif; }
+          .font-master-title { font-family: 'Poppins', sans-serif !important; font-weight: 700 !important; }
+        `}</style>
+        
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-master-title text-teal-950 tracking-tight">Employee Directory</h1>
+            <p className="text-xs text-gray-400 font-semibold mt-1">Kelola data karyawan apotek & otorisasi sistem</p>
+          </div>
+          
+          <button
+            onClick={() => setView("add")}
+            className="bg-teal-950 hover:bg-teal-900 text-amber-300 hover:text-white px-5.5 py-3 rounded-2xl flex items-center gap-2 text-xs font-bold shadow-md shadow-teal-950/10 hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer"
+          >
+            <MdAdd size={20} />
+            ADD NEW EMPLOYEE
+          </button>
+        </div>
 
-          {/* PREMIUM PROFILE CARDS GRID */}
-          {!loading && filteredUsers.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredUsers.map((emp, index) => {
-                return (
-                  <div
-                    key={emp.id || index}
-                    className="bg-white rounded-2xl border border-slate-200 relative group overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 flex flex-col"
+        {error && <AlertBox type="error">{error}</AlertBox>}
+        {success && <AlertBox type="success">{success}</AlertBox>}
+
+        {/* Stats widgets */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+          <div className="bg-white p-5 rounded-3xl border border-amber-200/40 shadow-xs flex items-center gap-4.5">
+            <span className="p-3.5 bg-teal-50 text-teal-900 rounded-2xl border border-teal-100"><MdPeopleOutline size={22} /></span>
+            <div>
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none mb-1">Total Karyawan</p>
+              <p className="text-xl font-bold text-teal-950">{filteredUsers.length} Orang</p>
+            </div>
+          </div>
+          <div className="bg-white p-5 rounded-3xl border border-amber-200/40 shadow-xs flex items-center gap-4.5">
+            <span className="p-3.5 bg-amber-50 text-amber-700 rounded-2xl border border-amber-100"><MdWorkOutline size={22} /></span>
+            <div>
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none mb-1">Jabatan Staf</p>
+              <p className="text-xl font-bold text-teal-950">4 Struktur Utama</p>
+            </div>
+          </div>
+          <div className="bg-white p-5 rounded-3xl border border-amber-200/40 shadow-xs flex items-center gap-4.5">
+            <span className="p-3.5 bg-emerald-50 text-emerald-850 rounded-2xl border border-emerald-100"><MdCreditCard size={22} /></span>
+            <div>
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none mb-1">Status Kepegawaian</p>
+              <p className="text-xl font-bold text-teal-950">100% Aktif</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Filters */}
+        <div className="bg-white p-5 rounded-[28px] border border-amber-200/40 shadow-xs flex flex-wrap gap-4 justify-between items-center mb-8">
+          <div className="flex gap-4 flex-1 max-w-2xl">
+            <div className="relative flex items-center flex-1">
+              <span className="absolute left-3.5 text-gray-400"><MdOutlineSearch size={20} /></span>
+              <input
+                type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Cari karyawan berdasarkan nama, email, telp..."
+                className="w-full bg-[#faf8f5]/55 border border-gray-200 rounded-2xl p-3.5 pl-11 pr-4 text-xs font-semibold focus:outline-none focus:border-teal-700 focus:bg-white transition-all shadow-inner"
+              />
+            </div>
+            <div className="w-52 relative">
+              <select 
+                value={selectedPosition} onChange={(e) => setSelectedPosition(e.target.value)}
+                className="w-full bg-[#faf8f5]/55 border border-gray-200 rounded-2xl p-3.5 text-xs font-bold text-teal-900 outline-none cursor-pointer hover:bg-white transition-colors appearance-none"
+              >
+                <option value="All Positions">All Positions</option>
+                <option value="Director">Director</option>
+                <option value="Manager">Manager</option>
+                <option value="Assistant Manager">Assistant Manager</option>
+                <option value="Team Leader">Team Leader</option>
+              </select>
+              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"><MdExpandMore size={18} /></span>
+            </div>
+          </div>
+          <button onClick={loadUsers} className="p-2.5 bg-[#faf8f5] hover:bg-white border border-gray-200 rounded-2xl transition text-teal-950 flex items-center gap-1.5 text-xs font-bold shadow-xs cursor-pointer"><MdRefresh size={16} /> Sync Database</button>
+        </div>
+
+        {loading && <LoadingSpinner text="Memuat berkas profil karyawan..." />}
+
+        {!loading && filteredUsers.length === 0 && (
+          <EmptyState text="Karyawan tidak ditemukan. Coba filter dengan kata kunci lain!" />
+        )}
+
+        {/* Grid Kartu Karyawan */}
+        {!loading && filteredUsers.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {filteredUsers.map((emp, index) => {
+              const roleTheme = getRoleTheme(emp.role);
+              return (
+                <div
+                  key={emp.id || index}
+                  className="bg-white rounded-[32px] border border-amber-200/25 relative group overflow-hidden shadow-xs hover:shadow-xl hover:shadow-amber-500/5 transition-all duration-300 hover:-translate-y-1.5 flex flex-col justify-between text-left"
+                >
+                  <div className={`h-2.5 w-full bg-gradient-to-r ${roleTheme.split(" ").slice(0, 3).join(" ")}`} />
+
+                  <button 
+                    onClick={() => handleDelete(emp.id || emp.email)}
+                    className="absolute top-5 right-5 text-gray-300 hover:text-rose-500 transition-all cursor-pointer opacity-0 group-hover:opacity-100"
+                    disabled={loading}
                   >
-                    {/* Top Accent Line */}
-                    <div className={`h-1.5 w-full ${getRoleTopBorder(emp.role)}`} />
+                    <AiFillDelete size={18} />
+                  </button>
 
-                    {/* Delete button (fades in on hover) */}
-                    <button 
-                      onClick={() => handleDelete(emp.id || emp.email)}
-                      className="absolute top-4 right-4 p-2 bg-rose-50 text-rose-400 hover:text-rose-600 hover:bg-rose-100 rounded-lg transition-all cursor-pointer opacity-0 group-hover:opacity-100"
-                      disabled={loading}
-                      title="Hapus Karyawan"
-                    >
-                      <AiFillDelete size={18} />
-                    </button>
-
-                    <div className="p-6 text-center flex flex-col items-center flex-1">
-                      {/* Avatar */}
-                      <div className={`w-16 h-16 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-sm mb-4 ${getAvatarBg(emp.name)}`}>
+                  <div className="p-6 pb-4 text-center flex flex-col items-center flex-1">
+                    <div className="relative mb-4 mt-2">
+                      <div className={`w-20 h-20 rounded-full border-2 flex items-center justify-center font-bold text-2xl shadow-sm ${getAvatarBg(emp.name)}`}>
                         {emp.name ? emp.name.charAt(0).toUpperCase() : "E"}
                       </div>
+                      <span className="absolute bottom-0.5 right-0.5 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full shadow-xs" />
+                    </div>
 
-                      {/* Name & Role */}
-                      <h3 className="text-lg font-bold text-slate-900 leading-tight mb-1" title={emp.name}>
-                        {emp.name}
-                      </h3>
-                      <span className={`text-[10px] px-3 py-1 rounded-md font-bold uppercase tracking-wide border ${getRoleBadgeStyle(emp.role)}`}>
-                        {emp.role || "Member"}
-                      </span>
+                    <h3 className="text-base font-bold text-teal-950 leading-snug line-clamp-1 px-1" title={emp.name}>
+                      {emp.name}
+                    </h3>
+                    
+                    <span className={`text-[9px] px-3.5 py-1.5 rounded-full font-bold mt-3 tracking-wider uppercase border ${roleTheme.split(" ").slice(3).join(" ")}`}>
+                      {emp.role || "Member"}
+                    </span>
 
-                      {/* Details (Divider + Rows) */}
-                      <div className="w-full mt-6 space-y-3 border-t border-slate-100 pt-5">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-slate-500 font-semibold flex items-center gap-1.5">
-                            <MdOutlineMail size={14} /> Email
-                          </span>
-                          <span className="text-xs font-semibold text-slate-800 truncate max-w-[120px]" title={emp.email}>
-                            {emp.email}
-                          </span>
+                    <div className="w-full space-y-3 mt-6 pt-5 border-t border-gray-100 text-left">
+                      <div className="flex items-center gap-3">
+                        <span className="p-1.5 bg-[#faf8f5] text-teal-900 rounded-lg"><MdPhone size={14} /></span>
+                        <div>
+                          <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest leading-none mb-0.5">Telepon</p>
+                          <p className="text-xs font-semibold text-gray-700 truncate">{emp.phone || "-"}</p>
                         </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-slate-500 font-semibold flex items-center gap-1.5">
-                            <MdPhone size={14} /> Telp
-                          </span>
-                          <span className="text-xs font-semibold text-slate-800">
-                            {emp.phone || "-"}
-                          </span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="p-1.5 bg-[#faf8f5] text-teal-900 rounded-lg"><MdOutlineWaterDrop size={14} /></span>
+                        <div>
+                          <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest leading-none mb-0.5">Gol. Darah</p>
+                          <p className="text-xs font-bold text-gray-700">{emp.bloodGroup || "-"}</p>
                         </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-slate-500 font-semibold flex items-center gap-1.5">
-                            <MdOutlineWaterDrop size={14} /> Gol. Darah
-                          </span>
-                          <span className="text-xs font-bold text-rose-500">
-                            {emp.bloodGroup || "-"}
-                          </span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="p-1.5 bg-[#faf8f5] text-teal-900 rounded-lg"><MdOutlineMail size={14} /></span>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest leading-none mb-0.5">Email</p>
+                          <p className="text-xs font-semibold text-gray-700 truncate" title={emp.email}>{emp.email}</p>
                         </div>
                       </div>
                     </div>
-
-                    {/* Footer (Salary) */}
-                    <div className="bg-slate-50 px-6 py-4 flex justify-between items-center border-t border-slate-100 mt-auto">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Salary Rate</span>
-                      <span className="text-xs font-extrabold text-slate-700 bg-white border border-slate-200 px-2.5 py-1 rounded-lg shadow-sm">
-                        {emp.salary || "-"}
-                      </span>
-                    </div>
                   </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      ) : (
-        /* VIEW ADD EMPLOYEE */
-        <div className="max-w-4xl mx-auto animate-in slide-in-from-right duration-500">
-          <button
-            onClick={() => setView("list")}
-            className="flex items-center gap-1.5 text-slate-500 hover:text-slate-800 mb-6 group cursor-pointer transition-colors font-medium"
-          >
-            <MdChevronLeft size={22} className="group-hover:-translate-x-1 transition-transform" />
-            Kembali ke Direktori
-          </button>
 
-          <div className="bg-white rounded-2xl p-8 lg:p-10 border border-slate-200 shadow-sm">
-            <h1 className="text-3xl font-extrabold text-slate-900 mb-8 tracking-tight border-b border-slate-100 pb-6">
-              Registrasi Karyawan Baru
-            </h1>
-
-            <form onSubmit={handleSubmit}>
-              
-              {/* Designation Selector */}
-              <div className="mb-10 text-left">
-                <h4 className="text-xs font-bold text-slate-900 mb-4">
-                  1. Pilih Posisi / Jabatan
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {["Director", "Manager", "Assistant Manager", "Team Leader"].map((role) => {
-                    const isSelected = dataForm.role === role;
-                    return (
-                      <label
-                        key={role}
-                        className={`relative p-5 rounded-xl border-2 flex items-start gap-4 cursor-pointer transition-all duration-200 ${
-                          isSelected 
-                          ? "border-emerald-500 bg-emerald-50/30 shadow-sm" 
-                          : "border-slate-200 hover:border-emerald-300 bg-white"
-                        }`}
-                      >
-                        <input
-                          type="radio" name="role" value={role} checked={isSelected}
-                          onChange={handleChange} disabled={loading}
-                          className="mt-0.5 w-4 h-4 text-emerald-600 border-gray-300 focus:ring-emerald-500 cursor-pointer"
-                        />
-                        <div>
-                          <span className={`text-sm font-bold block mb-1 ${isSelected ? "text-emerald-900" : "text-slate-700"}`}>
-                            {role}
-                          </span>
-                          <span className="text-xs text-slate-500 leading-relaxed block">
-                            Menentukan akses kontrol dan otorisasi dalam sistem apotek.
-                          </span>
-                        </div>
-                      </label>
-                    );
-                  })}
+                  <div className="bg-[#faf8f5] px-6 py-4 flex justify-between items-center border-t border-gray-100 rounded-b-[32px]">
+                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Rate Gaji</span>
+                    <span className="text-xs font-bold text-teal-950 bg-gradient-to-r from-amber-300 to-amber-400 px-3 py-1 rounded-lg shadow-sm">{emp.salary || "-"}</span>
+                  </div>
                 </div>
-              </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    );
+  }
 
-              {/* Input Form Fields */}
-              <div className="mb-8 text-left">
-                <h4 className="text-xs font-bold text-slate-900 mb-4">
-                  2. Informasi Personal
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50/50 p-6 rounded-xl border border-slate-100">
-                  <InputBox label="Nama Lengkap" name="name" value={dataForm.name} placeholder="Contoh: Budi Santoso" onChange={handleChange} disabled={loading} required />
-                  <InputBox label="Email Aktif" name="email" type="email" value={dataForm.email} placeholder="budi@apotek.com" onChange={handleChange} disabled={loading} required />
-                  <InputBox label="Password Akses" name="password" type="password" value={dataForm.password} placeholder="••••••••" onChange={handleChange} disabled={loading} required />
-                  <InputBox label="Nomor Telepon" name="phone" value={dataForm.phone} placeholder="0812-3456-7890" onChange={handleChange} disabled={loading} />
-                  <InputBox label="Golongan Darah" name="bloodGroup" value={dataForm.bloodGroup} placeholder="O / A / B / AB" onChange={handleChange} disabled={loading} />
-                  <InputBox label="Gaji Pokok (Opsional)" name="salary" value={dataForm.salary} placeholder="Rp 5.500.000" onChange={handleChange} disabled={loading} />
-                </div>
-              </div>
+  // --- RENDER 3: ADD NEW EMPLOYEE ---
+  return (
+    <div className="bg-white rounded-[32px] p-8 border border-amber-200/30 shadow-sm max-w-4xl mx-auto animate-in slide-in-from-right duration-300">
+      <button
+        onClick={() => setView("list")}
+        className="flex items-center gap-1.5 text-gray-400 hover:text-teal-950 mb-5 group cursor-pointer"
+      >
+        <MdChevronLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+        <span className="text-sm font-semibold">Back to directory</span>
+      </button>
 
-              {/* Actions */}
-              <div className="mt-8 flex flex-col sm:flex-row justify-end items-center gap-4 pt-6">
-                <button
-                  type="button" onClick={() => setView("list")}
-                  className="w-full sm:w-auto px-6 py-3 text-sm font-bold text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer" 
-                  disabled={loading}
+      <h1 className="text-3xl font-bold text-teal-950 mb-8 tracking-tight font-master-title">Add New Employee</h1>
+
+      <form onSubmit={handleSubmit}>
+        
+        {/* Designation */}
+        <div className="mb-10 text-left">
+          <h4 className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest mb-5">
+            Choose Employee Designation
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {["Director", "Manager", "Assistant Manager", "Team Leader"].map((role) => {
+              const isSelected = dataForm.role === role;
+              return (
+                <label
+                  key={role}
+                  className={`bg-white p-5 rounded-3xl border flex gap-4 cursor-pointer hover:border-teal-950 shadow-xs hover:shadow transition-all duration-200 ${
+                    isSelected ? "border-teal-950 ring-1 ring-teal-950 bg-teal-50/20" : "border-gray-100"
+                  }`}
                 >
-                  Batal
-                </button>
-                <button
-                  type="submit" disabled={loading}
-                  className="w-full sm:w-auto px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow-md shadow-emerald-600/20 transition-all cursor-pointer disabled:opacity-70 flex items-center justify-center gap-2"
-                >
-                  {loading ? (
-                    <><MdRefresh className="animate-spin" size={18} /> Menyimpan...</>
-                  ) : (
-                    "Simpan Data Karyawan"
-                  )}
-                </button>
-              </div>
-            </form>
+                  <input
+                    type="radio" name="role" value={role} checked={isSelected}
+                    onChange={handleChange} disabled={loading}
+                    className="mt-1 w-4 h-4 accent-teal-950 cursor-pointer"
+                  />
+                  <div>
+                    <span className="text-[14px] font-bold text-teal-950 block mb-1">{role}</span>
+                    <span className="text-[10px] text-gray-400 leading-snug block">
+                      Akses kasir POS, daftar obat, & laporan apotek.
+                    </span>
+                  </div>
+                </label>
+              );
+            })}
           </div>
         </div>
-      )}
+
+        {/* Input fields */}
+        <div className="mb-10 text-left">
+          <h4 className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest mb-5">
+            Personal Information
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-6">
+            <InputBox label="Full Name" name="name" value={dataForm.name} placeholder="Thomas Flecture" onChange={handleChange} disabled={loading} required />
+            <InputBox label="Phone Number" name="phone" value={dataForm.phone} placeholder="(406) 555-0120" onChange={handleChange} disabled={loading} />
+            <InputBox label="Email Address" name="email" type="email" value={dataForm.email} placeholder="thomas@apotek.com" onChange={handleChange} disabled={loading} required />
+            <InputBox label="Password" name="password" type="password" value={dataForm.password} placeholder="••••••••" onChange={handleChange} disabled={loading} required />
+            <InputBox label="Blood Group" name="bloodGroup" value={dataForm.bloodGroup} placeholder="O / A / B / AB" onChange={handleChange} disabled={loading} />
+            <InputBox label="Salary" name="salary" value={dataForm.salary} placeholder="Rp 5.500.000" onChange={handleChange} disabled={loading} />
+          </div>
+        </div>
+
+        {/* Form actions */}
+        <div className="mt-12 flex justify-end items-center gap-6 border-t pt-8">
+          <button
+            type="button" onClick={() => setView("list")}
+            className="text-sm font-bold text-gray-450 hover:text-gray-650 cursor-pointer" disabled={loading}
+          >
+            Cancel
+          </button>
+          <button
+            type="submit" disabled={loading}
+            className="px-10 py-4 bg-teal-950 hover:bg-teal-900 text-amber-300 hover:text-white rounded-2xl text-xs font-extrabold shadow-md shadow-amber-500/5 transition-colors cursor-pointer"
+          >
+            {loading ? "Mohon Tunggu..." : "ADD EMPLOYEE"}
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
@@ -457,13 +635,13 @@ export default function EmployeePage() {
 function InputBox({ label, name, type = "text", value, placeholder, onChange, disabled, required }) {
   return (
     <div className="flex flex-col w-full text-left">
-      <label className="text-xs font-bold text-slate-700 mb-2">
+      <label className="text-[10px] font-bold text-gray-400 uppercase mb-2 ml-0.5">
         {label} {required && <span className="text-rose-500">*</span>}
       </label>
       <input
         type={type} name={name} value={value} placeholder={placeholder}
         onChange={onChange} disabled={disabled} required={required}
-        className="w-full bg-white border border-slate-200 p-3.5 rounded-xl text-sm font-medium text-slate-800 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all disabled:opacity-60 disabled:bg-slate-50 shadow-sm"
+        className="w-full bg-[#faf8f5]/60 border border-gray-200 p-3.5 rounded-xl text-xs font-semibold outline-none focus:border-teal-700 focus:bg-white transition-all disabled:opacity-50"
       />
     </div>
   );
