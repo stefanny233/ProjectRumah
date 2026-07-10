@@ -50,7 +50,7 @@ export default function MemberHome() {
     return cleaned ? parseInt(cleaned, 10) : 0;
   };
 
-  // 1. Fetch Sesi Member & Live Merge Poin dari Supabase + Local Storage
+  // 1. Fetch Sesi Member & Live Merge Poin dari Supabase + Local Storage dengan Normalisasi Nama
   const fetchMemberData = async () => {
     const storedName = localStorage.getItem("userName") || "VIP Member";
     const storedEmail = localStorage.getItem("userEmail");
@@ -69,20 +69,29 @@ export default function MemberHome() {
       try {
         const { data, error } = await supabase
           .from("orders")
-          .select("*")
-          .eq("customer_name", storedName);
+          .select("*");
+        
         if (data && !error) {
-          dbOrders = data;
+          // Melakukan filter transaksi berdasarkan nama member yang dinormalisasi (lowercase & trim)
+          dbOrders = data.filter(order => {
+            const orderName = (order.customer_name || "").toLowerCase().trim();
+            const myName = storedName.toLowerCase().trim();
+            return orderName === myName;
+          });
         }
       } catch (err) {
         console.warn("Supabase RLS/Offline, gunakan local storage.");
       }
 
-      // ─── AMBIL DARI LOCAL STORAGE (UNTUK HASIL TRANSAKSI KASIR DISPENSER) ───
+      // ─── AMBIL DARI LOCAL STORAGE ───
       const localTrans = JSON.parse(localStorage.getItem("local_transactions") || "[]");
-      const filteredLocal = localTrans.filter(order => order.customer_name === storedName);
+      const filteredLocal = localTrans.filter(order => {
+        const orderName = (order.customer_name || "").toLowerCase().trim();
+        const myName = storedName.toLowerCase().trim();
+        return orderName === myName;
+      });
 
-      // Gabungkan & Hilangkan duplikasi transaksi (pakai created_at / ID)
+      // Gabungkan & Hilangkan duplikasi transaksi
       const combined = [...dbOrders, ...filteredLocal];
       const uniqueOrders = [];
       const seen = new Set();
@@ -195,7 +204,7 @@ export default function MemberHome() {
     setLoading(true);
 
     const payload = {
-      customer_name: userData.name,
+      customer_name: userData.name.trim(), // Pastikan nama di-trim
       phone: userData.phone,
       medicine_type: cart.map(item => `${item.product.name} (x${item.quantity})`).join(", "),
       notes: recipeNote ? `Pesan: ${recipeNote}` : "Pemesanan Obat via E-Shop Portal Member",
@@ -255,7 +264,7 @@ export default function MemberHome() {
         .shadow-emerald-500\/20 { box-shadow: 0 10px 15px -3px rgba(13, 148, 136, 0.1), 0 4px 6px -4px rgba(13, 148, 136, 0.1) !important; }
         .bg-white, .bg-white\/80 { background-color: #fafcfb !important; border-color: rgba(196, 181, 153, 0.25) !important; }
         .text-slate-900, .text-slate-800 { color: #042f2e !important; }
-        .text-slate-500, .text-slate-400 { color: #475569 !important; }
+        .text-slate-505, .text-slate-400 { color: #475569 !important; }
       `}</style>
 
       <div className="absolute top-[-10%] right-[-5%] w-[800px] h-[800px] rounded-full bg-gradient-to-br from-amber-500/5 via-teal-500/5 to-transparent blur-[130px] pointer-events-none -z-10 animate-pulse" />
@@ -297,11 +306,11 @@ export default function MemberHome() {
                   <span className="text-[10px] text-slate-300 font-bold">500 Pts</span>
                 </div>
                 <div className="bg-teal-900/40 p-3 rounded-2xl border border-teal-800/40">
-                  <span className="text-[8px] text-gray-405 uppercase tracking-widest block mb-0.5">Gold</span>
+                  <span className="text-[8px] text-gray-455 uppercase tracking-widest block mb-0.5">Gold</span>
                   <span className="text-[10px] text-yellow-400 font-bold">1000 Pts</span>
                 </div>
                 <div className="bg-teal-900/40 p-3 rounded-2xl border border-teal-800/40">
-                  <span className="text-[8px] text-gray-450 uppercase tracking-widest block mb-0.5">Platinum</span>
+                  <span className="text-[8px] text-gray-455 uppercase tracking-widest block mb-0.5">Platinum</span>
                   <span className="text-[10px] text-purple-400 font-bold">2000 Pts</span>
                 </div>
               </div>
@@ -338,10 +347,10 @@ export default function MemberHome() {
           </>
         )}
 
-        {/* TAB TEBUS RESEP (E-SHOP AREA PEMBELIAN MEMBER) */}
+        {/* TAB TEBUS RESEP */}
         {activeTab === "resep" && (
           <div className="w-full flex flex-col gap-6 text-left">
-            <h2 className="text-xl font-bold text-teal-950 font-master-title">Beli Obat & Tebus Resep Prioritas</h2>
+            <h2 className="text-xl font-bold text-teal-955 font-master-title">Beli Obat & Tebus Resep Prioritas</h2>
             <p className="text-xs text-slate-500 -mt-4">
               Silakan pilih obat di bawah. Diskon khusus tier <span className="font-extrabold text-amber-600 uppercase">{memberTier.split(" ")[0]} ({discountRate * 100}%)</span> akan langsung dipotong otomatis saat pemesanan!
             </p>
@@ -352,7 +361,7 @@ export default function MemberHome() {
                   <CheckCircle className="w-10 h-10" />
                 </div>
                 <h3 className="text-lg font-bold text-slate-800">Transaksi Belanja Berhasil!</h3>
-                <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
+                <p className="text-xs text-slate-505 max-w-sm mx-auto leading-relaxed">
                   Pesanan obat Anda telah diterima dan langsung masuk antrean prioritas dispensing apoteker.
                 </p>
                 <div className="bg-amber-50 text-amber-800 border border-amber-200 rounded-2xl p-4 text-xs font-bold w-max mx-auto">
@@ -369,7 +378,7 @@ export default function MemberHome() {
                 {/* KATALOG OBAT */}
                 <div className="lg:col-span-7 bg-white border border-[#c4b599]/20 rounded-3xl p-6 shadow-sm space-y-5">
                   <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
-                    <span className="text-sm font-bold text-teal-950">Daftar Obat Apotek</span>
+                    <span className="text-sm font-bold text-teal-955">Daftar Obat Apotek</span>
                     <div className="relative w-full sm:w-60 flex items-center">
                       <span className="absolute left-3 text-slate-400"><Search className="w-4 h-4" /></span>
                       <input 
@@ -382,7 +391,6 @@ export default function MemberHome() {
                     </div>
                   </div>
 
-                  {/* Kategori Tabs */}
                   <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
                     {categories.map((cat) => (
                       <button 
@@ -397,7 +405,6 @@ export default function MemberHome() {
                     ))}
                   </div>
 
-                  {/* Grid Obat */}
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-h-[480px] overflow-y-auto pr-1">
                     {filteredProducts.map((p) => (
                       <div key={p.id} className="border border-slate-100 hover:border-teal-800/10 rounded-2xl p-3 flex flex-col justify-between hover:shadow-md transition bg-white">
@@ -427,7 +434,7 @@ export default function MemberHome() {
                 {/* RINGKASAN BELANJA */}
                 <div className="lg:col-span-5 bg-white border border-[#c4b599]/20 rounded-3xl p-6 shadow-sm flex flex-col justify-between min-h-[500px]">
                   <div>
-                    <div className="flex items-center gap-2 border-b border-slate-50 pb-3 mb-4 text-teal-950">
+                    <div className="flex items-center gap-2 border-b border-slate-50 pb-3 mb-4 text-teal-955">
                       <ShoppingCart className="w-4 h-4" />
                       <h3 className="text-sm font-bold">Keranjang Obat VIP</h3>
                     </div>
@@ -517,7 +524,7 @@ export default function MemberHome() {
         {activeTab === "riwayat" && (
           <div className="max-w-4xl mx-auto">
             <div className="bg-white border border-[#c4b599]/20 rounded-3xl p-6 shadow-md shadow-slate-100">
-              <h2 className="text-lg font-bold text-teal-950 mb-4 text-left">Riwayat Aktivitas & Layanan VIP</h2>
+              <h2 className="text-lg font-bold text-teal-955 mb-4 text-left">Riwayat Aktivitas & Layanan VIP</h2>
               <div className="space-y-4">
                 {orderHistory.length === 0 ? (
                   <p className="text-center py-10 text-slate-400 text-xs font-bold">Belum ada riwayat transaksi poin</p>

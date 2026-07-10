@@ -24,8 +24,7 @@ export default function MemberList() {
       
       if (userError) throw userError;
 
-      // ─── FILTER KHUSUS: Hanya tampilkan user yang rolenya adalah 'member', 'patient', atau kosong ───
-      // Ini menyembunyikan akun Admin, Director, Manager, Employee, dan Staff dari daftar poin member
+      // Filter khusus member / pasien
       const customersOnly = (usersData || []).filter(user => {
         const role = (user.role || "").toLowerCase().trim();
         return (
@@ -36,7 +35,7 @@ export default function MemberList() {
         );
       });
 
-      // 2. Ambil data order untuk menghitung poin (dari Supabase)
+      // 2. Ambil data order untuk menghitung poin
       let dbOrders = [];
       try {
         const { data, error: orderError } = await supabase
@@ -46,24 +45,27 @@ export default function MemberList() {
           dbOrders = data;
         }
       } catch (err) {
-        console.warn("Gagal fetch orders dari Supabase, gunakan fallback local storage.");
+        console.warn("Gagal fetch orders dari Supabase.");
       }
 
-      // 3. Gabungkan dengan data order dari Local Storage (supaya sinkronisasi 100% jalan)
+      // 3. Gabungkan dengan data order dari Local Storage
       const localTrans = JSON.parse(localStorage.getItem("local_transactions") || "[]");
       const combinedOrders = [...dbOrders, ...localTrans];
 
-      // 4. Hitung akumulasi poin per nama customer
+      // 4. Hitung akumulasi poin per nama customer dengan NORMALISASI (lowercase & trim)
       const pointsMap = {};
       combinedOrders.forEach(order => {
-        const name = order.customer_name;
+        const rawName = order.customer_name || "";
+        const cleanName = rawName.toLowerCase().trim(); // Normalisasi spasi dan huruf
         const pts = order.points_earned || 0;
-        pointsMap[name] = (pointsMap[name] || 0) + pts;
+        pointsMap[cleanName] = (pointsMap[cleanName] || 0) + pts;
       });
 
-      // 5. Buat daftar member final beserta akumulasi poin dan tier nya
+      // 5. Buat daftar member final
       const memberList = customersOnly.map(user => {
-        const pts = pointsMap[user.name] || 0;
+        const cleanUserName = (user.name || "").toLowerCase().trim(); // Normalisasi nama member
+        const pts = pointsMap[cleanUserName] || 0; // Look-up poin berdasarkan nama yang dinormalisasi
+
         let tier = "Bronze";
         let tierColor = "bg-amber-50 text-amber-700 border-amber-200";
         if (pts >= 2000) {
