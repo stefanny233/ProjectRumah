@@ -47,17 +47,34 @@ export default function Dashboard() {
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const fullMonthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-  // State untuk melacak bar mana yang sedang di-hover
   const [hoveredIndex, setHoveredIndex] = useState(null);
-
-  // State untuk membuka/tutup pop-up chat WhatsApp
   const [isChatOpen, setIsChatOpen] = useState(false);
 
-  // 1. Ambil Data Riil & Kalkulasi Statistik & Grafik
+  // Ambil Data Riil & Kalkulasi Statistik & Grafik
   const fetchDashboardData = async () => {
     setLoading(true);
     try {
-      // A. Ambil orders dari Supabase
+      // A. Ambil data user/member dari supabase
+      let dbUsers = [];
+      try {
+        const { data, error } = await supabase.from("user").select("*");
+        if (data && !error) dbUsers = data;
+      } catch (err) {
+        console.warn("Gagal fetch users.");
+      }
+
+      // Saring hanya user yang berstatus Member/Pasien
+      const registeredCustomers = dbUsers.filter(user => {
+        const role = (user.role || "").toLowerCase().trim();
+        return (
+          role === "member" || 
+          role === "patient" || 
+          role === "user" || 
+          role === ""
+        );
+      });
+
+      // B. Ambil orders dari Supabase
       let dbOrders = [];
       try {
         const { data, error } = await supabase.from("orders").select("*");
@@ -66,54 +83,59 @@ export default function Dashboard() {
         console.warn("Gagal fetch orders dari Supabase.");
       }
 
-      // B. Ambil orders dari Local Storage
+      // C. Ambil orders dari Local Storage
       const localTrans = JSON.parse(localStorage.getItem("local_transactions") || "[]");
       const combinedOrders = [...dbOrders, ...localTrans];
 
-      // C. Hitung Total Customers (Unique Name) & Total Penjualan
-      const uniqueNames = new Set(combinedOrders.map(o => o.customer_name).filter(Boolean));
-      setTotalCustomers(uniqueNames.size > 0 ? uniqueNames.size : 120);
+      // D. Hitung Gabungan Pelanggan Unik (Member Terdaftar + Pembeli Unik di Order)
+      const allCustomerNames = new Set();
+      registeredCustomers.forEach(u => {
+        if (u.name) allCustomerNames.add(u.name.toLowerCase().trim());
+      });
+      combinedOrders.forEach(o => {
+        if (o.customer_name && o.customer_name.toLowerCase().trim() !== "walking customer") {
+          allCustomerNames.add(o.customer_name.toLowerCase().trim());
+        }
+      });
+
+      setTotalCustomers(allCustomerNames.size > 0 ? allCustomerNames.size : 120);
       setTotalSales(combinedOrders.length > 0 ? combinedOrders.length : 234);
 
-      // D. Hitung Total Keuntungan (Jumlah total harga order)
+      // E. Hitung Total Keuntungan
       const totalIncome = combinedOrders.reduce((sum, o) => sum + (o.price || 0), 0);
-      setTotalProfit(totalIncome > 0 ? totalIncome : 456000); // Fallback nominal
+      setTotalProfit(totalIncome > 0 ? totalIncome : 456000);
 
-      // E. Ambil data produk untuk stok kosong
+      // F. Ambil data produk untuk stok kosong
       let outStockCount = 0;
       try {
         const { data, error } = await supabase.from("products").select("price");
-        // Hitung estimasi acak jika kosong
         outStockCount = data ? data.filter(p => !p.price || p.price === 0).length : 5;
       } catch (e) {
         outStockCount = 5;
       }
       setOutOfStock(outStockCount > 0 ? outStockCount : 6);
 
-      // F. Kalkulasi Monthly Progress (Grafik Batang) berdasarkan tanggal transaksi
+      // G. Kalkulasi Monthly Progress berdasarkan tanggal transaksi
       const monthlySums = Array(12).fill(0);
       combinedOrders.forEach(order => {
         const dateStr = order.created_at || order.date;
         if (dateStr) {
           const d = new Date(dateStr);
-          const monthIdx = d.getMonth(); // 0 - 11
+          const monthIdx = d.getMonth();
           if (monthIdx >= 0 && monthIdx < 12) {
             monthlySums[monthIdx] += (order.price || 0);
           }
         }
       });
 
-      // Konversi ke persentase (Maksimum sum diset sebagai tinggi 100%)
       const maxVal = Math.max(...monthlySums, 1);
-      const scaledValues = monthlySums.map(sum => Math.round((sum / maxVal) * 90) + 10); // Minimal tinggi 10%
+      const scaledValues = monthlySums.map(sum => Math.round((sum / maxVal) * 90) + 10);
       
-      // Jika kosong, gunakan data dummy agar grafik tidak hilang seluruhnya
       const hasActualData = monthlySums.some(sum => sum > 0);
       setProgressValues(hasActualData ? scaledValues : [72, 45, 52, 78, 18, 42, 85, 48, 68, 48, 62, 32]);
 
-      // G. Hitung Persentase Earning Chart (Grafik Lingkaran)
+      // H. Persentase Earning Chart
       if (totalIncome > 0) {
-        // Simulasi pembagian tipe bayar demi kerapian grafik
         setEarningStats({
           totalPurchasePct: 80,
           cashReceivedPct: Math.round((totalIncome * 0.5) / totalIncome * 100),
@@ -184,7 +206,7 @@ export default function Dashboard() {
           <button className="text-[10px] font-bold text-[#28B95E] uppercase tracking-wider text-left hover:underline w-max">Show Details</button>
         </div>
 
-        {/* Card 3: Total Profit (Omset Belanja) */}
+        {/* Card 3: Total Profit */}
         <div className="bg-white p-5 rounded-2xl border border-gray-100 flex flex-col justify-between shadow-[0_2px_12px_rgba(0,0,0,0.01)] min-h-[130px]">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-[#FFF9E6] text-[#F5B800] rounded-full flex items-center justify-center">
@@ -301,7 +323,7 @@ export default function Dashboard() {
       {/* ROW 3: PROGRESS & TOTAL EARNING GRAPHICS */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         
-        {/* KIRI: Monthly Progress (Bar Chart Interaktif) */}
+        {/* KIRI: Monthly Progress */}
         <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.01)] lg:col-span-2 flex flex-col">
           <h3 className="text-sm font-bold text-gray-700 tracking-tight mb-8">Monthly Progress (Revenue)</h3>
           
@@ -348,7 +370,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* KANAN: Total Earning (Grafik Lingkaran Berbasis Data) */}
+        {/* KANAN: Total Earning */}
         <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.01)] flex flex-col justify-between min-h-[230px]">
           <div>
             <h3 className="text-sm font-bold text-gray-700 tracking-tight">Total Earning Distribution</h3>
@@ -384,7 +406,7 @@ export default function Dashboard() {
 
       </div>
 
-      {/* POP-UP WHATSAPP DI POJOK KANAN BAWAH */}
+      {/* POP-UP WHATSAPP */}
       <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end font-sans">
         {isChatOpen && (
           <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 w-72 mb-4 overflow-hidden transform transition-all duration-300 ease-out animate-fade-in-up">

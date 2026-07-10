@@ -1,30 +1,39 @@
 import React, { useState, useEffect } from "react";
-import { Phone, MapPin, Search, Plus, Minus, ShoppingCart, CheckCircle, Trash2 } from "lucide-react";
+import { Phone, MapPin, Search, Plus, Minus, ShoppingCart, CheckCircle } from "lucide-react";
 import { supabase } from "../supabaseClient";
 import dataApotek from "../data/dataApotek.json";
 
-import MemberNavbar    from "../components/member/MemberNavbar";
-import MemberTabs      from "../components/member/MemberTabs";
-import MemberHero      from "../components/member/MemberHero";
-import StatCards       from "../components/member/StatCards";
-import VoucherSection  from "../components/member/VoucherSection";
-import TierSection     from "../components/member/TierSection";
-import MemberSidebar   from "../components/member/MemberSidebar";
-import ProfileModal    from "../components/member/ProfileModal";
-import VoucherModal    from "../components/member/VoucherModal";
+import MemberNavbar from "../components/member/MemberNavbar";
+import MemberTabs from "../components/member/MemberTabs";
+import MemberHero from "../components/member/MemberHero";
+import StatCards from "../components/member/StatCards";
+import VoucherSection from "../components/member/VoucherSection";
+import TierSection from "../components/member/TierSection";
+import MemberSidebar from "../components/member/MemberSidebar";
+import ProfileModal from "../components/member/ProfileModal";
+import VoucherModal from "../components/member/VoucherModal";
+
+// Import Helper Logic Tier yang sama
+import { getMemberTierInfo } from "./MemberList";
+
+const VALID_VOUCHERS = {
+  "NEWUSER20": { type: "nominal", value: 20000, desc: "Potongan Rp 20.000 khusus Pengguna Baru" },
+  "DISKON10": { type: "percent", value: 0.1, desc: "Potongan 10% untuk seluruh item" },
+  "LUNAVIP": { type: "nominal", value: 50000, desc: "Potongan VIP Spesial Rp 50.000" }
+};
 
 export default function MemberHome() {
-  const [activeTab,    setActiveTab]    = useState("beranda");
-  const [isOrdered,    setIsOrdered]    = useState(false);
-  const [loading,      setLoading]      = useState(false);
-  const [openFaq,      setOpenFaq]      = useState(null);
+  const [activeTab, setActiveTab] = useState("beranda");
+  const [isOrdered, setIsOrdered] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [openFaq, setOpenFaq] = useState(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [activeVoucher, setActiveVoucher] = useState(null);
-  
-  // State Poin & Transaksi Member Dinamis
+
+  // State Poin & Transaksi Member
   const [memberPoints, setMemberPoints] = useState(0);
   const [orderHistory, setOrderHistory] = useState([]);
-  
+
   // State E-Shop Pemesanan Obat Member
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
@@ -33,11 +42,25 @@ export default function MemberHome() {
   const [recipeNote, setRecipeNote] = useState("");
   const [lastPoinEarned, setLastPoinEarned] = useState(0);
 
+  // State Fitur Voucher
+  const [voucherCode, setVoucherCode] = useState("");
+  const [appliedVoucher, setAppliedVoucher] = useState(null);
+  const [voucherError, setVoucherError] = useState("");
+  const [voucherSuccess, setVoucherSuccess] = useState("");
+
+  const getTodayFormatted = () => {
+    return new Date().toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    });
+  };
+
   const [userData, setUserData] = useState({
     name: "VIP Member",
     email: "member@gmail.com",
     phone: "+62 812-3456-7890",
-    joinDate: "12 Januari 2025",
+    joinDate: getTodayFormatted(),
     patientRecordId: "RM-LUNA-9921B",
     status: "Active Priority Patient",
   });
@@ -50,16 +73,16 @@ export default function MemberHome() {
     return cleaned ? parseInt(cleaned, 10) : 0;
   };
 
-  // 1. Fetch Sesi Member & Live Merge Poin dari Supabase + Local Storage dengan Normalisasi Nama
   const fetchMemberData = async () => {
     const storedName = localStorage.getItem("userName") || "VIP Member";
     const storedEmail = localStorage.getItem("userEmail");
-    
+
     if (storedName || storedEmail) {
       setUserData(prev => ({
         ...prev,
         name: storedName || prev.name,
         email: storedEmail || prev.email,
+        joinDate: getTodayFormatted(),
       }));
     }
 
@@ -70,9 +93,8 @@ export default function MemberHome() {
         const { data, error } = await supabase
           .from("orders")
           .select("*");
-        
+
         if (data && !error) {
-          // Melakukan filter transaksi berdasarkan nama member yang dinormalisasi (lowercase & trim)
           dbOrders = data.filter(order => {
             const orderName = (order.customer_name || "").toLowerCase().trim();
             const myName = storedName.toLowerCase().trim();
@@ -80,7 +102,7 @@ export default function MemberHome() {
           });
         }
       } catch (err) {
-        console.warn("Supabase RLS/Offline, gunakan local storage.");
+        console.warn("Supabase RLS/Offline.");
       }
 
       // ─── AMBIL DARI LOCAL STORAGE ───
@@ -91,7 +113,6 @@ export default function MemberHome() {
         return orderName === myName;
       });
 
-      // Gabungkan & Hilangkan duplikasi transaksi
       const combined = [...dbOrders, ...filteredLocal];
       const uniqueOrders = [];
       const seen = new Set();
@@ -103,8 +124,8 @@ export default function MemberHome() {
         }
       });
 
-      // Hitung total poin secara riil
-      const totalPoints = uniqueOrders.reduce((sum, order) => sum + (order.points_earned || 0), 0);
+      // Hitung total poin secara riil (Konversi ke tipe Number)
+      const totalPoints = uniqueOrders.reduce((sum, order) => sum + (Number(order.points_earned) || 0), 0);
       setMemberPoints(totalPoints);
       setOrderHistory(uniqueOrders);
     } catch (err) {
@@ -112,7 +133,6 @@ export default function MemberHome() {
     }
   };
 
-  // 2. Fetch Data Obat untuk Katalog
   const fetchProducts = async () => {
     try {
       const { data, error } = await supabase.from("products").select("*");
@@ -121,7 +141,7 @@ export default function MemberHome() {
       if (!error && data && data.length > 0) {
         combined = [...data, ...jsonProducts];
       }
-      
+
       const unique = [];
       const seen = new Set();
       for (const item of combined) {
@@ -142,23 +162,16 @@ export default function MemberHome() {
     fetchProducts();
   }, []);
 
-  // Hitung Tier Keanggotaan Dinamis
-  const getTier = (points) => {
-    if (points >= 2000) return "Platinum Care Member";
-    if (points >= 1000) return "Gold Care Member";
-    if (points >= 500) return "Silver Care Member";
-    return "Bronze Care Member";
-  };
-
-  const memberTier = getTier(memberPoints);
-  const nextTierPoints = memberPoints >= 2000 ? 5000 : (memberPoints >= 1000 ? 2000 : (memberPoints >= 500 ? 1000 : 500));
+  // Hubungkan dengan helper logic sinkronisasi tier
+  const tierInfo = getMemberTierInfo(memberPoints);
+  const memberTier = `${tierInfo.tier} Care Member`;
+  const nextTierPoints = tierInfo.nextThreshold;
   const progressPct = Math.min(100, Math.round((memberPoints / nextTierPoints) * 100));
 
-  // Diskon Tier Pasien
   const getDiscountRate = () => {
-    if (memberPoints >= 2000) return 0.15;
-    if (memberPoints >= 1000) return 0.10;
-    if (memberPoints >= 500) return 0.05;
+    if (memberPoints >= 500) return 0.15;
+    if (memberPoints >= 300) return 0.10;
+    if (memberPoints >= 100) return 0.05;
     return 0;
   };
   const discountRate = getDiscountRate();
@@ -193,18 +206,40 @@ export default function MemberHome() {
 
   const subTotal = cart.reduce((sum, item) => sum + (item.product.priceNumeric * item.quantity), 0);
   const discountAmount = Math.round(subTotal * discountRate);
-  const finalTotal = Math.max(0, subTotal - discountAmount);
+
+  let voucherDiscount = 0;
+  if (appliedVoucher) {
+    if (appliedVoucher.type === "nominal") {
+      voucherDiscount = appliedVoucher.value;
+    } else if (appliedVoucher.type === "percent") {
+      voucherDiscount = Math.round(subTotal * appliedVoucher.value);
+    }
+  }
+
+  const finalTotal = Math.max(0, subTotal - discountAmount - voucherDiscount);
   const pointsEarned = Math.floor(finalTotal / 1000);
 
-  // Proses Checkout
+  const handleApplyVoucher = () => {
+    const code = voucherCode.trim().toUpperCase();
+    if (VALID_VOUCHERS[code]) {
+      setAppliedVoucher(VALID_VOUCHERS[code]);
+      setVoucherSuccess(`Kupon Berhasil: ${VALID_VOUCHERS[code].desc}`);
+      setVoucherError("");
+    } else {
+      setVoucherError("Kode voucher tidak valid mase!");
+      setVoucherSuccess("");
+      setAppliedVoucher(null);
+    }
+  };
+
   const handlePurchase = async (e) => {
     e.preventDefault();
     if (cart.length === 0) return alert("Pilih obat terlebih dahulu mase!");
-    
+
     setLoading(true);
 
     const payload = {
-      customer_name: userData.name.trim(), // Pastikan nama di-trim
+      customer_name: userData.name.trim(),
       phone: userData.phone,
       medicine_type: cart.map(item => `${item.product.name} (x${item.quantity})`).join(", "),
       notes: recipeNote ? `Pesan: ${recipeNote}` : "Pemesanan Obat via E-Shop Portal Member",
@@ -215,30 +250,33 @@ export default function MemberHome() {
     };
 
     try {
-      // 1. Simpan ke Supabase
       const { error } = await supabase.from("orders").insert([payload]);
       if (error) throw error;
-      
+
       setLastPoinEarned(pointsEarned);
       setIsOrdered(true);
-      
-      // Simpan cadangan ke local storage juga biar database status tersinkronisasi
+
       const localTrans = JSON.parse(localStorage.getItem("local_transactions") || "[]");
       localStorage.setItem("local_transactions", JSON.stringify([payload, ...localTrans]));
 
       setCart([]);
       setRecipeNote("");
+      setVoucherCode("");
+      setAppliedVoucher(null);
+      setVoucherSuccess("");
       fetchMemberData();
     } catch (err) {
       console.warn("Gagal online, simpan ke lokal:", err.message);
-      // Fallback lokal jika jaringan gagal
       const localTrans = JSON.parse(localStorage.getItem("local_transactions") || "[]");
       localStorage.setItem("local_transactions", JSON.stringify([payload, ...localTrans]));
-      
+
       setLastPoinEarned(pointsEarned);
       setIsOrdered(true);
       setCart([]);
       setRecipeNote("");
+      setVoucherCode("");
+      setAppliedVoucher(null);
+      setVoucherSuccess("");
       fetchMemberData();
     } finally {
       setLoading(false);
@@ -264,7 +302,7 @@ export default function MemberHome() {
         .shadow-emerald-500\/20 { box-shadow: 0 10px 15px -3px rgba(13, 148, 136, 0.1), 0 4px 6px -4px rgba(13, 148, 136, 0.1) !important; }
         .bg-white, .bg-white\/80 { background-color: #fafcfb !important; border-color: rgba(196, 181, 153, 0.25) !important; }
         .text-slate-900, .text-slate-800 { color: #042f2e !important; }
-        .text-slate-505, .text-slate-400 { color: #475569 !important; }
+        .text-slate-500, .text-slate-400 { color: #475569 !important; }
       `}</style>
 
       <div className="absolute top-[-10%] right-[-5%] w-[800px] h-[800px] rounded-full bg-gradient-to-br from-amber-500/5 via-teal-500/5 to-transparent blur-[130px] pointer-events-none -z-10 animate-pulse" />
@@ -286,7 +324,7 @@ export default function MemberHome() {
         {activeTab === "beranda" && (
           <>
             {/* PROMO POINT BANNER */}
-            <div className="bg-gradient-to-r from-teal-950 to-emerald-900 text-white rounded-3xl p-6 mb-8 border border-emerald-800/30 flex flex-col md:flex-row justify-between items-center gap-6 relative overflow-hidden shadow-md">
+            <div className="bg-gradient-to-r from-teal-955 to-emerald-900 text-white rounded-3xl p-6 mb-8 border border-emerald-800/30 flex flex-col md:flex-row justify-between items-center gap-6 relative overflow-hidden shadow-md">
               <div className="text-left space-y-2">
                 <div className="inline-flex items-center gap-1.5 bg-amber-400 text-teal-950 text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider">
                   Program Poin Loyalitas Apotek
@@ -303,15 +341,15 @@ export default function MemberHome() {
                 </div>
                 <div className="bg-teal-900/40 p-3 rounded-2xl border border-teal-800/40">
                   <span className="text-[8px] text-gray-400 uppercase tracking-widest block mb-0.5">Silver</span>
-                  <span className="text-[10px] text-slate-300 font-bold">500 Pts</span>
+                  <span className="text-[10px] text-slate-300 font-bold">100 Pts</span>
                 </div>
                 <div className="bg-teal-900/40 p-3 rounded-2xl border border-teal-800/40">
                   <span className="text-[8px] text-gray-455 uppercase tracking-widest block mb-0.5">Gold</span>
-                  <span className="text-[10px] text-yellow-400 font-bold">1000 Pts</span>
+                  <span className="text-[10px] text-yellow-400 font-bold">300 Pts</span>
                 </div>
                 <div className="bg-teal-900/40 p-3 rounded-2xl border border-teal-800/40">
                   <span className="text-[8px] text-gray-455 uppercase tracking-widest block mb-0.5">Platinum</span>
-                  <span className="text-[10px] text-purple-400 font-bold">2000 Pts</span>
+                  <span className="text-[10px] text-purple-400 font-bold">500 Pts</span>
                 </div>
               </div>
             </div>
@@ -351,7 +389,7 @@ export default function MemberHome() {
         {activeTab === "resep" && (
           <div className="w-full flex flex-col gap-6 text-left">
             <h2 className="text-xl font-bold text-teal-955 font-master-title">Beli Obat & Tebus Resep Prioritas</h2>
-            <p className="text-xs text-slate-500 -mt-4">
+            <p className="text-xs text-slate-505 -mt-4">
               Silakan pilih obat di bawah. Diskon khusus tier <span className="font-extrabold text-amber-600 uppercase">{memberTier.split(" ")[0]} ({discountRate * 100}%)</span> akan langsung dipotong otomatis saat pemesanan!
             </p>
 
@@ -361,7 +399,7 @@ export default function MemberHome() {
                   <CheckCircle className="w-10 h-10" />
                 </div>
                 <h3 className="text-lg font-bold text-slate-800">Transaksi Belanja Berhasil!</h3>
-                <p className="text-xs text-slate-505 max-w-sm mx-auto leading-relaxed">
+                <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
                   Pesanan obat Anda telah diterima dan langsung masuk antrean prioritas dispensing apoteker.
                 </p>
                 <div className="bg-amber-50 text-amber-800 border border-amber-200 rounded-2xl p-4 text-xs font-bold w-max mx-auto">
@@ -432,14 +470,14 @@ export default function MemberHome() {
                 </div>
 
                 {/* RINGKASAN BELANJA */}
-                <div className="lg:col-span-5 bg-white border border-[#c4b599]/20 rounded-3xl p-6 shadow-sm flex flex-col justify-between min-h-[500px]">
-                  <div>
-                    <div className="flex items-center gap-2 border-b border-slate-50 pb-3 mb-4 text-teal-955">
+                <div className="lg:col-span-5 bg-white border border-[#c4b599]/20 rounded-3xl p-6 shadow-sm flex flex-col justify-between min-h-[550px]">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 border-b border-slate-50 pb-3 text-teal-955">
                       <ShoppingCart className="w-4 h-4" />
                       <h3 className="text-sm font-bold">Keranjang Obat VIP</h3>
                     </div>
 
-                    <div className="space-y-3.5 max-h-[220px] overflow-y-auto pr-1">
+                    <div className="space-y-3.5 max-h-[160px] overflow-y-auto pr-1">
                       {cart.length === 0 ? (
                         <p className="text-center py-12 text-slate-400 text-xs">Pilih obat di katalog sebelah kiri mase</p>
                       ) : (
@@ -462,6 +500,35 @@ export default function MemberHome() {
                         ))
                       )}
                     </div>
+
+                    {/* VOUCHER DISKON */}
+                    <div className="bg-slate-50 p-3 rounded-2xl border border-slate-150/40 space-y-2 text-left">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Punya Voucher Belanja?</span>
+                      <div className="flex gap-2">
+                        <input 
+                          type="text" 
+                          value={voucherCode}
+                          onChange={(e) => {
+                            setVoucherCode(e.target.value.toUpperCase());
+                            setVoucherError("");
+                          }}
+                          placeholder="Kode kupon (Contoh: NEWUSER20)"
+                          className="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-700 outline-none uppercase font-bold"
+                        />
+                        <button 
+                          type="button"
+                          onClick={handleApplyVoucher}
+                          className="bg-[#0f766e] hover:bg-teal-900 text-white text-xs font-bold px-4 py-2 rounded-xl transition cursor-pointer"
+                        >
+                          Pakai
+                        </button>
+                      </div>
+                      {voucherError && <p className="text-rose-500 text-[10px] font-bold pl-1">{voucherError}</p>}
+                      {voucherSuccess && <p className="text-teal-750 text-[10px] font-bold pl-1">{voucherSuccess}</p>}
+                      <div className="text-[9px] text-slate-400 pl-1">
+                        *Kupon tersedia: <strong className="text-slate-500 font-bold">NEWUSER20</strong> (Potongan Rp 20rb), <strong className="text-slate-500 font-bold">DISKON10</strong> (Diskon 10%)
+                      </div>
+                    </div>
                   </div>
 
                   <form onSubmit={handlePurchase} className="border-t border-slate-100 pt-4 space-y-4">
@@ -482,6 +549,13 @@ export default function MemberHome() {
                         <div className="flex justify-between text-teal-800">
                           <span>Diskon VIP Tier ({discountRate * 100}%)</span>
                           <span className="font-bold">-{formatRupiah(discountAmount)}</span>
+                        </div>
+                      )}
+
+                      {appliedVoucher && (
+                        <div className="flex justify-between text-[#d97706] font-bold">
+                          <span>Potongan Kupon</span>
+                          <span>-{formatRupiah(voucherDiscount)}</span>
                         </div>
                       )}
                       
@@ -564,9 +638,9 @@ export default function MemberHome() {
               href="https://wa.me/62899998888" 
               target="_blank" 
               rel="noopener noreferrer" 
-              className="flex items-center gap-2 bg-amber-400 hover:bg-amber-300 text-teal-950 text-xs font-bold px-6 py-3.5 rounded-xl transition shadow-md no-underline cursor-pointer active:scale-95 animate-bounce"
+              className="flex items-center gap-2 bg-amber-400 hover:bg-amber-300 text-teal-955 text-xs font-bold px-6 py-3.5 rounded-xl transition shadow-md no-underline cursor-pointer active:scale-95"
             >
-              <Phone className="w-4 h-4 text-teal-950" /> Call Center 24 Jam
+              <Phone className="w-4 h-4 text-teal-955" /> Call Center 24 Jam
             </a>
             <div className="flex items-center gap-2 bg-[#092921] text-amber-400 border border-teal-900/30 text-xs font-bold px-6 py-3.5 rounded-xl">
               <MapPin className="w-4 h-4 text-amber-400" /> Pekanbaru, Riau
@@ -579,6 +653,7 @@ export default function MemberHome() {
       {isProfileOpen && (
         <ProfileModal
           userData={userData}
+          memberPoints={memberPoints}
           onClose={() => setIsProfileOpen(false)}
         />
       )}

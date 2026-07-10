@@ -8,6 +8,52 @@ import {
   MdCardGiftcard 
 } from "react-icons/md";
 
+// ─── HELPER LOGIC UNIFIED TIER APOTEK ───
+export const getMemberTierInfo = (points) => {
+  const pts = Number(points) || 0;
+  if (pts >= 500) {
+    return {
+      tier: "Platinum",
+      label: "Platinum Care",
+      badge: "Platinum Card",
+      colorClass: "bg-purple-50 text-purple-750 border-purple-250",
+      nextThreshold: 1000,
+      nextTier: "Ultimate",
+      gradient: "from-[#1e1b4b] via-[#312e81] to-[#1e1b4b] text-indigo-100 border-indigo-500/20"
+    };
+  } else if (pts >= 300) {
+    return {
+      tier: "Gold",
+      label: "Gold Care",
+      badge: "Gold Card",
+      colorClass: "bg-yellow-50 text-yellow-750 border-yellow-250",
+      nextThreshold: 500,
+      nextTier: "Platinum",
+      gradient: "from-[#042f2e] via-[#0f766e] to-[#042f2e] text-amber-300 border-amber-400/30"
+    };
+  } else if (pts >= 100) {
+    return {
+      tier: "Silver",
+      label: "Silver Care",
+      badge: "Silver Card",
+      colorClass: "bg-slate-50 text-slate-700 border-slate-200",
+      nextThreshold: 300,
+      nextTier: "Gold",
+      gradient: "from-[#1e293b] via-[#475569] to-[#1e293b] text-slate-100 border-slate-400/20"
+    };
+  } else {
+    return {
+      tier: "Bronze",
+      label: "Bronze Care",
+      badge: "Bronze Card",
+      colorClass: "bg-amber-50 text-amber-700 border-amber-200",
+      nextThreshold: 100,
+      nextTier: "Silver",
+      gradient: "from-[#b45309] via-[#d97706] to-[#78350f] text-white border-[#b45309]/30"
+    };
+  }
+};
+
 export default function MemberList() {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -17,14 +63,12 @@ export default function MemberList() {
   const loadMemberPoints = async () => {
     setLoading(true);
     try {
-      // 1. Ambil data user dari supabase
       const { data: usersData, error: userError } = await supabase
         .from("user")
         .select("*");
       
       if (userError) throw userError;
 
-      // Filter khusus member / pasien
       const customersOnly = (usersData || []).filter(user => {
         const role = (user.role || "").toLowerCase().trim();
         return (
@@ -35,7 +79,6 @@ export default function MemberList() {
         );
       });
 
-      // 2. Ambil data order untuk menghitung poin
       let dbOrders = [];
       try {
         const { data, error: orderError } = await supabase
@@ -48,42 +91,59 @@ export default function MemberList() {
         console.warn("Gagal fetch orders dari Supabase.");
       }
 
-      // 3. Gabungkan dengan data order dari Local Storage
       const localTrans = JSON.parse(localStorage.getItem("local_transactions") || "[]");
       const combinedOrders = [...dbOrders, ...localTrans];
 
-      // 4. Hitung akumulasi poin per nama customer dengan NORMALISASI (lowercase & trim)
       const pointsMap = {};
       combinedOrders.forEach(order => {
         const rawName = order.customer_name || "";
-        const cleanName = rawName.toLowerCase().trim(); // Normalisasi spasi dan huruf
-        const pts = order.points_earned || 0;
+        const cleanName = rawName.toLowerCase().trim();
+        const pts = Number(order.points_earned) || 0; // Memastikan dibaca sebagai Angka
         pointsMap[cleanName] = (pointsMap[cleanName] || 0) + pts;
       });
 
-      // 5. Buat daftar member final
-      const memberList = customersOnly.map(user => {
-        const cleanUserName = (user.name || "").toLowerCase().trim(); // Normalisasi nama member
-        const pts = pointsMap[cleanUserName] || 0; // Look-up poin berdasarkan nama yang dinormalisasi
+      const allMemberNames = new Set();
+      customersOnly.forEach(u => {
+        if (u.name) allMemberNames.add(u.name.trim());
+      });
 
-        let tier = "Bronze";
-        let tierColor = "bg-amber-50 text-amber-700 border-amber-200";
-        if (pts >= 2000) {
-          tier = "Platinum";
-          tierColor = "bg-purple-50 text-purple-700 border-purple-250";
-        } else if (pts >= 1000) {
-          tier = "Gold";
-          tierColor = "bg-yellow-50 text-yellow-750 border-yellow-250";
-        } else if (pts >= 500) {
-          tier = "Silver";
-          tierColor = "bg-slate-50 text-slate-700 border-slate-200";
+      Object.keys(pointsMap).forEach(tName => {
+        const exists = customersOnly.some(u => (u.name || "").toLowerCase().trim() === tName);
+        if (!exists && tName !== "walking customer") {
+          const matchedOrder = combinedOrders.find(o => (o.customer_name || "").toLowerCase().trim() === tName);
+          if (matchedOrder && matchedOrder.customer_name) {
+            allMemberNames.add(matchedOrder.customer_name.trim());
+          }
         }
+      });
+
+      let memberList = Array.from(allMemberNames).map((name, index) => {
+        const cleanName = name.toLowerCase().trim();
+        const pts = pointsMap[cleanName] || 0;
+        const userDetail = customersOnly.find(u => (u.name || "").toLowerCase().trim() === cleanName) || {};
+
+        // Gunakan helper logic terpadu
+        const tierInfo = getMemberTierInfo(pts);
+
         return {
-          ...user,
+          id: userDetail.id || `TEMP-${index}`,
+          name: name,
+          email: userDetail.email || "No Email / Walk-in",
+          role: userDetail.role || "Member",
           points: pts,
-          tier,
-          tierColor
+          tier: tierInfo.tier,
+          tierColor: tierInfo.colorClass
         };
+      });
+
+      // Urutkan poin terbanyak, disusul pendaftaran terlama
+      memberList.sort((a, b) => {
+        if (b.points !== a.points) {
+          return b.points - a.points; 
+        }
+        const idA = typeof a.id === "number" ? a.id : parseInt(String(a.id).replace(/\D/g, ""), 10) || 999999;
+        const idB = typeof b.id === "number" ? b.id : parseInt(String(b.id).replace(/\D/g, ""), 10) || 999999;
+        return idA - idB;
       });
 
       setMembers(memberList);
@@ -147,7 +207,7 @@ export default function MemberList() {
       <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.01)] flex flex-col">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
           <div className="flex items-center gap-2">
-            <h2 className="text-sm font-bold text-gray-700 tracking-tight">Daftar Poin & Tier Member (Khusus Pasien)</h2>
+            <h2 className="text-sm font-bold text-gray-700 tracking-tight">Daftar Poin & Tier Member (Urutan Terbanyak)</h2>
             <button onClick={loadMemberPoints} className="p-1 hover:bg-gray-50 rounded text-gray-400 hover:text-gray-650 transition-colors"><MdRefresh size={18} /></button>
           </div>
 

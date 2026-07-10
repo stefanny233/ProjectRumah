@@ -1,8 +1,14 @@
 import React from "react";
 import { CreditCard, X, QrCode, Sparkles } from "lucide-react";
 
-export default function ProfileModal({ userData, onClose }) {
+// Import Helper Logic
+import { getMemberTierInfo } from "../../pages/MemberList";
+
+export default function ProfileModal({ userData, memberPoints, onClose }) {
   if (!userData) return null;
+
+  // Gunakan Unified Helper agar 100% SINKRON dengan MemberList (Admin)
+  const tierInfo = getMemberTierInfo(memberPoints);
 
   return (
     <div 
@@ -28,16 +34,16 @@ export default function ProfileModal({ userData, onClose }) {
           </button>
         </div>
 
-        {/* KARTU MEMBER */}
+        {/* KARTU MEMBER DINAMIS */}
         <div className="bg-slate-900 rounded-2xl p-5 text-white mb-5 relative overflow-hidden shadow-md">
           <div className="absolute -right-6 -top-6 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl pointer-events-none" />
           <div className="flex justify-between items-start mb-6">
             <div>
               <span className="text-[9px] text-emerald-400 uppercase tracking-widest font-bold block mb-1">Luna Digital Pharmacy Card</span>
-              <h4 className="text-base font-bold">{userData.name}</h4>
+              <h4 className="text-base font-bold text-white">{userData.name}</h4>
             </div>
-            <div className="bg-gradient-to-r from-amber-400 to-amber-500 text-amber-950 text-[9px] font-black px-2.5 py-1 rounded-lg uppercase tracking-wider flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-amber-950 fill-amber-950 animate-pulse" /> Gold Care
+            <div className="bg-gradient-to-r from-amber-400 to-amber-500 text-amber-955 text-[9px] font-black px-2.5 py-1 rounded-lg uppercase tracking-wider flex items-center gap-1">
+              <Sparkles className="w-3 h-3 text-amber-955 fill-amber-955 animate-pulse" /> {tierInfo.label}
             </div>
           </div>
           <div className="flex justify-between items-end border-t border-slate-800 pt-4">
@@ -56,7 +62,8 @@ export default function ProfileModal({ userData, onClose }) {
           {[
             { label: "Email Pasien", value: userData.email },
             { label: "Nomor Telepon", value: userData.phone },
-            { label: "Tanggal Registrasi", value: userData.joinDate },
+            { label: "Tanggal Registrasi Sesi", value: userData.joinDate },
+            { label: "Total Poin Terkumpul", value: `${memberPoints || 0} Pts` },
             { label: "Status Akses", value: userData.status, bold: true, color: "text-[#10b981]" },
           ].map((row, i) => (
             <div key={i} className="flex justify-between py-3 text-xs">
