@@ -75,8 +75,21 @@ export default function EmployeePage() {
       setLoading(true);
       setError("");
       const data = await userService.fetchUsers();
+      
+      // Saring hanya pengguna dengan peran staf/admin saja (keluarkan Member/Pasien)
+      const adminData = (data || []).filter(u => {
+        const role = (u.role || "").toLowerCase().trim();
+        return (
+          role === "admin" ||
+          role === "director" ||
+          role === "manager" ||
+          role === "assistant manager" ||
+          role === "team leader"
+        );
+      });
+
       const localData = loadLocalEmployees();
-      const merged = data && data.length > 0 ? [...data, ...localData] : localData;
+      const merged = adminData.length > 0 ? [...adminData, ...localData] : localData;
 
       const unique = [];
       const seen = new Set();

@@ -71,20 +71,6 @@ export default function Sidebar({ isOpen, onClose }) {
             <span>Dashboard</span>
           </Link>
 
-          {/* 2. DISPENSER (POS) */}
-          <Link
-            to="/dispenser"
-            onClick={onClose}
-            className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl text-xs font-bold tracking-wider uppercase transition-all ${
-              location.pathname === "/dispenser"
-                ? "bg-[#EEF0FF] text-[#5065f6]"
-                : "text-gray-400 hover:bg-gray-50"
-            }`}
-          >
-            <MdLocalPharmacy size={20} />
-            <span>Dispenser</span>
-          </Link>
-
           {/* 3. PRODUCT (Direct Link) */}
           <Link
             to="/product/list"

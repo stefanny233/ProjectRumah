@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Phone, MapPin, Search, Plus, Minus, ShoppingCart, CheckCircle } from "lucide-react";
+import { Phone, MapPin, Search, Plus, Minus, ShoppingCart, CheckCircle, Sparkles } from "lucide-react";
 import { supabase } from "../supabaseClient";
 import dataApotek from "../data/dataApotek.json";
 
@@ -13,7 +13,7 @@ import MemberSidebar from "../components/member/MemberSidebar";
 import ProfileModal from "../components/member/ProfileModal";
 import VoucherModal from "../components/member/VoucherModal";
 
-// Import Helper Logic Tier yang sama
+// Import Helper Logic
 import { getMemberTierInfo } from "./MemberList";
 
 const VALID_VOUCHERS = {
@@ -87,12 +87,12 @@ export default function MemberHome() {
     }
 
     try {
-      // ─── AMBIL DARI SUPABASE ───
+      // ─── AMBIL DARI SUPABASE (Kueri Kolom Spesifik Lolos RLS) ───
       let dbOrders = [];
       try {
         const { data, error } = await supabase
           .from("orders")
-          .select("*");
+          .select("customer_name, points_earned, created_at, notes, price, status, medicine_type");
 
         if (data && !error) {
           dbOrders = data.filter(order => {
@@ -102,7 +102,7 @@ export default function MemberHome() {
           });
         }
       } catch (err) {
-        console.warn("Supabase RLS/Offline.");
+        console.warn("Supabase select error/offline.");
       }
 
       // ─── AMBIL DARI LOCAL STORAGE ───
@@ -124,7 +124,7 @@ export default function MemberHome() {
         }
       });
 
-      // Hitung total poin secara riil (Konversi ke tipe Number)
+      // Hitung total poin secara riil
       const totalPoints = uniqueOrders.reduce((sum, order) => sum + (Number(order.points_earned) || 0), 0);
       setMemberPoints(totalPoints);
       setOrderHistory(uniqueOrders);
@@ -217,7 +217,8 @@ export default function MemberHome() {
   }
 
   const finalTotal = Math.max(0, subTotal - discountAmount - voucherDiscount);
-  const pointsEarned = Math.floor(finalTotal / 1000);
+  // Perubahan aturan baru: Flat 5 poin per 1x transaksi pembelian obat
+  const pointsEarned = 5;
 
   const handleApplyVoucher = () => {
     const code = voucherCode.trim().toUpperCase();
@@ -319,37 +320,45 @@ export default function MemberHome() {
       <MemberTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {/* DASHBOARD CONTENT */}
-      <main className="max-w-7xl mx-auto w-full px-6 lg:px-10 py-8 flex-grow">
+      <main className="max-w-7xl mx-auto w-full px-6 lg:px-10 py-8">
         
         {activeTab === "beranda" && (
           <>
             {/* PROMO POINT BANNER */}
-            <div className="bg-gradient-to-r from-teal-955 to-emerald-900 text-white rounded-3xl p-6 mb-8 border border-emerald-800/30 flex flex-col md:flex-row justify-between items-center gap-6 relative overflow-hidden shadow-md">
-              <div className="text-left space-y-2">
-                <div className="inline-flex items-center gap-1.5 bg-amber-400 text-teal-950 text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider">
-                  Program Poin Loyalitas Apotek
+            <div className="relative overflow-hidden rounded-3xl border border-[#d4af37]/35 bg-gradient-to-r from-teal-950 via-[#0a4039] to-teal-950 p-6 lg:p-7 mb-8 text-white shadow-xl flex flex-col md:flex-row justify-between items-center gap-6">
+              {/* Decorative ambient glowing meshes */}
+              <div className="absolute top-[-30%] left-[-20%] w-[350px] h-[350px] rounded-full bg-gradient-to-tr from-amber-500/10 to-teal-400/5 blur-3xl pointer-events-none" />
+              <div className="absolute bottom-[-20%] right-[-10%] w-[250px] h-[250px] rounded-full bg-gradient-to-br from-teal-500/5 to-transparent blur-3xl pointer-events-none" />
+
+              <div className="text-left space-y-3.5 relative z-10 max-w-xl">
+                <div className="inline-flex items-center gap-2 bg-[#d4af37]/15 text-[#fcd34d] text-[10px] font-extrabold px-3.5 py-1.5 rounded-full uppercase tracking-wider border border-[#d4af37]/35 shadow-sm">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+                  Program Poin Loyalitas VIP Apotek
                 </div>
-                <h3 className="text-base font-bold text-white">Makin Sering Belanja, Makin Banyak Untung! 💊</h3>
-                <p className="text-xs text-teal-200/80 leading-relaxed max-w-xl">
-                  Setiap pembelanjaan senilai **Rp 1.000** bernilai **1 Poin Member**. Tingkatkan peringkat Anda untuk menikmati potongan resep langsung s.d 15%, bebas antre, dan konsultasi gratis!
+                <h3 className="text-xl font-bold font-master-title leading-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-emerald-100 to-amber-350">
+                  Makin Sehat, Makin Untung Bersama SIApotek! 💊
+                </h3>
+                <p className="text-xs text-teal-100/90 leading-relaxed font-medium">
+                  Setiap <strong className="text-white">1x transaksi</strong> pembelian obat akan langsung mendapatkan <strong className="text-amber-300 font-extrabold">5 Poin Loyalitas</strong>. Tingkatkan peringkat Anda untuk menikmati diskon resep s.d <span className="text-amber-350 font-extrabold text-amber-400">15%</span>, jalur bebas antrean, dan layanan prioritas 24 jam!
                 </p>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center w-full md:w-auto">
-                <div className="bg-teal-900/40 p-3 rounded-2xl border border-teal-800/40">
-                  <span className="text-[8px] text-gray-400 uppercase tracking-widest block mb-0.5">Bronze</span>
-                  <span className="text-[10px] text-teal-200 font-bold">Mulai</span>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 w-full md:w-auto relative z-10">
+                <div className="bg-teal-900/40 backdrop-blur-md p-3.5 rounded-2xl border border-teal-800/40 hover:border-[#d4af37]/40 hover:shadow-md transition duration-300 flex flex-col items-center justify-center min-w-[90px] shadow-sm">
+                  <span className="text-[9px] text-[#fcd34d] uppercase tracking-widest font-black block mb-1">Bronze</span>
+                  <span className="text-xs text-orange-400 font-extrabold bg-teal-900/50 px-2 py-0.5 rounded-md border border-orange-800/20">0 - 249 Pts</span>
                 </div>
-                <div className="bg-teal-900/40 p-3 rounded-2xl border border-teal-800/40">
-                  <span className="text-[8px] text-gray-400 uppercase tracking-widest block mb-0.5">Silver</span>
-                  <span className="text-[10px] text-slate-300 font-bold">100 Pts</span>
+                <div className="bg-teal-900/40 backdrop-blur-md p-3.5 rounded-2xl border border-teal-800/40 hover:border-[#d4af37]/40 hover:shadow-md transition duration-300 flex flex-col items-center justify-center min-w-[90px] shadow-sm">
+                  <span className="text-[9px] text-[#fcd34d] uppercase tracking-widest font-black block mb-1">Silver</span>
+                  <span className="text-xs text-teal-200 font-extrabold bg-teal-900/50 px-2 py-0.5 rounded-md border border-teal-800/20">250 Pts</span>
                 </div>
-                <div className="bg-teal-900/40 p-3 rounded-2xl border border-teal-800/40">
-                  <span className="text-[8px] text-gray-455 uppercase tracking-widest block mb-0.5">Gold</span>
-                  <span className="text-[10px] text-yellow-400 font-bold">300 Pts</span>
+                <div className="bg-teal-900/40 backdrop-blur-md p-3.5 rounded-2xl border border-teal-800/40 hover:border-[#d4af37]/40 hover:shadow-md transition duration-300 flex flex-col items-center justify-center min-w-[90px] shadow-sm">
+                  <span className="text-[9px] text-[#fcd34d] uppercase tracking-widest font-black block mb-1">Gold</span>
+                  <span className="text-xs text-amber-400 font-extrabold bg-teal-900/50 px-2 py-0.5 rounded-md border border-amber-800/20">500 Pts</span>
                 </div>
-                <div className="bg-teal-900/40 p-3 rounded-2xl border border-teal-800/40">
-                  <span className="text-[8px] text-gray-455 uppercase tracking-widest block mb-0.5">Platinum</span>
-                  <span className="text-[10px] text-purple-400 font-bold">500 Pts</span>
+                <div className="bg-teal-900/40 backdrop-blur-md p-3.5 rounded-2xl border border-teal-800/40 hover:border-[#d4af37]/40 hover:shadow-md transition duration-300 flex flex-col items-center justify-center min-w-[90px] shadow-sm">
+                  <span className="text-[9px] text-[#fcd34d] uppercase tracking-widest font-black block mb-1">Platinum</span>
+                  <span className="text-xs text-purple-400 font-extrabold bg-teal-900/50 px-2 py-0.5 rounded-md border border-purple-800/20">1000 Pts</span>
                 </div>
               </div>
             </div>
@@ -371,6 +380,39 @@ export default function MemberHome() {
               <div className="lg:col-span-2 space-y-8">
                 <VoucherSection onVoucherClick={setActiveVoucher} />
                 <TierSection />
+
+                {/* EMERGENCY CONSULTATION BANNER */}
+                <div className="relative overflow-hidden rounded-3xl border border-[#d4af37]/35 bg-gradient-to-r from-teal-955 via-[#0a4039] to-teal-955 p-6 shadow-md flex flex-col sm:flex-row justify-between items-center gap-6">
+                  {/* Decorative ambient glowing meshes */}
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
+                  <div className="absolute bottom-0 left-0 w-32 h-32 bg-teal-500/10 rounded-full blur-2xl pointer-events-none" />
+
+                  <div className="relative z-10 text-left space-y-2">
+                    <span className="inline-flex items-center gap-1 bg-rose-500/10 text-rose-350 text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider border border-rose-500/20">
+                      Layanan Siaga 24 Jam
+                    </span>
+                    <h3 className="text-base font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-250 to-amber-300">
+                      Butuh Konsultasi Obat Darurat?
+                    </h3>
+                    <p className="text-[11px] text-teal-100/90 leading-relaxed max-w-md font-medium">
+                      Apoteker prioritas kami siap siaga 24 jam menjawab pertanyaan seputar interaksi obat keras, aturan pakai sirup, & keluhan obat Anda.
+                    </p>
+                  </div>
+
+                  <div className="relative z-10 flex flex-wrap gap-2.5 justify-center shrink-0">
+                    <a 
+                      href="https://wa.me/62899998888" 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="flex items-center gap-2 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-teal-950 text-xs font-bold px-5 py-3 rounded-xl transition shadow-md shadow-amber-500/10 active:scale-95 border border-amber-400/20"
+                    >
+                      <Phone className="w-3.5 h-3.5 text-teal-950" /> Hubungi Apoteker
+                    </a>
+                    <div className="flex items-center gap-1.5 bg-[#092921] text-amber-450 border border-teal-900/30 text-xs font-bold px-5 py-3 rounded-xl">
+                      <MapPin className="w-3.5 h-3.5 text-amber-450" /> Pekanbaru, Riau
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div className="lg:col-span-1">
@@ -399,14 +441,14 @@ export default function MemberHome() {
                   <CheckCircle className="w-10 h-10" />
                 </div>
                 <h3 className="text-lg font-bold text-slate-800">Transaksi Belanja Berhasil!</h3>
-                <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
-                  Pesanan obat Anda telah diterima dan langsung masuk antrean prioritas dispensing apoteker.
+                <p className="text-xs text-slate-505 max-w-sm mx-auto leading-relaxed">
+                  Pesanan obat Anda telah diterima and langsung masuk antrean prioritas dispensing apoteker.
                 </p>
                 <div className="bg-amber-50 text-amber-800 border border-amber-200 rounded-2xl p-4 text-xs font-bold w-max mx-auto">
                   🎉 Anda baru saja mendapatkan +{lastPoinEarned} Poin Loyalitas!
                 </div>
                 <div className="pt-2 flex gap-3 justify-center">
-                  <button onClick={() => { setIsOrdered(false); fetchMemberData(); }} className="bg-teal-900 text-white hover:bg-teal-955 text-xs font-bold px-6 py-3 rounded-xl cursor-pointer">Belanja Lagi</button>
+                  <button onClick={() => { setIsOrdered(false); fetchMemberData(); }} className="bg-teal-900 text-white hover:bg-teal-950 text-xs font-bold px-6 py-3 rounded-xl cursor-pointer">Belanja Lagi</button>
                   <button onClick={() => setActiveTab("riwayat")} className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-6 py-3 rounded-xl cursor-pointer">Lihat Riwayat</button>
                 </div>
               </div>
@@ -487,10 +529,10 @@ export default function MemberHome() {
                               <h4 className="font-bold truncate">{item.product.name}</h4>
                               <span className="text-[10px] text-slate-400 font-mono">{formatRupiah(item.product.priceNumeric)}</span>
                             </div>
-                            <div className="flex items-center gap-2 bg-slate-50 border border-slate-100 rounded px-1 w-max">
-                              <button onClick={() => removeFromCart(item.product.id)} className="text-slate-400 hover:text-slate-705"><Minus className="w-3 h-3" /></button>
+                            <div className="flex items-center gap-2 bg-slate-50 border border-slate-150 rounded px-1 w-max">
+                              <button onClick={() => removeFromCart(item.product.id)} className="text-slate-400 hover:text-slate-755"><Minus className="w-3 h-3" /></button>
                               <span className="text-[10px] font-bold">{item.quantity}</span>
-                              <button onClick={() => addToCart(item.product)} className="text-slate-400 hover:text-slate-705"><Plus className="w-3 h-3" /></button>
+                              <button onClick={() => addToCart(item.product)} className="text-slate-400 hover:text-slate-755"><Plus className="w-3 h-3" /></button>
                             </div>
                             <div className="w-20 text-right font-bold text-slate-800 flex items-center justify-end gap-2 ml-2">
                               <span>{formatRupiah(item.product.priceNumeric * item.quantity)}</span>
@@ -598,7 +640,7 @@ export default function MemberHome() {
         {activeTab === "riwayat" && (
           <div className="max-w-4xl mx-auto">
             <div className="bg-white border border-[#c4b599]/20 rounded-3xl p-6 shadow-md shadow-slate-100">
-              <h2 className="text-lg font-bold text-teal-955 mb-4 text-left">Riwayat Aktivitas & Layanan VIP</h2>
+              <h2 className="text-lg font-bold text-teal-950 mb-4 text-left">Riwayat Aktivitas & Layanan VIP</h2>
               <div className="space-y-4">
                 {orderHistory.length === 0 ? (
                   <p className="text-center py-10 text-slate-400 text-xs font-bold">Belum ada riwayat transaksi poin</p>
@@ -624,29 +666,6 @@ export default function MemberHome() {
           </div>
         )}
 
-        {/* EMERGENCY CONSULTATION BANNER */}
-        <div className="mt-12 bg-teal-950 text-white rounded-3xl p-8 flex flex-col md:flex-row justify-between items-center gap-6 relative overflow-hidden shadow-lg border border-teal-900/10">
-          <div className="absolute -right-8 -top-8 w-44 h-44 bg-amber-500/15 rounded-full blur-2xl pointer-events-none" />
-          <div className="relative z-10 max-w-xl text-center md:text-left">
-            <h2 className="text-lg font-bold text-white mb-2">Butuh Konsultasi Obat Darurat?</h2>
-            <p className="text-xs text-teal-200/80 leading-relaxed">
-              Apoteker priority kami siaga 24 jam untuk menjawab pertanyaan seputar efek samping obat keras, aturan pakai sirup anak, dan interaksi obat.
-            </p>
-          </div>
-          <div className="relative z-10 flex flex-wrap gap-3 w-full md:w-auto justify-center">
-            <a 
-              href="https://wa.me/62899998888" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="flex items-center gap-2 bg-amber-400 hover:bg-amber-300 text-teal-955 text-xs font-bold px-6 py-3.5 rounded-xl transition shadow-md no-underline cursor-pointer active:scale-95"
-            >
-              <Phone className="w-4 h-4 text-teal-955" /> Call Center 24 Jam
-            </a>
-            <div className="flex items-center gap-2 bg-[#092921] text-amber-400 border border-teal-900/30 text-xs font-bold px-6 py-3.5 rounded-xl">
-              <MapPin className="w-4 h-4 text-amber-400" /> Pekanbaru, Riau
-            </div>
-          </div>
-        </div>
       </main>
 
       {/* POPUP MODAL */}

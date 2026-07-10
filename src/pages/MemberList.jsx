@@ -8,36 +8,36 @@ import {
   MdCardGiftcard 
 } from "react-icons/md";
 
-// ─── HELPER LOGIC UNIFIED TIER APOTEK ───
+// ─── HELPER LOGIC UNIFIED TIER APOTEK (PLATINUM = 1000 POINTS) ───
 export const getMemberTierInfo = (points) => {
   const pts = Number(points) || 0;
-  if (pts >= 500) {
+  if (pts >= 1000) {
     return {
       tier: "Platinum",
       label: "Platinum Care",
       badge: "Platinum Card",
-      colorClass: "bg-purple-50 text-purple-750 border-purple-250",
-      nextThreshold: 1000,
+      colorClass: "bg-purple-50 text-purple-700 border-purple-200",
+      nextThreshold: 2000,
       nextTier: "Ultimate",
       gradient: "from-[#1e1b4b] via-[#312e81] to-[#1e1b4b] text-indigo-100 border-indigo-500/20"
     };
-  } else if (pts >= 300) {
+  } else if (pts >= 500) {
     return {
       tier: "Gold",
       label: "Gold Care",
       badge: "Gold Card",
-      colorClass: "bg-yellow-50 text-yellow-750 border-yellow-250",
-      nextThreshold: 500,
+      colorClass: "bg-amber-50 text-amber-700 border-amber-200",
+      nextThreshold: 1000,
       nextTier: "Platinum",
       gradient: "from-[#042f2e] via-[#0f766e] to-[#042f2e] text-amber-300 border-amber-400/30"
     };
-  } else if (pts >= 100) {
+  } else if (pts >= 250) {
     return {
       tier: "Silver",
       label: "Silver Care",
       badge: "Silver Card",
       colorClass: "bg-slate-50 text-slate-700 border-slate-200",
-      nextThreshold: 300,
+      nextThreshold: 500,
       nextTier: "Gold",
       gradient: "from-[#1e293b] via-[#475569] to-[#1e293b] text-slate-100 border-slate-400/20"
     };
@@ -46,8 +46,8 @@ export const getMemberTierInfo = (points) => {
       tier: "Bronze",
       label: "Bronze Care",
       badge: "Bronze Card",
-      colorClass: "bg-amber-50 text-amber-700 border-amber-200",
-      nextThreshold: 100,
+      colorClass: "bg-orange-50 text-orange-700 border-orange-200",
+      nextThreshold: 250,
       nextTier: "Silver",
       gradient: "from-[#b45309] via-[#d97706] to-[#78350f] text-white border-[#b45309]/30"
     };
@@ -98,7 +98,7 @@ export default function MemberList() {
       combinedOrders.forEach(order => {
         const rawName = order.customer_name || "";
         const cleanName = rawName.toLowerCase().trim();
-        const pts = Number(order.points_earned) || 0; // Memastikan dibaca sebagai Angka
+        const pts = Number(order.points_earned) || 0;
         pointsMap[cleanName] = (pointsMap[cleanName] || 0) + pts;
       });
 
@@ -122,7 +122,6 @@ export default function MemberList() {
         const pts = pointsMap[cleanName] || 0;
         const userDetail = customersOnly.find(u => (u.name || "").toLowerCase().trim() === cleanName) || {};
 
-        // Gunakan helper logic terpadu
         const tierInfo = getMemberTierInfo(pts);
 
         return {
@@ -136,7 +135,6 @@ export default function MemberList() {
         };
       });
 
-      // Urutkan poin terbanyak, disusul pendaftaran terlama
       memberList.sort((a, b) => {
         if (b.points !== a.points) {
           return b.points - a.points; 

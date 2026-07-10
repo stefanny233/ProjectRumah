@@ -9,7 +9,6 @@ const Dashboard = lazy(() => import("./pages/DashboardPage"));
 const Employee = lazy(() => import("./pages/Employee"));
 const Stock = lazy(() => import("./pages/Stock"));
 const Product = lazy(() => import("./pages/Product"));
-const Dispenser = lazy(() => import("./pages/Dispenser")); 
 const MemberList = lazy(() => import("./pages/MemberList")); 
 const GuestHome = lazy(() => import("./pages/GuestHome"));
 const MemberHome = lazy(() => import("./pages/MemberHome")); 
@@ -39,7 +38,6 @@ function App() {
 
         <Route element={<MainLayout />}>
           <Route path="dashboard" element={<Dashboard />} />
-          <Route path="dispenser" element={<Dispenser />} />
 
           <Route path="employee/list" element={<Employee />} />
           <Route path="employee/attendance" element={<Employee />} />
