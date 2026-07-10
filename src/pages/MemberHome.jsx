@@ -13,10 +13,6 @@ import MemberSidebar   from "../components/member/MemberSidebar";
 import ProfileModal    from "../components/member/ProfileModal";
 import VoucherModal    from "../components/member/VoucherModal";
 
-const memberPoints  = 1450;
-const nextTierPoints = 2000;
-const memberTier     = "Gold Care Member";
-
 export default function MemberHome() {
   const [activeTab,    setActiveTab]    = useState("beranda");
   const [isOrdered,    setIsOrdered]    = useState(false);
@@ -24,6 +20,10 @@ export default function MemberHome() {
   const [openFaq,      setOpenFaq]      = useState(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [activeVoucher, setActiveVoucher] = useState(null);
+  
+  // State untuk Poin Dinamis Member
+  const [memberPoints, setMemberPoints] = useState(0);
+  const [orderHistory, setOrderHistory] = useState([]);
 
   const [formData, setFormData] = useState({
     customerName: "",
@@ -41,9 +41,11 @@ export default function MemberHome() {
     status: "Active Priority Patient",
   });
 
+  // Ambil Data Sesi & Fetch Poin & Riwayat Order secara Live dari Supabase
   useEffect(() => {
-    const storedName = localStorage.getItem("userName");
+    const storedName = localStorage.getItem("userName") || "VIP Member";
     const storedEmail = localStorage.getItem("userEmail");
+    
     if (storedName || storedEmail) {
       setUserData(prev => ({
         ...prev,
@@ -55,9 +57,39 @@ export default function MemberHome() {
         customerName: storedName || prev.customerName,
       }));
     }
+
+    const fetchMemberData = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("orders")
+          .select("*")
+          .eq("customer_name", storedName);
+        
+        if (data && !error) {
+          // Menghitung akumulasi total poin secara dinamis
+          const totalPoints = data.reduce((sum, order) => sum + (order.points_earned || 0), 0);
+          setMemberPoints(totalPoints);
+          setOrderHistory(data);
+        }
+      } catch (err) {
+        console.warn("Gagal memuat poin member:", err);
+      }
+    };
+    
+    fetchMemberData();
   }, []);
 
-  const progressPct = Math.round((memberPoints / nextTierPoints) * 100);
+  // Hitung Tier Keanggotaan secara Dinamis berdasarkan poin
+  const getTier = (points) => {
+    if (points >= 2000) return "Platinum Care Member";
+    if (points >= 1000) return "Gold Care Member";
+    if (points >= 500) return "Silver Care Member";
+    return "Bronze Care Member";
+  };
+
+  const memberTier = getTier(memberPoints);
+  const nextTierPoints = memberPoints >= 2000 ? 5000 : (memberPoints >= 1000 ? 2000 : (memberPoints >= 500 ? 1000 : 500));
+  const progressPct = Math.min(100, Math.round((memberPoints / nextTierPoints) * 100));
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -86,6 +118,9 @@ export default function MemberHome() {
       const { error } = await supabase.from("orders").insert([newOrder]);
       if (error) throw error;
       setIsOrdered(true);
+      // Re-fetch poin & history
+      setMemberPoints(prev => prev + pointsEarned);
+      setOrderHistory(prev => [newOrder, ...prev]);
     } catch (err) {
       console.warn("Offline, simulasi pengiriman lokal:", err.message);
       setIsOrdered(true);
@@ -180,6 +215,37 @@ export default function MemberHome() {
         
         {activeTab === "beranda" && (
           <>
+            {/* LOYALTY PROMOTIONAL BANNER */}
+            <div className="bg-gradient-to-r from-teal-950 to-emerald-900 text-white rounded-3xl p-6 mb-8 border border-emerald-800/30 flex flex-col md:flex-row justify-between items-center gap-6 relative overflow-hidden shadow-md">
+              <div className="text-left space-y-2">
+                <div className="inline-flex items-center gap-1.5 bg-amber-400 text-teal-950 text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider">
+                  Program Poin Priority Apotek
+                </div>
+                <h3 className="text-base font-bold text-white">Makin Sering Belanja, Makin Banyak Untung! 💊</h3>
+                <p className="text-xs text-teal-200/80 leading-relaxed max-w-xl">
+                  Setiap pembelanjaan senilai **Rp 1.000** bernilai **1 Poin Member**. Tingkatkan peringkat Anda untuk menikmati potongan resep langsung s.d 15%, bebas antre, dan konsultasi gratis!
+                </p>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center w-full md:w-auto">
+                <div className="bg-teal-900/40 p-3 rounded-2xl border border-teal-800/40">
+                  <span className="text-[8px] text-gray-405 uppercase tracking-widest block mb-0.5">Bronze</span>
+                  <span className="text-[10px] text-teal-200 font-bold">Mulai</span>
+                </div>
+                <div className="bg-teal-900/40 p-3 rounded-2xl border border-teal-800/40">
+                  <span className="text-[8px] text-gray-405 uppercase tracking-widest block mb-0.5">Silver</span>
+                  <span className="text-[10px] text-slate-300 font-bold">500 Pts</span>
+                </div>
+                <div className="bg-teal-900/40 p-3 rounded-2xl border border-teal-800/40">
+                  <span className="text-[8px] text-gray-450 uppercase tracking-widest block mb-0.5">Gold</span>
+                  <span className="text-[10px] text-yellow-400 font-bold">1000 Pts</span>
+                </div>
+                <div className="bg-teal-900/40 p-3 rounded-2xl border border-teal-800/40">
+                  <span className="text-[8px] text-gray-450 uppercase tracking-widest block mb-0.5">Platinum</span>
+                  <span className="text-[10px] text-purple-400 font-bold">2000 Pts</span>
+                </div>
+              </div>
+            </div>
+
             {/* HERO PANEL */}
             <MemberHero
               userData={userData}
@@ -244,25 +310,27 @@ export default function MemberHome() {
         {activeTab === "riwayat" && (
           <div className="max-w-4xl mx-auto">
             <div className="bg-white border border-[#c4b599]/20 rounded-3xl p-6 shadow-md shadow-slate-100">
-              <h2 className="text-lg font-bold text-teal-950 mb-4 text-left">Riwayat Aktivitas & Layanan</h2>
+              <h2 className="text-lg font-bold text-teal-950 mb-4 text-left">Riwayat Aktivitas & Layanan VIP</h2>
               <div className="space-y-4">
-                {[
-                  { title: "Penebusan Resep #RSP-2026-0041", desc: "Obat rutin asma tebus vip jalur cepat.", date: "2 jam lalu", points: "+150 Poin", status: "Selesai", statusColor: "bg-teal-50 text-teal-700 border-teal-100" },
-                  { title: "Tukar Voucher — Vitamin C Strip", desc: "Penukaran 300 Poin reward di gerai Pekanbaru.", date: "Kemarin", points: "-300 Poin", status: "Diproses", statusColor: "bg-amber-50 text-amber-700 border-amber-100" },
-                  { title: "Konsultasi Apoteker Online", desc: "Tanya aturan minum antibiotik anak via chat.", date: "3 hari lalu", points: "Free", status: "Selesai", statusColor: "bg-teal-50 text-teal-700 border-teal-100" },
-                ].map((act, i) => (
-                  <div key={i} className="flex justify-between items-center p-4 border border-slate-100 hover:border-teal-800/20 hover:bg-[#faf8f5] rounded-2xl transition">
-                    <div className="text-left">
-                      <h3 className="text-sm font-bold text-slate-800">{act.title}</h3>
-                      <p className="text-xs text-slate-500 mt-1">{act.desc}</p>
-                      <span className="text-[10px] text-slate-400 block mt-2">{act.date}</span>
+                {orderHistory.length === 0 ? (
+                  <p className="text-center py-10 text-slate-400 text-xs font-bold">Belum ada riwayat transaksi poin</p>
+                ) : (
+                  orderHistory.map((act, i) => (
+                    <div key={i} className="flex justify-between items-center p-4 border border-slate-100 hover:border-teal-800/20 hover:bg-[#faf8f5] rounded-2xl transition">
+                      <div className="text-left">
+                        <h3 className="text-sm font-bold text-slate-800">{act.medicine_type || "Penebusan Resep"}</h3>
+                        <p className="text-xs text-slate-500 mt-1">{act.notes || "Poin Belanja Apotek"}</p>
+                        <span className="text-[10px] text-slate-400 block mt-2">
+                          {new Date(act.created_at).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <span className="text-xs font-semibold text-teal-850 bg-[#e6f4f1] border border-teal-100 px-2 py-1 rounded-md">+{act.points_earned} Poin</span>
+                        <span className="text-[10px] font-bold px-2 py-1 rounded-full border bg-teal-50 text-teal-700 border-teal-100 capitalize">{act.status}</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-4">
-                      <span className="text-xs font-semibold text-teal-850 bg-[#e6f4f1] border border-teal-100 px-2 py-1 rounded-md">{act.points}</span>
-                      <span className={`text-[10px] font-bold px-2 py-1 rounded-full border ${act.statusColor}`}>{act.status}</span>
-                    </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
           </div>

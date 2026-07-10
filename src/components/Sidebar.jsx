@@ -9,7 +9,7 @@ import {
   MdSettings,
   MdKeyboardArrowDown,
   MdKeyboardArrowUp,
-  MdClose // Impor ikon tutup
+  MdClose
 } from "react-icons/md";
 
 export default function Sidebar({ isOpen, onClose }) {
@@ -111,6 +111,20 @@ export default function Sidebar({ isOpen, onClose }) {
           >
             <MdInventory size={20} />
             <span>Stock</span>
+          </Link>
+
+          {/* 4.5 MEMBER LIST (NEW) */}
+          <Link
+            to="/member-list"
+            onClick={onClose}
+            className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl text-xs font-bold tracking-wider uppercase transition-all ${
+              location.pathname === "/member-list"
+                ? "bg-[#EEF0FF] text-[#5065f6]"
+                : "text-gray-400 hover:bg-gray-50"
+            }`}
+          >
+            <MdPeople size={20} />
+            <span>Member Points</span>
           </Link>
 
           {/* 5. EMPLOYEE (Dropdown Toggle) */}

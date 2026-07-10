@@ -51,6 +51,9 @@ export default function Dispenser() {
   const [paymentType, setPaymentType] = useState("Cash");
   const [showReceipt, setShowReceipt] = useState(false);
   const [receiptData, setReceiptData] = useState(null);
+  
+  // State untuk data member dari database
+  const [members, setMembers] = useState([]);
 
   // Ambil sesi login dari localStorage saat halaman dibuka
   useEffect(() => {
@@ -58,6 +61,21 @@ export default function Dispenser() {
     const storedRole = localStorage.getItem("userRole");
     if (storedName) setLoggedInUser(storedName);
     if (storedRole) setLoggedInRole(storedRole);
+  }, []);
+
+  // Fetch data member untuk pilihan kasir
+  useEffect(() => {
+    const fetchMembers = async () => {
+      try {
+        const { data, error } = await supabase.from("user").select("*");
+        if (data && !error) {
+          setMembers(data);
+        }
+      } catch (err) {
+        console.warn("Gagal mengambil data member:", err);
+      }
+    };
+    fetchMembers();
   }, []);
 
   // Sync Supabase di background dan gabungkan dengan JSON
@@ -144,13 +162,47 @@ export default function Dispenser() {
   const paidVal = paidAmount === "" ? 0 : Number(paidAmount);
   const dueOrChange = paidVal - finalTotal;
 
-  const handleSaveTransaction = () => {
+  const handleSaveTransaction = async () => {
     if (cart.length === 0) return alert("⚠️ Keranjang belanja kosong!");
+
+    // Hitung poin: Rp 1.000 = 1 Poin
+    const pointsEarned = Math.floor(finalTotal / 1000);
+    const transactionId = "TX-" + Math.floor(100000 + Math.random() * 900000);
+    const date = new Date().toLocaleString("id-ID");
+
+    const payload = {
+      customer_name: customerName,
+      phone: "081234567890",
+      medicine_type: cart.map(item => `${item.product.name} (x${item.quantity})`).join(", "),
+      notes: "Transaksi POS oleh " + loggedInUser,
+      price: finalTotal,
+      points_earned: pointsEarned,
+      status: "completed",
+      created_at: new Date().toISOString()
+    };
+
+    try {
+      const { error } = await supabase.from("orders").insert([payload]);
+      if (error) throw error;
+      alert(`✅ Transaksi disimpan ke Supabase! +${pointsEarned} Poin untuk ${customerName}`);
+    } catch (err) {
+      console.warn("Gagal insert ke Supabase, menyimpan lokal:", err.message);
+      const localTrans = JSON.parse(localStorage.getItem("local_transactions") || "[]");
+      localStorage.setItem("local_transactions", JSON.stringify([payload, ...localTrans]));
+      alert(`⚠️ Mode offline. Transaksi disimpan secara lokal. +${pointsEarned} Poin untuk ${customerName}`);
+    }
+
     setReceiptData({
-      transactionId: "TX-" + Math.floor(100000 + Math.random() * 900000),
-      customerName, items: cart, netTotal, discount, finalTotal,
-      paidAmount: paidVal || finalTotal, change: Math.max(0, dueOrChange), paymentType,
-      date: new Date().toLocaleString("id-ID")
+      transactionId,
+      customerName,
+      items: cart,
+      netTotal,
+      discount,
+      finalTotal,
+      paidAmount: paidAmount || finalTotal,
+      change: Math.max(0, dueOrChange),
+      paymentType,
+      date
     });
     setShowReceipt(true);
   };
@@ -182,7 +234,6 @@ export default function Dispenser() {
                 <p className="text-[9px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">{loggedInRole} ▾</p>
               </div>
             </div>
-
           </div>
         </div>
 
@@ -206,9 +257,21 @@ export default function Dispenser() {
                 <span className="absolute left-3 text-gray-300"><MdSearch size={16} /></span>
                 <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Cari obat..." className="w-full bg-gray-50 border border-gray-100 rounded-lg pl-9 pr-4 py-2 text-xs focus:outline-none" />
               </div>
-              <div className="relative flex items-center">
-                <input type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} className="w-full bg-gray-50 border border-gray-100 rounded-lg pl-4 pr-10 py-2 text-xs font-bold text-gray-400 focus:outline-none" />
-                <button className="absolute right-1.5 p-1.5 bg-[#3b52f6] text-white rounded-md cursor-pointer"><MdPersonAddAlt1 size={14} /></button>
+              
+              {/* SELECT MEMBER DROPDOWN */}
+              <div className="relative flex items-center w-full">
+                <select 
+                  value={customerName} 
+                  onChange={(e) => setCustomerName(e.target.value)}
+                  className="w-full bg-gray-50 border border-gray-100 rounded-lg pl-4 pr-10 py-2.5 text-xs font-bold text-gray-600 focus:outline-none cursor-pointer"
+                >
+                  <option value="Walking Customer">Walking Customer (Bukan Member)</option>
+                  {members.map((m) => (
+                    <option key={m.id} value={m.name}>
+                      Member: {m.name} ({m.email || "No Email"})
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 
@@ -299,7 +362,7 @@ export default function Dispenser() {
 
       {showReceipt && receiptData && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-sm w-full p-5 shadow-xl relative animate-scaleUp text-left">
+          <div className="bg-white rounded-2xl max-w-sm w-full p-5 shadow-xl relative text-left">
             <div className="flex flex-col items-center text-center pb-3 border-b border-gray-100">
               <span className="text-emerald-500 mb-1"><MdCheckCircle size={36} /></span>
               <h3 className="text-sm font-bold text-gray-800">Transaksi Berhasil</h3>
