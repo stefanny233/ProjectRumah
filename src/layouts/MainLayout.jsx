@@ -1,23 +1,29 @@
+import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 
 export default function MainLayout() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(prev => !prev);
+  };
+
+  const closeSidebar = () => {
+    setIsSidebarOpen(false);
+  };
+
   return (
-    // 1. Ganti min-h-screen menjadi h-screen agar tinggi LAYOUT MUTLAK pas se-monitor
     <div className="flex flex-col h-screen w-full bg-[#F8F9FB] overflow-hidden">
       
-      {/* ATAS: Header memanjang 100% */}
-      <Header />
+      <Header onToggleSidebar={toggleSidebar} />
       
-      {/* BAWAH: Di-lock agar tidak bisa melar melebihi sisa tinggi monitor */}
-      <div className="flex-1 flex h-full w-full overflow-hidden">
+      <div className="flex-1 flex h-full w-full overflow-hidden relative">
         
-        {/* KIRI: Sidebar (Pastikan di dalamnya dikunci juga) */}
-        <Sidebar />
+        <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
         
-        {/* KANAN: Tempat render halaman asli (Hanya area ini yang boleh scroll) */}
-        <main className="flex-1 p-8 overflow-y-auto h-full">
+        <main className="flex-1 p-4 md:p-8 overflow-y-auto h-full w-full">
           <Outlet />
         </main>
         
