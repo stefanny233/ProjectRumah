@@ -11,7 +11,7 @@ export default function Register() {
     fullName: "",
     email: "",
     password: "",
-    role: "",
+    role: "member", // Otomatis diset default sebagai member
   });
   const [loading, setLoading] = useState(false);
   const [alert, setAlert] = useState({ type: "", text: "" });
@@ -45,14 +45,14 @@ export default function Register() {
         name: formData.fullName,
         email: formData.email.trim().toLowerCase(),
         password: formData.password,
-        role: formData.role,
+        role: formData.role, // Terkirim sebagai 'member'
       });
 
       setAlert({
         type: "success",
-        text: "Registrasi Berhasil! Akun disimpan ke Supabase.",
+        text: "Registrasi Berhasil! Akun disimpan sebagai Member.",
       });
-      setFormData({ fullName: "", email: "", password: "", role: "" });
+      setFormData({ fullName: "", email: "", password: "", role: "member" });
 
       // Tunggu 2 detik kemudian alihkan ke halaman Login
       setTimeout(() => {
@@ -186,26 +186,7 @@ export default function Register() {
               />
             </div>
 
-            {/* DROPDOWN SELECT ROLE */}
-            <div className="flex flex-col space-y-1.5">
-              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest pl-1">
-                Join As (Role)
-              </label>
-              <select
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                required
-                disabled={loading}
-                className="w-full border border-slate-200 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 rounded-xl px-4 py-3 text-slate-800 outline-none transition-all disabled:opacity-50 bg-[#faf8f5]/40 font-medium text-xs cursor-pointer"
-              >
-                <option value="" disabled>
-                  Pilih Role Anda
-                </option>
-                <option value="member">Member (Pasien)</option>
-                <option value="admin">Admin Apotek</option>
-              </select>
-            </div>
+            {/* DROPDOWN SELECT ROLE TELAH DIHAPUS ─── Pendaftaran otomatis set role: "member" */}
 
             <button
               type="submit"

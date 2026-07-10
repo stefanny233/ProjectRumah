@@ -24,29 +24,51 @@ export default function MemberList() {
       
       if (userError) throw userError;
 
-      // 2. Ambil data order untuk menghitung poin
-      const { data: ordersData, error: orderError } = await supabase
-        .from("orders")
-        .select("customer_name, points_earned");
+      // ─── FILTER KHUSUS: Hanya tampilkan user yang rolenya adalah 'member', 'patient', atau kosong ───
+      // Ini menyembunyikan akun Admin, Director, Manager, Employee, dan Staff dari daftar poin member
+      const customersOnly = (usersData || []).filter(user => {
+        const role = (user.role || "").toLowerCase().trim();
+        return (
+          role === "member" || 
+          role === "patient" || 
+          role === "user" || 
+          role === ""
+        );
+      });
 
-      if (orderError) throw orderError;
+      // 2. Ambil data order untuk menghitung poin (dari Supabase)
+      let dbOrders = [];
+      try {
+        const { data, error: orderError } = await supabase
+          .from("orders")
+          .select("customer_name, points_earned");
+        if (!orderError && data) {
+          dbOrders = data;
+        }
+      } catch (err) {
+        console.warn("Gagal fetch orders dari Supabase, gunakan fallback local storage.");
+      }
 
-      // 3. Gabungkan poin per customer
+      // 3. Gabungkan dengan data order dari Local Storage (supaya sinkronisasi 100% jalan)
+      const localTrans = JSON.parse(localStorage.getItem("local_transactions") || "[]");
+      const combinedOrders = [...dbOrders, ...localTrans];
+
+      // 4. Hitung akumulasi poin per nama customer
       const pointsMap = {};
-      ordersData?.forEach(order => {
+      combinedOrders.forEach(order => {
         const name = order.customer_name;
         const pts = order.points_earned || 0;
         pointsMap[name] = (pointsMap[name] || 0) + pts;
       });
 
-      // 4. Buat list member beserta akumulasi poin dan tier nya
-      const memberList = usersData.map(user => {
+      // 5. Buat daftar member final beserta akumulasi poin dan tier nya
+      const memberList = customersOnly.map(user => {
         const pts = pointsMap[user.name] || 0;
         let tier = "Bronze";
         let tierColor = "bg-amber-50 text-amber-700 border-amber-200";
         if (pts >= 2000) {
           tier = "Platinum";
-          tierColor = "bg-purple-50 text-purple-700 border-purple-200";
+          tierColor = "bg-purple-50 text-purple-700 border-purple-250";
         } else if (pts >= 1000) {
           tier = "Gold";
           tierColor = "bg-yellow-50 text-yellow-750 border-yellow-250";
@@ -92,7 +114,7 @@ export default function MemberList() {
         <div className="bg-white p-5 rounded-2xl border border-gray-100 flex items-center gap-4 shadow-xs">
           <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center"><MdPeople size={22} /></div>
           <div className="text-left">
-            <span className="text-xs text-gray-400 font-medium">Total Member</span>
+            <span className="text-xs text-gray-400 font-medium">Total Member Aktif</span>
             <h3 className="text-xl font-bold text-gray-800 mt-0.5">{members.length}</h3>
           </div>
         </div>
@@ -123,7 +145,7 @@ export default function MemberList() {
       <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.01)] flex flex-col">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
           <div className="flex items-center gap-2">
-            <h2 className="text-sm font-bold text-gray-700 tracking-tight">Daftar Poin & Tier Member</h2>
+            <h2 className="text-sm font-bold text-gray-700 tracking-tight">Daftar Poin & Tier Member (Khusus Pasien)</h2>
             <button onClick={loadMemberPoints} className="p-1 hover:bg-gray-50 rounded text-gray-400 hover:text-gray-650 transition-colors"><MdRefresh size={18} /></button>
           </div>
 
