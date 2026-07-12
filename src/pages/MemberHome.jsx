@@ -285,7 +285,7 @@ export default function MemberHome() {
   };
 
   return (
-    <div className="min-h-screen bg-[#faf8f5] font-sans antialiased text-slate-800 flex flex-col relative overflow-hidden selection:bg-amber-100 selection:text-amber-900">
+    <div className="min-h-screen bg-[#faf8f5] font-sans antialiased text-[#042f2e] flex flex-col relative overflow-hidden selection:bg-amber-100 selection:text-amber-900">
       
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@650;700;800&display=swap');
@@ -301,7 +301,7 @@ export default function MemberHome() {
         .border-emerald-200 { border-color: rgba(13, 148, 136, 0.3) !important; }
         .gradient-green { background: linear-gradient(135deg, #0f766e 0%, #115e59 100%) !important; }
         .shadow-emerald-500\/20 { box-shadow: 0 10px 15px -3px rgba(13, 148, 136, 0.1), 0 4px 6px -4px rgba(13, 148, 136, 0.1) !important; }
-        .bg-white, .bg-white\/80 { background-color: #fafcfb !important; border-color: rgba(196, 181, 153, 0.25) !important; }
+        .bg-white, .bg-white\/80 { background-color: #fafcfb !important; border-color: rgba(196, 181, 153, 0.15) !important; }
         .text-slate-900, .text-slate-800 { color: #042f2e !important; }
         .text-slate-500, .text-slate-400 { color: #475569 !important; }
       `}</style>
@@ -325,39 +325,39 @@ export default function MemberHome() {
         {activeTab === "beranda" && (
           <>
             {/* PROMO POINT BANNER */}
-            <div className="relative overflow-hidden rounded-3xl border border-[#d4af37]/35 bg-gradient-to-r from-teal-950 via-[#0a4039] to-teal-950 p-6 lg:p-7 mb-8 text-white shadow-xl flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="relative overflow-hidden rounded-3xl border border-amber-500/20 bg-gradient-to-r from-teal-950 via-[#0a4039] to-teal-950 p-6 lg:p-7 mb-8 text-white shadow-xl flex flex-col md:flex-row justify-between items-center gap-6">
               {/* Decorative ambient glowing meshes */}
               <div className="absolute top-[-30%] left-[-20%] w-[350px] h-[350px] rounded-full bg-gradient-to-tr from-amber-500/10 to-teal-400/5 blur-3xl pointer-events-none" />
               <div className="absolute bottom-[-20%] right-[-10%] w-[250px] h-[250px] rounded-full bg-gradient-to-br from-teal-500/5 to-transparent blur-3xl pointer-events-none" />
 
               <div className="text-left space-y-3.5 relative z-10 max-w-xl">
-                <div className="inline-flex items-center gap-2 bg-[#d4af37]/15 text-[#fcd34d] text-[10px] font-extrabold px-3.5 py-1.5 rounded-full uppercase tracking-wider border border-[#d4af37]/35 shadow-sm">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+                <div className="inline-flex items-center gap-2 bg-amber-50 border border-amber-400/30 text-amber-800 text-[10px] font-extrabold px-3.5 py-1.5 rounded-full uppercase tracking-wider shadow-sm">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600 animate-pulse" />
                   Program Poin Loyalitas VIP Apotek
                 </div>
-                <h3 className="text-xl font-bold font-master-title leading-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-emerald-100 to-amber-350">
+                <h3 className="text-xl font-bold font-master-title leading-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-100 to-amber-300">
                   Makin Sehat, Makin Untung Bersama SIApotek! 💊
                 </h3>
                 <p className="text-xs text-teal-100/90 leading-relaxed font-medium">
-                  Setiap <strong className="text-white">1x transaksi</strong> pembelian obat akan langsung mendapatkan <strong className="text-amber-300 font-extrabold">5 Poin Loyalitas</strong>. Tingkatkan peringkat Anda untuk menikmati diskon resep s.d <span className="text-amber-350 font-extrabold text-amber-400">15%</span>, jalur bebas antrean, dan layanan prioritas 24 jam!
+                  Setiap <strong className="text-white">1x transaksi</strong> pembelian obat akan langsung mendapatkan <strong className="text-amber-300 font-extrabold">5 Poin Loyalitas</strong>. Tingkatkan peringkat Anda untuk menikmati diskon resep s.d <span className="text-amber-400 font-extrabold">15%</span>, jalur bebas antrean, dan layanan prioritas 24 jam!
                 </p>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 w-full md:w-auto relative z-10">
-                <div className="bg-teal-900/40 backdrop-blur-md p-3.5 rounded-2xl border border-teal-800/40 hover:border-[#d4af37]/40 hover:shadow-md transition duration-300 flex flex-col items-center justify-center min-w-[90px] shadow-sm">
-                  <span className="text-[9px] text-[#fcd34d] uppercase tracking-widest font-black block mb-1">Bronze</span>
+                <div className="bg-teal-900/40 backdrop-blur-md p-3.5 rounded-2xl border border-teal-800/40 hover:border-amber-500/40 hover:shadow-md transition duration-300 flex flex-col items-center justify-center min-w-[90px] shadow-sm">
+                  <span className="text-[9px] text-amber-400 uppercase tracking-widest font-black block mb-1">Bronze</span>
                   <span className="text-xs text-orange-400 font-extrabold bg-teal-900/50 px-2 py-0.5 rounded-md border border-orange-800/20">0 - 249 Pts</span>
                 </div>
-                <div className="bg-teal-900/40 backdrop-blur-md p-3.5 rounded-2xl border border-teal-800/40 hover:border-[#d4af37]/40 hover:shadow-md transition duration-300 flex flex-col items-center justify-center min-w-[90px] shadow-sm">
-                  <span className="text-[9px] text-[#fcd34d] uppercase tracking-widest font-black block mb-1">Silver</span>
+                <div className="bg-teal-900/40 backdrop-blur-md p-3.5 rounded-2xl border border-teal-800/40 hover:border-amber-500/40 hover:shadow-md transition duration-300 flex flex-col items-center justify-center min-w-[90px] shadow-sm">
+                  <span className="text-[9px] text-amber-400 uppercase tracking-widest font-black block mb-1">Silver</span>
                   <span className="text-xs text-teal-200 font-extrabold bg-teal-900/50 px-2 py-0.5 rounded-md border border-teal-800/20">250 Pts</span>
                 </div>
-                <div className="bg-teal-900/40 backdrop-blur-md p-3.5 rounded-2xl border border-teal-800/40 hover:border-[#d4af37]/40 hover:shadow-md transition duration-300 flex flex-col items-center justify-center min-w-[90px] shadow-sm">
-                  <span className="text-[9px] text-[#fcd34d] uppercase tracking-widest font-black block mb-1">Gold</span>
+                <div className="bg-teal-900/40 backdrop-blur-md p-3.5 rounded-2xl border border-teal-800/40 hover:border-amber-500/40 hover:shadow-md transition duration-300 flex flex-col items-center justify-center min-w-[90px] shadow-sm">
+                  <span className="text-[9px] text-amber-400 uppercase tracking-widest font-black block mb-1">Gold</span>
                   <span className="text-xs text-amber-400 font-extrabold bg-teal-900/50 px-2 py-0.5 rounded-md border border-amber-800/20">500 Pts</span>
                 </div>
-                <div className="bg-teal-900/40 backdrop-blur-md p-3.5 rounded-2xl border border-teal-800/40 hover:border-[#d4af37]/40 hover:shadow-md transition duration-300 flex flex-col items-center justify-center min-w-[90px] shadow-sm">
-                  <span className="text-[9px] text-[#fcd34d] uppercase tracking-widest font-black block mb-1">Platinum</span>
+                <div className="bg-teal-900/40 backdrop-blur-md p-3.5 rounded-2xl border border-teal-800/40 hover:border-amber-500/40 hover:shadow-md transition duration-300 flex flex-col items-center justify-center min-w-[90px] shadow-sm">
+                  <span className="text-[9px] text-amber-400 uppercase tracking-widest font-black block mb-1">Platinum</span>
                   <span className="text-xs text-purple-400 font-extrabold bg-teal-900/50 px-2 py-0.5 rounded-md border border-purple-800/20">1000 Pts</span>
                 </div>
               </div>
@@ -382,16 +382,16 @@ export default function MemberHome() {
                 <TierSection />
 
                 {/* EMERGENCY CONSULTATION BANNER */}
-                <div className="relative overflow-hidden rounded-3xl border border-[#d4af37]/35 bg-gradient-to-r from-teal-955 via-[#0a4039] to-teal-955 p-6 shadow-md flex flex-col sm:flex-row justify-between items-center gap-6">
+                <div className="relative overflow-hidden rounded-3xl border border-amber-500/20 bg-gradient-to-r from-teal-950 via-[#0a4039] to-teal-950 p-6 shadow-md flex flex-col sm:flex-row justify-between items-center gap-6 lg:gap-8">
                   {/* Decorative ambient glowing meshes */}
                   <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
                   <div className="absolute bottom-0 left-0 w-32 h-32 bg-teal-500/10 rounded-full blur-2xl pointer-events-none" />
 
-                  <div className="relative z-10 text-left space-y-2">
-                    <span className="inline-flex items-center gap-1 bg-rose-500/10 text-rose-350 text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider border border-rose-500/20">
+                  <div className="relative z-10 text-left space-y-2 flex-1">
+                    <span className="inline-flex items-center gap-1 bg-rose-50 text-rose-600 border border-rose-200/40 text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider">
                       Layanan Siaga 24 Jam
                     </span>
-                    <h3 className="text-base font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-250 to-amber-300">
+                    <h3 className="text-base font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-amber-400">
                       Butuh Konsultasi Obat Darurat?
                     </h3>
                     <p className="text-[11px] text-teal-100/90 leading-relaxed max-w-md font-medium">
@@ -399,7 +399,7 @@ export default function MemberHome() {
                     </p>
                   </div>
 
-                  <div className="relative z-10 flex flex-wrap gap-2.5 justify-center shrink-0">
+                  <div className="relative z-10 flex flex-wrap gap-2.5 justify-center sm:justify-end shrink-0">
                     <a 
                       href="https://wa.me/62899998888" 
                       target="_blank" 
@@ -408,8 +408,8 @@ export default function MemberHome() {
                     >
                       <Phone className="w-3.5 h-3.5 text-teal-950" /> Hubungi Apoteker
                     </a>
-                    <div className="flex items-center gap-1.5 bg-[#092921] text-amber-450 border border-teal-900/30 text-xs font-bold px-5 py-3 rounded-xl">
-                      <MapPin className="w-3.5 h-3.5 text-amber-450" /> Pekanbaru, Riau
+                    <div className="flex items-center gap-1.5 bg-teal-950/45 text-amber-400 border border-amber-500/10 text-xs font-bold px-5 py-3 rounded-xl">
+                      <MapPin className="w-3.5 h-3.5 text-amber-400" /> Pekanbaru, Riau
                     </div>
                   </div>
                 </div>
@@ -430,8 +430,8 @@ export default function MemberHome() {
         {/* TAB TEBUS RESEP */}
         {activeTab === "resep" && (
           <div className="w-full flex flex-col gap-6 text-left">
-            <h2 className="text-xl font-bold text-teal-955 font-master-title">Beli Obat & Tebus Resep Prioritas</h2>
-            <p className="text-xs text-slate-505 -mt-4">
+            <h2 className="text-xl font-bold text-teal-900 font-master-title">Beli Obat & Tebus Resep Prioritas</h2>
+            <p className="text-xs text-slate-500 -mt-4">
               Silakan pilih obat di bawah. Diskon khusus tier <span className="font-extrabold text-amber-600 uppercase">{memberTier.split(" ")[0]} ({discountRate * 100}%)</span> akan langsung dipotong otomatis saat pemesanan!
             </p>
 
@@ -441,14 +441,14 @@ export default function MemberHome() {
                   <CheckCircle className="w-10 h-10" />
                 </div>
                 <h3 className="text-lg font-bold text-slate-800">Transaksi Belanja Berhasil!</h3>
-                <p className="text-xs text-slate-505 max-w-sm mx-auto leading-relaxed">
+                <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
                   Pesanan obat Anda telah diterima and langsung masuk antrean prioritas dispensing apoteker.
                 </p>
                 <div className="bg-amber-50 text-amber-800 border border-amber-200 rounded-2xl p-4 text-xs font-bold w-max mx-auto">
                   🎉 Anda baru saja mendapatkan +{lastPoinEarned} Poin Loyalitas!
                 </div>
                 <div className="pt-2 flex gap-3 justify-center">
-                  <button onClick={() => { setIsOrdered(false); fetchMemberData(); }} className="bg-teal-900 text-white hover:bg-teal-950 text-xs font-bold px-6 py-3 rounded-xl cursor-pointer">Belanja Lagi</button>
+                  <button onClick={() => { setIsOrdered(false); fetchMemberData(); }} className="bg-teal-900 text-white hover:bg-teal-955 text-xs font-bold px-6 py-3 rounded-xl cursor-pointer">Belanja Lagi</button>
                   <button onClick={() => setActiveTab("riwayat")} className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-6 py-3 rounded-xl cursor-pointer">Lihat Riwayat</button>
                 </div>
               </div>
@@ -456,9 +456,9 @@ export default function MemberHome() {
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                 
                 {/* KATALOG OBAT */}
-                <div className="lg:col-span-7 bg-white border border-[#c4b599]/20 rounded-3xl p-6 shadow-sm space-y-5">
+                <div className="lg:col-span-7 bg-white border border-[#c4b599]/15 rounded-3xl p-6 shadow-sm space-y-5">
                   <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
-                    <span className="text-sm font-bold text-teal-955">Daftar Obat Apotek</span>
+                    <span className="text-sm font-bold text-teal-900">Daftar Obat Apotek</span>
                     <div className="relative w-full sm:w-60 flex items-center">
                       <span className="absolute left-3 text-slate-400"><Search className="w-4 h-4" /></span>
                       <input 
@@ -466,7 +466,7 @@ export default function MemberHome() {
                         value={searchTerm} 
                         onChange={(e) => setSearchTerm(e.target.value)}
                         placeholder="Cari obat..."
-                        className="w-full bg-slate-50 border border-slate-150/60 rounded-xl pl-9 pr-4 py-2 text-xs focus:outline-none text-slate-700 font-medium"
+                        className="w-full bg-slate-50 border border-slate-200/60 rounded-xl pl-9 pr-4 py-2 text-xs focus:outline-none text-slate-700 font-medium"
                       />
                     </div>
                   </div>
@@ -497,12 +497,12 @@ export default function MemberHome() {
                         </div>
                         <div className="text-left space-y-1">
                           <span className="text-[9px] font-bold text-teal-800 bg-teal-50 px-2 py-0.5 rounded-md uppercase tracking-wider">{p.type || "Tablet"}</span>
-                          <h4 className="text-[11px] font-extrabold text-slate-800 truncate leading-tight mt-1">{p.name}</h4>
-                          <p className="text-[10px] font-mono text-amber-705 font-bold">{formatRupiah(p.priceNumeric)}</p>
+                          <h4 className="text-[11px] font-extrabold text-slate-850 truncate leading-tight mt-1">{p.name}</h4>
+                          <p className="text-[10px] font-mono text-amber-700 font-bold">{formatRupiah(p.priceNumeric)}</p>
                         </div>
                         <button 
                           onClick={() => addToCart(p)}
-                          className="mt-3 w-full bg-slate-50 hover:bg-teal-50 hover:text-teal-800 text-slate-505 py-1.5 rounded-xl text-[10px] font-extrabold transition cursor-pointer flex items-center justify-center gap-1 border border-slate-100"
+                          className="mt-3 w-full bg-slate-50 hover:bg-teal-50 hover:text-teal-800 text-slate-500 py-1.5 rounded-xl text-[10px] font-extrabold transition cursor-pointer flex items-center justify-center gap-1 border border-slate-100"
                         >
                           <Plus className="w-3 h-3" /> Tambah
                         </button>
@@ -512,9 +512,9 @@ export default function MemberHome() {
                 </div>
 
                 {/* RINGKASAN BELANJA */}
-                <div className="lg:col-span-5 bg-white border border-[#c4b599]/20 rounded-3xl p-6 shadow-sm flex flex-col justify-between min-h-[550px]">
+                <div className="lg:col-span-5 bg-white border border-[#c4b599]/15 rounded-3xl p-6 shadow-sm flex flex-col justify-between min-h-[550px]">
                   <div className="space-y-4">
-                    <div className="flex items-center gap-2 border-b border-slate-50 pb-3 text-teal-955">
+                    <div className="flex items-center gap-2 border-b border-slate-50 pb-3 text-teal-900">
                       <ShoppingCart className="w-4 h-4" />
                       <h3 className="text-sm font-bold">Keranjang Obat VIP</h3>
                     </div>
@@ -529,10 +529,10 @@ export default function MemberHome() {
                               <h4 className="font-bold truncate">{item.product.name}</h4>
                               <span className="text-[10px] text-slate-400 font-mono">{formatRupiah(item.product.priceNumeric)}</span>
                             </div>
-                            <div className="flex items-center gap-2 bg-slate-50 border border-slate-150 rounded px-1 w-max">
-                              <button onClick={() => removeFromCart(item.product.id)} className="text-slate-400 hover:text-slate-755"><Minus className="w-3 h-3" /></button>
+                            <div className="flex items-center gap-2 bg-slate-50 border border-slate-250 rounded px-1 w-max">
+                              <button onClick={() => removeFromCart(item.product.id)} className="text-slate-400 hover:text-slate-700"><Minus className="w-3 h-3" /></button>
                               <span className="text-[10px] font-bold">{item.quantity}</span>
-                              <button onClick={() => addToCart(item.product)} className="text-slate-400 hover:text-slate-755"><Plus className="w-3 h-3" /></button>
+                              <button onClick={() => addToCart(item.product)} className="text-slate-400 hover:text-slate-700"><Plus className="w-3 h-3" /></button>
                             </div>
                             <div className="w-20 text-right font-bold text-slate-800 flex items-center justify-end gap-2 ml-2">
                               <span>{formatRupiah(item.product.priceNumeric * item.quantity)}</span>
@@ -544,7 +544,7 @@ export default function MemberHome() {
                     </div>
 
                     {/* VOUCHER DISKON */}
-                    <div className="bg-slate-50 p-3 rounded-2xl border border-slate-150/40 space-y-2 text-left">
+                    <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200/40 space-y-2 text-left">
                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Punya Voucher Belanja?</span>
                       <div className="flex gap-2">
                         <input 
@@ -560,13 +560,13 @@ export default function MemberHome() {
                         <button 
                           type="button"
                           onClick={handleApplyVoucher}
-                          className="bg-[#0f766e] hover:bg-teal-900 text-white text-xs font-bold px-4 py-2 rounded-xl transition cursor-pointer"
+                          className="bg-teal-900 hover:bg-teal-950 text-white text-xs font-bold px-4 py-2 rounded-xl transition cursor-pointer"
                         >
                           Pakai
                         </button>
                       </div>
                       {voucherError && <p className="text-rose-500 text-[10px] font-bold pl-1">{voucherError}</p>}
-                      {voucherSuccess && <p className="text-teal-750 text-[10px] font-bold pl-1">{voucherSuccess}</p>}
+                      {voucherSuccess && <p className="text-teal-700 text-[10px] font-bold pl-1">{voucherSuccess}</p>}
                       <div className="text-[9px] text-slate-400 pl-1">
                         *Kupon tersedia: <strong className="text-slate-500 font-bold">NEWUSER20</strong> (Potongan Rp 20rb), <strong className="text-slate-500 font-bold">DISKON10</strong> (Diskon 10%)
                       </div>
@@ -584,11 +584,11 @@ export default function MemberHome() {
                       />
                     </div>
 
-                    <div className="bg-slate-50 p-3.5 rounded-2xl space-y-2 text-xs text-slate-505">
+                    <div className="bg-slate-50 p-3.5 rounded-2xl space-y-2 text-xs text-slate-500">
                       <div className="flex justify-between"><span>Subtotal Belanja</span><span className="font-bold text-slate-700">{formatRupiah(subTotal)}</span></div>
                       
                       {discountRate > 0 && (
-                        <div className="flex justify-between text-teal-800">
+                        <div className="flex justify-between text-teal-850">
                           <span>Diskon VIP Tier ({discountRate * 100}%)</span>
                           <span className="font-bold">-{formatRupiah(discountAmount)}</span>
                         </div>
@@ -601,7 +601,7 @@ export default function MemberHome() {
                         </div>
                       )}
                       
-                      <div className="flex justify-between font-bold text-slate-800 border-t border-slate-200/50 pt-2 text-sm">
+                      <div className="flex justify-between font-bold text-[#042f2e] border-t border-slate-200/50 pt-2 text-sm">
                         <span>Total Bayar</span>
                         <span className="text-teal-900">{formatRupiah(finalTotal)}</span>
                       </div>
@@ -617,7 +617,7 @@ export default function MemberHome() {
                     <button 
                       type="submit" 
                       disabled={loading || cart.length === 0}
-                      className="w-full bg-teal-900 text-white hover:bg-teal-955 disabled:bg-slate-150 disabled:text-slate-400 text-xs font-bold py-3.5 rounded-xl transition shadow-md cursor-pointer active:scale-95 flex items-center justify-center gap-1.5"
+                      className="w-full bg-teal-900 text-white hover:bg-teal-950 disabled:bg-slate-200 disabled:text-slate-400 text-xs font-bold py-3.5 rounded-xl transition shadow-md cursor-pointer active:scale-95 flex items-center justify-center gap-1.5"
                     >
                       <CheckCircle className="w-4 h-4" /> 
                       {loading ? "Memproses Transaksi..." : "Bayar & Tebus Sekarang"}
@@ -639,8 +639,8 @@ export default function MemberHome() {
 
         {activeTab === "riwayat" && (
           <div className="max-w-4xl mx-auto">
-            <div className="bg-white border border-[#c4b599]/20 rounded-3xl p-6 shadow-md shadow-slate-100">
-              <h2 className="text-lg font-bold text-teal-950 mb-4 text-left">Riwayat Aktivitas & Layanan VIP</h2>
+            <div className="bg-white border border-[#c4b599]/15 rounded-3xl p-6 shadow-md shadow-slate-100">
+              <h2 className="text-lg font-bold text-teal-900 mb-4 text-left">Riwayat Aktivitas & Layanan VIP</h2>
               <div className="space-y-4">
                 {orderHistory.length === 0 ? (
                   <p className="text-center py-10 text-slate-400 text-xs font-bold">Belum ada riwayat transaksi poin</p>
@@ -649,13 +649,13 @@ export default function MemberHome() {
                     <div key={i} className="flex justify-between items-center p-4 border border-slate-100 hover:border-teal-800/20 hover:bg-[#faf8f5] rounded-2xl transition">
                       <div className="text-left flex-1 pr-4">
                         <h3 className="text-sm font-bold text-slate-800">{act.medicine_type || "Penebusan Resep"}</h3>
-                        <p className="text-xs text-slate-505 mt-1">{act.notes || "Poin Belanja Apotek"}</p>
+                        <p className="text-xs text-slate-500 mt-1">{act.notes || "Poin Belanja Apotek"}</p>
                         <span className="text-[10px] text-slate-400 block mt-2">
                           {new Date(act.created_at).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}
                         </span>
                       </div>
                       <div className="flex items-center gap-4">
-                        <span className="text-xs font-semibold text-teal-850 bg-[#e6f4f1] border border-teal-100 px-2 py-1 rounded-md">+{act.points_earned} Poin</span>
+                        <span className="text-xs font-semibold text-teal-800 bg-[#e6f4f1] border border-teal-100 px-2 py-1 rounded-md">+{act.points_earned} Poin</span>
                         <span className="text-[10px] font-bold px-2 py-1 rounded-full border bg-teal-50 text-teal-700 border-teal-100 capitalize">{act.status}</span>
                       </div>
                     </div>

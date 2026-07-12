@@ -279,7 +279,6 @@ export default function EmployeePage() {
     return matchesSearch && matchesPosition;
   });
 
-  // --- RENDER 1: HALAMAN ATTENDANCE (PRESENSI) ---
   if (isAttendanceView) {
     return (
       <div className="p-8 bg-[#faf8f5] min-h-screen font-sans text-left select-none antialiased relative">
